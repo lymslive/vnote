@@ -1,0 +1,85 @@
+#ifndef CNOTE_H__
+#define CNOTE_H__
+
+#include <string>
+#include <vector>
+#include <set>
+#include <map>
+#include "CPlainDate.h"
+#include "commdef.h"
+
+using std::string;
+using std::vector;
+using std::set;
+using std::map;
+using std::ostream;
+
+class CNoteParser;
+
+class CNote
+{
+	friend bool operator==(const CNote &lhs, const CNote &rhs);
+	friend bool operator!=(const CNote &lhs, const CNote &rhs);
+	friend bool operator<(const CNote &lhs, const CNote &rhs);
+	friend ostream & operator<<(ostream &os, const CNote &rhs);
+
+	friend class CNoteParser;
+
+public:
+	CNote() : m_date(0), m_seqno(0), m_delete(false) { }
+	CNote(const string &sFileName, const string &sBasedir = "");
+	CNote(const string &sFileName, const CNoteParser &jParser);
+	virtual ~CNote(){ };
+
+	// 从文件中读入日记
+	void ReadFile(string sFileName, const CNoteParser &jParser);
+
+	// 读取成员数据
+	string Title() { return m_title; }
+	DINT Date() { return m_date; }
+	string File() { return m_file; }
+	const set<string> Tag() const { return m_tag; }
+
+	// 该日志是否归属某标签下
+	bool InTag(string sTag);
+	void AddTag(string sTag);
+	bool RmTag(string sTag);
+
+	// 修改日期
+	bool ReDate(DINT iDate);
+	// 更改日记标题
+	void ReTitle(const string &sTitle);
+	// 移动日记文件
+	bool MoveFile(string sNewFile);
+
+	void MarkDelete() { m_delete = true; }
+	bool IsDeleted() { return m_delete; }
+
+	// 转换为一个描叙该日记对象的字符串
+	string Desc() const;
+
+private:
+	// 日记文件名格式：yyyymmdd_n_日记标题
+	DINT m_date;
+	int m_seqno;
+	string m_title;
+	// 日记可归属于多个目录及标签
+	set<string> m_tag;
+	string m_summary;
+	// 实际文件系统的文件名
+	string m_file;
+
+	// 标记已删除
+	bool m_delete;
+};
+
+// 运算符重载支持
+bool operator==(const CNote &lhs, const CNote &rhs);
+bool operator!=(const CNote &lhs, const CNote &rhs);
+bool operator<(const CNote &lhs, const CNote &rhs);
+ostream & operator<<(ostream &os, const CNote &rhs);
+
+// 收集日记指针的容器
+typedef set<CNote *> VPNOTE;
+
+#endif /* end of include guard: CNOTE_H__ */

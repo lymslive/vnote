@@ -1,0 +1,6 @@
+*.pyc
+*.swp
+doc/tags
+*.o
+*.out
+Session.vim
