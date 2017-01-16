@@ -54,6 +54,7 @@ public:
 
 	void MarkDelete() { m_delete = true; }
 	bool IsDeleted() { return m_delete; }
+	bool IsBad() { return m_bad; }
 
 	// 转换为一个描叙该日记对象的字符串
 	string Desc() const;
@@ -71,6 +72,8 @@ private:
 
 	// 标记已删除
 	bool m_delete;
+	// 不正确的日记
+	bool m_bad;
 };
 
 // 运算符重载支持

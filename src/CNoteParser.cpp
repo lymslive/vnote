@@ -1,5 +1,6 @@
 #include "CNoteParser.h"
 #include "CNote.h"
+#include "CLogTool.h"
 #include <stdlib.h>
 #include <fstream>
 
@@ -17,6 +18,7 @@ EINT CNoteParser::ReadNote(const string &sFileName, CNote &jNote) const
 	EINT iRet = SplitFileName(sFileName, jNote);
 	if (iRet != OK)
 	{
+		LOG("fails to parse not file name: %s", sFileName.c_str());
 		return iRet;
 	}
 
@@ -36,6 +38,7 @@ EINT CNoteParser::ReadNote(const string &sFileName, CNote &jNote) const
 	ifstream in(sFullName);
 	if (!in)
 	{
+		LOG("fails to open note file:%s", sFullName.c_str());
 		return NOK;
 	}
 
@@ -55,6 +58,7 @@ EINT CNoteParser::ReadNote(const string &sFileName, CNote &jNote) const
 			string sTitle = StripSharp(sLine);
 			if (sTitle.empty())
 			{
+				LOG("unexpeted occur empty note title?");
 				iRet = NOK;
 				break;
 			}
@@ -113,16 +117,27 @@ EINT CNoteParser::SplitFileName(const string &sFileName, CNote &jNote)
 
 	if (sLastName.size() < MIN_NOTE_FILENAME_LENGTH)
 	{
+		LOG("note filename too short: %s", sFileName.c_str());
 		return NOK;
 	}
 
 	// 第一部分是 yyyymmdd 8 位数
 	string sDate = sLastName.substr(0, HEAD_DATE_STRING_LENGTH);
 	jNote.m_date = atoi(sDate.c_str());
+	if (jNote.m_date <= 0)
+	{
+		LOG("fails to parse date from filename: %s", sFileName.c_str());
+		return NOK;
+	}
 
 	// 第二部分是当天日记序号
 	string sLeft = sLastName.substr(HEAD_DATE_STRING_LENGTH + 1);
 	jNote.m_seqno = atoi(sLeft.c_str());
+	if (jNote.m_seqno <= 0)
+	{
+		LOG("fails to parse seqno from filename: %s", sFileName.c_str());
+		return NOK;
+	}
 
 	// 第三部分是日记标题，第二个下划线之后部分
 	iPos = sLastName.find('_', HEAD_DATE_STRING_LENGTH + 1);
@@ -194,6 +209,7 @@ int CNoteParser::InsertNoteMete(const string &sMeta, CNote &jNote)
 {
 	if (sMeta.empty())
 	{
+		LOG("try to insert empty tag?");
 		return NOTE_META_ERROR;
 	}
 

@@ -1,5 +1,6 @@
 #include "CNote.h"
 #include "CNoteParser.h"
+#include "CLogTool.h"
 #include <sstream>
 #include <numeric>
 
@@ -7,6 +8,7 @@ CNote::CNote(const string &sFileName, const string &sBasedir) :
 	m_date(0),
 	m_seqno(0),
 	m_delete(false),
+	m_bad(false),
 	m_file(sFileName)
 {
 	CNoteParser jParser(sBasedir);
@@ -17,6 +19,7 @@ CNote::CNote(const string &sFileName, const CNoteParser &jParser) :
 	m_date(0),
 	m_seqno(0),
 	m_delete(false),
+	m_bad(false),
 	m_file(sFileName)
 {
 	ReadFile(sFileName, jParser);
@@ -25,6 +28,11 @@ CNote::CNote(const string &sFileName, const CNoteParser &jParser) :
 void CNote::ReadFile(string sFileName, const CNoteParser &jParser)
 {
 	EINT iRet = jParser.ReadNote(sFileName, *this);
+	if (iRet != OK)
+	{
+		LOG("fails to read note: %s", sFileName.c_str());
+		m_bad = true;
+	}
 }
 
 bool CNote::InTag(string sTag)
@@ -42,6 +50,7 @@ void CNote::AddTag(string sTag)
 {
 	if (sTag.empty())
 	{
+		LOG("try to add empty tag?");
 		return;
 	}
 
@@ -59,6 +68,7 @@ bool CNote::ReDate(DINT iDate)
 	CPlainDate jDate(iDate);
 	if (!jDate.IsValid())
 	{
+		LOG("invalid date: %d", iDate);
 		return false;
 	}
 
@@ -70,6 +80,7 @@ void CNote::ReTitle(const string &sTitle)
 {
 	if (sTitle.empty())
 	{
+		LOG("try to retitle to empty string?");
 		return;
 	}
 
@@ -80,6 +91,7 @@ bool CNote::MoveFile(string sNewFile)
 {
 	if (sNewFile.empty())
 	{
+		LOG("try to move file to empty path?");
 		return false;
 	}
 
