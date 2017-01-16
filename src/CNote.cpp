@@ -3,13 +3,21 @@
 #include <sstream>
 #include <numeric>
 
-CNote::CNote(const string &sFileName, const string &sBasedir) : m_date(0), m_seqno(0), m_delete(false)
+CNote::CNote(const string &sFileName, const string &sBasedir) :
+	m_date(0),
+	m_seqno(0),
+	m_delete(false),
+	m_file(sFileName)
 {
 	CNoteParser jParser(sBasedir);
 	ReadFile(sFileName, jParser);
 }
 
-CNote::CNote(const string &sFileName, const CNoteParser &jParser) : m_date(0), m_seqno(0), m_delete(false)
+CNote::CNote(const string &sFileName, const CNoteParser &jParser) :
+	m_date(0),
+	m_seqno(0),
+	m_delete(false),
+	m_file(sFileName)
 {
 	ReadFile(sFileName, jParser);
 }
@@ -88,7 +96,10 @@ string CNote::Desc() const
 	using std::endl;
 
 	ostringstream str;
-	str << m_title << endl;
+	str << "File:  " << m_file << endl;
+	str << "Title: " << m_title << endl;
+	str << "Date:  " << m_date << endl;
+	str << "Tags:  ";
 
 	for (auto it = m_tag.begin(); it != m_tag.end(); ++it)
 	{
@@ -96,8 +107,6 @@ string CNote::Desc() const
 		str << item << ", ";
 	}
 	str << endl;
-
-	str << m_file;
 
 	return str.str();
 }
@@ -123,3 +132,27 @@ ostream & operator<<(ostream &os, const CNote &rhs)
 	os << rhs.Desc();
 	return os;
 }
+
+#ifdef CNOTE_TEST
+
+#include <iostream>
+using std::cout;
+using std::cerr;
+using std::endl;
+int main(int argc, char *argv[])
+{
+	if (argc < 2) // 程序本身算一个参数
+	{
+		cerr << "need a filename as argument" << endl;
+		return -1;
+	}
+
+	// 命令行参数1为文件名
+	string sFileName(argv[1]);
+
+	CNote jNote(sFileName);
+	cout << jNote << endl;
+
+	return 0;
+}
+#endif

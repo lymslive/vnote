@@ -58,6 +58,7 @@ EINT CNoteParser::ReadNote(const string &sFileName, CNote &jNote) const
 				iRet = NOK;
 				break;
 			}
+			jNote.m_title = sTitle;
 			continue;
 		}
 
@@ -169,13 +170,13 @@ int CNoteParser::ParseNoteMeta(const string &sLine, CNote &jNote)
 		}
 
 		iStopPos = sLine.find(cQuote, iStartPos);
-		if (iStopPos == string::npos || iStopPos - 1 > iStartPos)
+		if (iStopPos == string::npos || iStopPos - iStartPos <= 0)
 		{
 			break;
 		}
 
 		// 提取引号中间部分
-		string sMeta = sLine.substr(iStartPos, iStopPos-1);
+		string sMeta = sLine.substr(iStartPos, iStopPos - iStartPos);
 		int iType = InsertNoteMete(sMeta, jNote);
 		if (iType != NOTE_META_ERROR)
 		{

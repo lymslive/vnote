@@ -3,5 +3,6 @@
 doc/tags
 *.o
 *.out
+core.*
 Session.vim
 _box/
