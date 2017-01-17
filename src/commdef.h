@@ -10,9 +10,6 @@ const EINT NOK = -1;
 #define continue_if(expr) if(expr) continue
 #define return_if(expr, args...) do{if (expr){return args;}}while(0)
 
-#define ASSERT_RET(expr, args...) do{if (!(expr)){ return args;}}while(0)
-
-
 // 日志标签路径分隔符
 const char PATH_SEP = '/';
 

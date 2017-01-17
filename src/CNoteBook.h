@@ -13,7 +13,7 @@ class CNoteBook
 public:
 	CNoteBook();
 	CNoteBook(const string &sBasedir);
-	virtual ~CNoteBook();
+	~CNoteBook();
 
 private:
 	// 日记本所在的根目录
@@ -25,8 +25,6 @@ private:
 
 	// 日期索引
 	map<DINT, VPNOTE> m_dateIndex;
-	// 标签索引
-	map<string, VPNOTE> m_tagIndex;
 	// 虚拟目录层次
 	CNotePath *m_rootPath;
 
@@ -39,8 +37,11 @@ public:
 
 	// 建立索引与目录树，参数表示是否强制重建
 	void BuildDateIndex(bool bRebuild = false);
-	void BuildTagInex(bool bRebuild = false);
 	void BuildPathTree(bool bRebuild = false);
+
+	// 根据索引获取一组日记指针
+	const VPNOTE *DateIndex(DINT iDate);
+	const VPNOTE *TagIndex(const string &sTag) const;
 
 	// 增加一个新日记，返回日记指针
 	CNote *AddNewNote();
@@ -52,6 +53,9 @@ public:
 	void DelNoteTag(CNote *pNote, string sTag);
 	void ChangeNoteDate(CNote *pNote, DINT iDate);
 	void ChangeNoteTitle(CNote *pNote, const string &sTitle);
+
+	// 修改标签
+	void ChangeBookTag(const string &sOldTag, const string &sNewTag);
 
 private:
 	// 禁用拷贝与赋值

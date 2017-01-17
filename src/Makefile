@@ -1,5 +1,5 @@
 # 选择编译入口 main 代码，一些类文件中有独立的测试 main 函数
-SELECT = -DCNOTE_TEST
+SELECT = -DCFILEDIR_TEST
 
 # C++ 编译器
 CXX = g++ -std=c++0x

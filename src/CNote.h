@@ -58,6 +58,8 @@ public:
 
 	// 转换为一个描叙该日记对象的字符串
 	string Desc() const;
+	// 日期与序号联接，可作为日记ID
+	string NoteID() const;
 
 private:
 	// 日记文件名格式：yyyymmdd_n_日记标题

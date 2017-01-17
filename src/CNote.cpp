@@ -102,6 +102,16 @@ bool CNote::MoveFile(string sNewFile)
 	return true;
 }
 
+string CNote::NoteID() const
+{
+	using std::ostringstream;
+
+	ostringstream str;
+	str << m_date << "_" << m_seqno;
+
+	return str.str();
+}
+
 string CNote::Desc() const
 {
 	using std::ostringstream;

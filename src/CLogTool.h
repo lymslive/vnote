@@ -17,6 +17,8 @@ private:
 };
 
 #define SOURCE_INOF __FILE__, __LINE__, __FUNCTION__
-#define LOG(msg, arg...) do{CLogTool::Instance()->FlushLog(SOURCE_INOF, msg, ##arg);}while(0)
+#define LOG(msg, args...) do{CLogTool::Instance()->FlushLog(SOURCE_INOF, msg, ##args);}while(0)
+#define ASSERT_RET(expr, arg...) do{if (!(expr)){ LOG("assert \"%s\" failed", #expr); return arg;}}while(0)
+#define ASSERT(expr) do{if (!(expr)){ LOG("assert \"%s\" failed", #expr);}}while(0)
 
 #endif /* end of include guard: CLOGTOOL_H__ */

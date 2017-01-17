@@ -1,5 +1,6 @@
 #include "CNotePath.h"
 #include "commdef.h"
+#include "CLogTool.h"
 
 CNotePath::CNotePath()
 {
@@ -36,6 +37,7 @@ CNotePath * CNotePath::AddChild(const string &sName)
 {
 	if (!ValidPathName(sName))
 	{
+		LOG("invalid tag name: %s", sName.c_str());
 		return NULL;
 	}
 
@@ -56,6 +58,7 @@ CNotePath * CNotePath::AddChild(const vector<string> &vsPath)
 {
 	if (vsPath.empty())
 	{
+		LOG("try to add empty tag path?");
 		return NULL;
 	}
 
@@ -84,6 +87,7 @@ CNotePath * CNotePath::Child(const string &sName)
 {
 	if (!ValidPathName(sName))
 	{
+		LOG("invalid tag name: %s", sName.c_str());
 		return NULL;
 	}
 
@@ -101,6 +105,7 @@ CNotePath * CNotePath::Child(const vector<string> &vsPath)
 {
 	if (vsPath.empty())
 	{
+		LOG("try to query empty tag path?");
 		return NULL;
 	}
 

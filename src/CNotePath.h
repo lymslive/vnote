@@ -35,7 +35,7 @@ public:
 	void AddNote(CNote *pNote);
 	// 从该目录中删除一个日记
 	void DelNote(CNote *pNote);
-	const set<CNote *> &Notes() { return m_notes; }
+	const VPNOTE &Notes() { return m_notes; }
 
 	// 清空目录树
 	void Clear();
@@ -54,7 +54,7 @@ private:
 	// 子目录列表
 	map<string, CNotePath *> m_children;
 	// 当前目录下的日记
-	set<CNote *> m_notes;
+	VPNOTE m_notes;
 
 private:
 	// 禁用拷贝与赋值

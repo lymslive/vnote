@@ -2,6 +2,7 @@
 #include "CNote.h"
 #include "CNotePath.h"
 #include "CNoteParser.h"
+#include "CLogTool.h"
 #include <algorithm>
 
 CNoteBook::CNoteBook() : m_parser(NULL), m_rootPath(NULL)
@@ -70,30 +71,6 @@ void CNoteBook::BuildDateIndex(bool bRebuild)
 	}
 }
 
-void CNoteBook::BuildTagInex(bool bRebuild)
-{
-	if (!m_tagIndex.empty() && !bRebuild)
-	{
-		return;
-	}
-
-	m_tagIndex.clear();
-
-	for (auto it = m_vpNote.begin(); it != m_vpNote.end(); ++it)
-	{
-		CNote *pNote = *it;
-		ASSERT_RET(pNote);
-
-		// 多标签
-		const set<string> vTag = pNote->Tag();
-		for (auto jt = vTag.begin(); jt != vTag.end(); ++jt)
-		{
-			const string &sTag = *jt;
-			m_tagIndex[sTag].insert(pNote);
-		}
-	}
-}
-
 void CNoteBook::BuildPathTree(bool bRebuild)
 {
 	if (m_rootPath)
@@ -111,6 +88,11 @@ void CNoteBook::BuildPathTree(bool bRebuild)
 
 	// 新建一个根目录结点
 	m_rootPath = new CNotePath("/");
+	if (!m_rootPath)
+	{
+		LOG("fails to allocat space for CNotePath");
+		return;
+	}
 
 	for (auto it = m_vpNote.begin(); it != m_vpNote.end(); ++it)
 	{
@@ -129,9 +111,40 @@ void CNoteBook::BuildPathTree(bool bRebuild)
 			}
 			else
 			{
-				//log
+				LOG("fails to add path for: %s", sTag.c_str());
 			}
 		}
+	}
+}
+
+const VPNOTE *CNoteBook::DateIndex(DINT iDate)
+{
+	if (m_dateIndex.count(iDate))
+	{
+		return &m_dateIndex[iDate];
+	}
+	else
+	{
+		return NULL;
+	}
+}
+
+const VPNOTE *CNoteBook::TagIndex(const string &sTag) const
+{
+	if (!m_rootPath)
+	{
+		LOG("this Note Book has not build Path Tree");
+		return NULL;
+	}
+
+	CNotePath *pChild = m_rootPath->ChildPath(sTag);
+	if (pChild)
+	{
+		return &pChild->Notes();
+	}
+	else
+	{
+		return NULL;
 	}
 }
 
@@ -162,12 +175,10 @@ void CNoteBook::AddNoteTag(CNote *pNote, string sTag)
 	// 先给日志本身加标签
 	if (pNote->InTag(sTag))
 	{
+		LOG("the note[%s] has already tag[%s]", pNote->NoteID().c_str(), sTag.c_str());
 		return;
 	}
 	pNote->AddTag(sTag);
-
-	// 添加至标签索引
-	m_tagIndex[sTag].insert(pNote);
 
 	// 添加至目录树索引
 	CNotePath *pChild = m_rootPath->AddChildPath(sTag);
@@ -177,7 +188,7 @@ void CNoteBook::AddNoteTag(CNote *pNote, string sTag)
 	}
 	else
 	{
-		//log
+		LOG("fails to add path for: %s", sTag.c_str());
 	}
 }
 
@@ -188,15 +199,10 @@ void CNoteBook::DelNoteTag(CNote *pNote, string sTag)
 	// 删除日志的相应标签
 	if (!pNote->InTag(sTag))
 	{
+		LOG("the note[%s] donot have tag[%s]", pNote->NoteID().c_str(), sTag.c_str());
 		return;
 	}
 	pNote->RmTag(sTag);
-
-	// 索引存在
-	if (m_tagIndex.count(sTag) > 0)
-	{
-		m_tagIndex[sTag].erase(pNote);
-	}
 
 	CNotePath *pChild = m_rootPath->ChildPath(sTag);
 	if (pChild)
@@ -225,6 +231,12 @@ void CNoteBook::ChangeNoteTitle(CNote *pNote, const string &sTitle)
 {
 	ASSERT_RET(pNote);
 	pNote->ReTitle(sTitle);
+}
+
+void CNoteBook::ChangeBookTag(const string &sOldTag, const string &sNewTag)
+{
+	// todo, 有点复杂，需同步编辑修改每个日记文件的内容
+	// 重建内部对象的索引倒还好说
 }
 
 CNoteBook::CNoteBook(const CNoteBook &that) // =delete
