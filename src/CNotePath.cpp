@@ -139,6 +139,61 @@ CNotePath * CNotePath::Root()
 	return pParent;
 }
 
+string CNotePath::FullName() const
+{
+	vector<string> vsPath;
+	vsPath.push_back(m_name);
+
+	// 上溯取得各父目录名
+	const CNotePath *pParent = this;
+	while (pParent->m_parent)
+	{
+		pParent = pParent->m_parent;
+		vsPath.push_back(pParent->m_name);
+	}
+
+	// 反向接接全路径
+	int iPos = vsPath.size();
+	string sFullName = vsPath[--iPos];
+	while (--iPos >= 0)
+	{
+		sFullName += PATH_SEP;
+		sFullName += vsPath[iPos];
+	}
+
+	return sFullName;
+}
+
+string CNotePath::RelativeName() const
+{
+	if (!m_parent)
+	{
+		// 已经是根目录，返回空字符串
+		return string();
+	}
+
+	vector<string> vsPath;
+
+	// 上溯取得各父目录名
+	const CNotePath *pParent = this;
+	while (pParent->m_parent)
+	{
+		vsPath.push_back(pParent->m_name);
+		pParent = pParent->m_parent;
+	}
+
+	// 反向接接全路径
+	int iPos = vsPath.size();
+	string sFullName = vsPath[--iPos];
+	while (--iPos >= 0)
+	{
+		sFullName += PATH_SEP;
+		sFullName += vsPath[iPos];
+	}
+
+	return sFullName;
+}
+
 void CNotePath::AddNote(CNote *pNote)
 {
 	ASSERT_RET(pNote);
@@ -198,6 +253,54 @@ bool CNotePath::ValidPathName(const string &sName)
 	{
 		return true;
 	}
+}
+
+int CNotePath::CountTagDown()
+{
+	int iCount = m_children.size();
+
+	for (auto it = m_children.begin(); it != m_children.end(); ++it)
+	{
+		if (it->second)
+		{
+			iCount += it->second->CountTagDown();
+		}
+	}
+
+	return iCount;
+}
+
+int CNotePath::CountTagDown(map<string, int> &vmTags)
+{
+	int iCount = m_children.size();
+
+	string sFullName = RelativeName();
+	string sChildTag;
+
+	for (auto it = m_children.begin(); it != m_children.end(); ++it)
+	{
+		if (!it->second)
+		{
+			continue;
+		}
+
+		if (sFullName.empty())
+		{
+			sChildTag = it->first;
+		}
+		else
+		{
+			sChildTag = sFullName + PATH_SEP + it->first;
+		}
+
+		// 该子标签所含日记数
+		vmTags[sChildTag] = it->second->m_notes.size();
+
+		// 深度优先递归
+		iCount += it->second->CountTagDown(vmTags);
+	}
+
+	return iCount;
 }
 
 CNotePath::CNotePath(const CNotePath &that)// =delete

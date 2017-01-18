@@ -4,17 +4,20 @@
 #include "CNoteParser.h"
 #include "CLogTool.h"
 #include <algorithm>
+#include "CFileDir.h"
+#include <fstream>
+#include <sstream>
 
-CNoteBook::CNoteBook() : m_parser(NULL), m_rootPath(NULL)
+CNoteBook::CNoteBook() : m_rootPath(NULL)
 {
 }
 
 CNoteBook::CNoteBook(const string &sBasedir) :
-	m_basedir(sBasedir),
-	m_parser(NULL),
-	m_rootPath(NULL)
+	// m_basedir(sBasedir),
+	m_rootPath(NULL),
+	m_ready(false)
 {
-	m_parser = new CNoteParser(m_basedir);
+	ImportFromDir(sBasedir);
 }
 
 CNoteBook::~CNoteBook()
@@ -37,19 +40,99 @@ CNoteBook::~CNoteBook()
 		m_rootPath = NULL;
 	}
 
-	if (m_parser)
+}
+
+EINT CNoteBook::ImportFromDir(const string &sBasedir)
+{
+	if (m_ready)
 	{
-		delete m_parser;
-		m_parser = NULL;
+		LOG("this book has been ready: %s", m_basedir.c_str());
+		return NOK;
 	}
+
+	if (sBasedir.empty())
+	{
+		LOG("try to import note book from empty named directory?");
+		return NOK;
+	}
+
+	m_basedir = CFileDir::TrimTailSlash(sBasedir);
+
+	// 获取文件列表
+	CFileDir jDir(sBasedir);
+	vector<string> vsFileList;
+	jDir.GetAllFiles(vsFileList, 0);
+
+	return CreateNoteBook(vsFileList);
 }
 
-void CNoteBook::ImportFromDir()
+EINT CNoteBook::ImportFromFileList(const string &sFileList)
 {
+	if (sFileList.empty())
+	{
+		LOG("try to import notebook from empty named file-list");
+		return NOK;
+	}
+
+	// 文件所在目录视为日记本目录
+	string sBasedir = CFileDir::GetDirPart(sFileList);
+	m_basedir = sBasedir;
+
+	// 读入文件名列表
+	vector<string> vsFileList;
+
+	using std::ifstream;
+	ifstream fin(sFileList);
+	if (!fin)
+	{
+		LOG("fails to open note file:%s", sFileList.c_str());
+		return NOK;
+	}
+
+	string sLine;
+	while (std::getline(fin, sLine))
+	{
+		if (sLine.empty())
+		{
+			continue;
+		}
+		vsFileList.push_back(sLine);
+	}
+
+	fin.close();
+
+	return CreateNoteBook(vsFileList);
 }
 
-void CNoteBook::ImportFromFileList(string sFileList)
+EINT CNoteBook::CreateNoteBook(const vector<string> &vsFileList)
 {
+	// 先创建所有日记
+	for (auto it = vsFileList.begin(); it != vsFileList.end(); ++it)
+	{
+		string sFileName = m_basedir + PATH_SEP + *it;
+		// 过滤不合适的文件名
+		if (!CNoteParser::FilterFileName(*it))
+		{
+			continue;
+		}
+
+		CNote *pNote = new CNote(*it, m_basedir);
+		if (!pNote)
+		{
+			LOG("fails to allocate space for CNote");
+			return NOK;
+		}
+
+		m_vpNote.insert(pNote);
+	}
+
+	// 创建索引
+	BuildDateIndex(true);
+	BuildPathTree(true);
+
+	m_ready = true;
+
+	return OK;
 }
 
 void CNoteBook::BuildDateIndex(bool bRebuild)
@@ -239,7 +322,99 @@ void CNoteBook::ChangeBookTag(const string &sOldTag, const string &sNewTag)
 	// 重建内部对象的索引倒还好说
 }
 
+string CNoteBook::Desc() const
+{
+	using std::ostringstream;
+	using std::endl;
+
+	ostringstream str;
+	str << "NoteBook  :  " << m_basedir << endl;
+	str << "Note Count: " << m_vpNote.size() << endl;
+	if (m_rootPath)
+	{
+		str << "Tags Count:  " << m_rootPath->CountTagDown() << endl;
+	}
+
+	return str.str();
+}
+
 CNoteBook::CNoteBook(const CNoteBook &that) // =delete
 {
 }
 
+/*********** 单元测试 ***********/
+
+#ifdef CNOTEBOOK_TEST
+#include <iostream>
+#include "stdlib.h"
+
+using std::cout;
+using std::cin;
+using std::cerr;
+using std::endl;
+
+int main(int argc, char *argv[])
+{
+	if (argc < 2)
+	{
+		cerr << "command line argument: basedir" << endl;
+		return -1;
+	}
+
+	string sBasedir(argv[1]);
+
+	// 将整个目录读入 notebook
+	CNoteBook jBook(sBasedir);
+	cout << jBook.Desc() << endl;
+
+	string sTag;
+	DINT iDate = 0;
+	const VPNOTE *pNoteSet = NULL;
+	int iMaxView = 10;
+
+	// 轮询日期或标签
+	cout << "Input a query date or tag: ";
+	while (std::getline(cin, sTag))
+	{
+		pNoteSet = NULL;
+
+		iDate = atoi(sTag.c_str());
+		if (iDate > 0)
+		{
+			pNoteSet = jBook.DateIndex(iDate);
+		}
+		else
+		{
+			pNoteSet = jBook.TagIndex(sTag);
+		}
+
+		if (pNoteSet)
+		{
+			cout << "note found: " << pNoteSet->size() << endl;
+			int i = 0;
+			for (auto it = pNoteSet->begin(); it != pNoteSet->end(); ++it)
+			{
+				const CNote *pNote = *it;
+				if (!pNote)
+				{
+					cerr << "occur NULL CNote pointer in date index:" << iDate << endl;
+				}
+				cout << *pNote << endl;
+
+				if (++i > iMaxView)
+				{
+					break;
+				}
+			}
+		}
+		else
+		{
+			cerr << "no note found!" << endl;
+		}
+
+		cout << "Input a query date or tag: ";
+	}
+
+	return 0;
+}
+#endif

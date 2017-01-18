@@ -4,6 +4,7 @@
 
 #include <string>
 #include "commdef.h"
+#include "CPlainDate.h"
 
 using std::string;
 
@@ -11,19 +12,17 @@ class CNote;
 
 class CNoteParser
 {
+	// 静态方法
 public:
-	CNoteParser();
-	CNoteParser(const string &sBasedir);
-	// virtual ~CNoteParser();
+	// 读取日记文件，若成功，返回新建的日记
+	static CNote *ReadNote(const string &sFileName);
+	// 将日记读入已存在的日记对象中，文件名提供为全路径
+	static EINT ReadNote(const string &sFileName, CNote &jNote);
 
-	EINT ReadNote(const string &sFileName, CNote &jNote) const;
-private:
-	// 需要保存一个基准目录，日记文件相对路径
-	string m_basedir;
-
-public:
 	// 拆分文件名格式
 	static EINT SplitFileName(const string &sFileName, CNote &jNote);
+	// 过滤文件名，合适的文件名返回 true
+	static bool FilterFileName(const string &sFileName);
 
 	// 移除文本行前导的空格与 # 符号，返回剩余部分的复制
 	static string StripSharp(const string &sText);
@@ -36,6 +35,18 @@ public:
 
 	// 三类元数据类型，日期，路径，标签
 	enum ENoteMetaType { NOTE_META_ERROR, NOTE_META_DATE, NOTE_META_PATH, NOTE_META_TAG, };
+
+	// 缓存文件名解析结果
+	struct SFileNamePart
+	{
+		string sFileName;
+		bool bValid;
+		DINT iDate;
+		int iSeqno;
+		string sTitle;
+	};
+	static SFileNamePart m_sCache;
+
 };
 
 #endif /* end of include guard: CNOTEPARSER_H__ */

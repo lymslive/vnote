@@ -30,6 +30,9 @@ public:
 	// 向上查找父目录及至根结点，要结点的父目录为空
 	CNotePath *Parent() { return m_parent; }
 	CNotePath *Root();
+	// 全路径名与去相对路径名(除根目录名)
+	string FullName() const;
+	string RelativeName() const;
 
 	// 添加一个日记至该目录
 	void AddNote(CNote *pNote);
@@ -46,6 +49,10 @@ public:
 
 	// 目录名是否合法
 	static bool ValidPathName(const string &sName);
+
+	// 向下统计共有多少标签，如果传入 map ，则分别统计每个标签下的日记数量
+	int CountTagDown();
+	int CountTagDown(map<string, int> &vmTags);
 private:
 	// 当前目录名
 	string m_name;

@@ -3,16 +3,29 @@
 #include "CLogTool.h"
 #include <stdlib.h>
 #include <fstream>
+#include "CFileDir.h"
 
-CNoteParser::CNoteParser()
+// 静态类成员初始化
+CNoteParser::SFileNamePart CNoteParser::m_sCache;
+
+CNote* CNoteParser::ReadNote(const string &sFileName)
 {
+	if (!FilterFileName(sFileName))
+	{
+		return NULL;
+	}
+
+	CNote *pNote = new CNote(sFileName);
+	if (!pNote)
+	{
+		LOG("fails to allocate space for CNote");
+		return NULL;
+	}
+
+	return pNote;
 }
 
-CNoteParser::CNoteParser(const string &sBasedir) : m_basedir(sBasedir)
-{
-}
-
-EINT CNoteParser::ReadNote(const string &sFileName, CNote &jNote) const
+EINT CNoteParser::ReadNote(const string &sFileName, CNote &jNote)
 {
 	// 拆分文件名
 	EINT iRet = SplitFileName(sFileName, jNote);
@@ -22,23 +35,12 @@ EINT CNoteParser::ReadNote(const string &sFileName, CNote &jNote) const
 		return iRet;
 	}
 
-	// 获取完整路径名
-	string sFullName;
-	if (sFileName[0] != '/' & !m_basedir.empty())
-	{
-		sFullName = m_basedir + '/' + sFileName;
-	}
-	else
-	{
-		sFullName = sFileName;
-	}
-
 	// 打开文件
 	using std::ifstream;
-	ifstream in(sFullName);
-	if (!in)
+	ifstream fin(sFileName);
+	if (!fin)
 	{
-		LOG("fails to open note file:%s", sFullName.c_str());
+		LOG("fails to open note file:%s", sFileName.c_str());
 		return NOK;
 	}
 
@@ -49,7 +51,7 @@ EINT CNoteParser::ReadNote(const string &sFileName, CNote &jNote) const
 	bool bMetaStart = false;
 	bool bMetaStop = false;
 
-	while (std::getline(in, sLine))
+	while (std::getline(fin, sLine))
 	{
 		iLineNo ++;
 		// 第一行是标题
@@ -96,57 +98,78 @@ EINT CNoteParser::ReadNote(const string &sFileName, CNote &jNote) const
 		break_if(iLineNo > MAX_NOTE_FILE_HEAD_LINE);
 	}
 
-	in.close();
+	fin.close();
 	return iRet;
 }
 
 EINT CNoteParser::SplitFileName(const string &sFileName, CNote &jNote)
 {
-	string sLastName;
-
-	// 取文件全路径名最后一部分，最后一个 / 之后部分
-	string::size_type iPos = sFileName.rfind('/');
-	if (iPos != string::npos && ++iPos != sFileName.size())
+	string sLastName = CFileDir::GetFilePart(sFileName);
+	if (sLastName.compare(m_sCache.sFileName) != 0)
 	{
-		sLastName = sFileName.substr(iPos);
+		FilterFileName(sFileName);
+	}
+
+	if (!m_sCache.bValid)
+	{
+		DLOG("invalid note filename: %s", sFileName.c_str());
+		return NOK;
 	}
 	else
 	{
-		sLastName = sFileName;
+		jNote.m_date = m_sCache.iDate;
+		jNote.m_seqno = m_sCache.iSeqno;
+		jNote.m_title = m_sCache.sTitle;
 	}
+
+	return OK;
+}
+
+bool CNoteParser::FilterFileName(const string &sFileName)
+{
+	string sLastName = CFileDir::GetFilePart(sFileName);
+
+	if (sLastName.compare(m_sCache.sFileName) == 0)
+	{
+		return m_sCache.bValid;
+	}
+
+	m_sCache.sFileName = sLastName;
+	m_sCache.bValid = false;
 
 	if (sLastName.size() < MIN_NOTE_FILENAME_LENGTH)
 	{
-		LOG("note filename too short: %s", sFileName.c_str());
-		return NOK;
+		DLOG("note filename too short: %s", sLastName.c_str());
+		return false;
 	}
 
 	// 第一部分是 yyyymmdd 8 位数
 	string sDate = sLastName.substr(0, HEAD_DATE_STRING_LENGTH);
-	jNote.m_date = atoi(sDate.c_str());
-	if (jNote.m_date <= 0)
+	m_sCache.iDate = atoi(sDate.c_str());
+	if (m_sCache.iDate <= 0)
 	{
-		LOG("fails to parse date from filename: %s", sFileName.c_str());
-		return NOK;
+		DLOG("fails to parse date from filename: %s", sLastName.c_str());
+		return false;
 	}
 
 	// 第二部分是当天日记序号
 	string sLeft = sLastName.substr(HEAD_DATE_STRING_LENGTH + 1);
-	jNote.m_seqno = atoi(sLeft.c_str());
-	if (jNote.m_seqno <= 0)
+	m_sCache.iSeqno = atoi(sLeft.c_str());
+	if (m_sCache.iSeqno <= 0)
 	{
-		LOG("fails to parse seqno from filename: %s", sFileName.c_str());
-		return NOK;
+		DLOG("fails to parse seqno from filename: %s", sLastName.c_str());
+		return false;
 	}
 
 	// 第三部分是日记标题，第二个下划线之后部分
-	iPos = sLastName.find('_', HEAD_DATE_STRING_LENGTH + 1);
+	string::size_type iPos = sLastName.find('_', HEAD_DATE_STRING_LENGTH + 1);
 	if (iPos != string::npos && ++iPos != sLastName.size())
 	{
-		jNote.m_title = sLastName.substr(iPos);
+		m_sCache.sTitle = sLastName.substr(iPos);
 	}
 
-	return OK;
+	m_sCache.bValid = true;
+	return true;
 }
 
 string CNoteParser::StripSharp(const string &sText)

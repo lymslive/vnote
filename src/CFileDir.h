@@ -33,10 +33,13 @@ public:
 	CFileDir *RootDir();
 	// 全路径名
 	string FullName() const;
+	// 相对路径名，全路径名去除根目录名
+	string RelativeName() const;
 
-	// 递归展开所有文件名（相对本目录），存入 vsFileList 之后
+	// 递归展开所有文件名（包含），存入 vsFileList 之后
 	// 可指定目录深度，默认 0 不限，1 表示只含当前目录
 	// 只含普通文件名，不包括目录名
+	// 宜由根目录对象调用，输出文件名为相对根目录的相对路径名
 	void GetAllFiles(vector<string> &vsFileList, int iDepth = 0);
 private:
 	// 当前目录名
@@ -50,6 +53,18 @@ private:
 
 	// 已读取子目录标记位
 	bool m_subRead;
+
+private:
+	// 禁用拷贝与赋值
+	CFileDir(const CFileDir &that);
+	CFileDir &operator=(const CFileDir &that);
+
+public:
+	// 分隔路径中的目录部分与文件名部分
+	static string GetDirPart(const string &sFileName);
+	static string GetFilePart(const string &sFileName);
+	// 去除目录名尾部可能的 /
+	static string TrimTailSlash(const string &sFileName);
 };
 
 #endif /* end of include guard: CFILEDIR_H__ */

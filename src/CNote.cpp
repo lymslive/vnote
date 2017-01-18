@@ -11,23 +11,19 @@ CNote::CNote(const string &sFileName, const string &sBasedir) :
 	m_bad(false),
 	m_file(sFileName)
 {
-	CNoteParser jParser(sBasedir);
-	ReadFile(sFileName, jParser);
+	if (sBasedir.empty())
+	{
+		ReadFile(sFileName);
+	}
+	else
+	{
+		ReadFile(sBasedir + PATH_SEP + sFileName);
+	}
 }
 
-CNote::CNote(const string &sFileName, const CNoteParser &jParser) :
-	m_date(0),
-	m_seqno(0),
-	m_delete(false),
-	m_bad(false),
-	m_file(sFileName)
+void CNote::ReadFile(string sFileName)
 {
-	ReadFile(sFileName, jParser);
-}
-
-void CNote::ReadFile(string sFileName, const CNoteParser &jParser)
-{
-	EINT iRet = jParser.ReadNote(sFileName, *this);
+	EINT iRet = CNoteParser::ReadNote(sFileName, *this);
 	if (iRet != OK)
 	{
 		LOG("fails to read note: %s", sFileName.c_str());

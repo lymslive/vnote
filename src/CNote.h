@@ -28,11 +28,10 @@ class CNote
 public:
 	CNote() : m_date(0), m_seqno(0), m_delete(false) { }
 	CNote(const string &sFileName, const string &sBasedir = "");
-	CNote(const string &sFileName, const CNoteParser &jParser);
 	virtual ~CNote(){ };
 
 	// 从文件中读入日记
-	void ReadFile(string sFileName, const CNoteParser &jParser);
+	void ReadFile(string sFileName);
 
 	// 读取成员数据
 	string Title() { return m_title; }
@@ -84,7 +83,15 @@ bool operator!=(const CNote &lhs, const CNote &rhs);
 bool operator<(const CNote &lhs, const CNote &rhs);
 ostream & operator<<(ostream &os, const CNote &rhs);
 
+// 重定义指针的小于
+class CNoteCompare
+{
+public:
+	bool operator() (CNote* const& lhs, CNote* const& rhs) { return *lhs < *rhs; }
+	bool operator() (const CNote &lhs, const CNote &rhs) { return lhs < rhs; }
+};
+
 // 收集日记指针的容器
-typedef set<CNote *> VPNOTE;
+typedef set<CNote *, CNoteCompare> VPNOTE;
 
 #endif /* end of include guard: CNOTE_H__ */

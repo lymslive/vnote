@@ -16,15 +16,7 @@ CFileDir::CFileDir(const string &sName, CFileDir *pParent) :
 	}
 
 	// 去除目录名尾部可能的 /
-	int iEndPos = sName.size() - 1;
-	if (sName[iEndPos] == PATH_SEP && sName.size() > 1)
-	{
-		m_name = sName.substr(0, iEndPos);
-	}
-	else
-	{
-		m_name = sName;
-	}
+	m_name = TrimTailSlash(sName);
 
 	ReadCurDir();
 }
@@ -158,11 +150,44 @@ string CFileDir::FullName() const
 	return sFullName;
 }
 
+string CFileDir::RelativeName() const
+{
+	if (!m_parent)
+	{
+		// 已经是根目录，返回空字符串
+		return string();
+	}
+
+	vector<string> vsPath;
+
+	// 上溯取得各父目录名
+	const CFileDir *pParent = this;
+	while (pParent->m_parent)
+	{
+		vsPath.push_back(pParent->m_name);
+		pParent = pParent->m_parent;
+	}
+
+	// 反向接接全路径
+	int iPos = vsPath.size();
+	string sFullName = vsPath[--iPos];
+	while (--iPos >= 0)
+	{
+		sFullName += PATH_SEP;
+		sFullName += vsPath[iPos];
+	}
+
+	return sFullName;
+}
+
 void CFileDir::GetAllFiles(vector<string> &vsFileList, int iDepth)
 {
 	// 本目录的文件
-	string sFullPath = FullName();
-	sFullPath += PATH_SEP;
+	string sFullPath = RelativeName();
+	if (!sFullPath.empty())
+	{
+		sFullPath += PATH_SEP;
+	}
 
 	for (auto it = m_files.begin(); it != m_files.end(); ++it)
 	{
@@ -189,6 +214,66 @@ void CFileDir::GetAllFiles(vector<string> &vsFileList, int iDepth)
 
 		pChild->GetAllFiles(vsFileList, iDepth);
 	}
+}
+
+string CFileDir::GetDirPart(const string &sFileName)
+{
+	string sBasedir;
+
+	// 取文件目录部分，最后一个 / 之前部分
+	string::size_type iPos = sFileName.rfind(PATH_SEP);
+	if (iPos != string::npos)
+	{
+		if (iPos == PATH_SEP) // 就是系统根目录(/)
+		{
+			sBasedir = PATH_SEP;
+		}
+		else
+		{
+			sBasedir = sFileName.substr(0, iPos);
+		}
+	}
+	else
+	{
+		sBasedir = '.'; // 当前目录
+	}
+
+	return sBasedir;
+}
+
+string CFileDir::GetFilePart(const string &sFileName)
+{
+	string sLastName;
+
+	// 取文件全路径名最后一部分，最后一个 / 之后部分
+	string::size_type iPos = sFileName.rfind('/');
+	if (iPos != string::npos && ++iPos != sFileName.size())
+	{
+		sLastName = sFileName.substr(iPos);
+	}
+	else
+	{
+		sLastName = sFileName;
+	}
+
+	return sLastName;
+}
+
+string CFileDir::TrimTailSlash(const string &sFileName)
+{
+	string sCleanName;
+
+	int iEndPos = sFileName.size() - 1;
+	if (sFileName[iEndPos] == PATH_SEP && sFileName.size() > 1)
+	{
+		sCleanName = sFileName.substr(0, iEndPos);
+	}
+	else
+	{
+		sCleanName = sFileName;
+	}
+
+	return sCleanName;
 }
 
 /*********** 单元测试 ***********/

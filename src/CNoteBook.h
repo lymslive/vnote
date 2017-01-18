@@ -4,6 +4,7 @@
 
 #include "CNote.h"
 #include "CPlainDate.h"
+#include "commdef.h"
 
 class CNoteParser;
 class CNotePath;
@@ -18,7 +19,6 @@ public:
 private:
 	// 日记本所在的根目录
 	string m_basedir;
-	CNoteParser *m_parser;
 
 	// 所有日记数组，容器中存放指针
 	VPNOTE m_vpNote;
@@ -28,12 +28,15 @@ private:
 	// 虚拟目录层次
 	CNotePath *m_rootPath;
 
+	// 标记是否已读入日记本
+	bool m_ready;
+
 public:
 	// 从根目录中搜索导入所有日志
-	void ImportFromDir();
+	EINT ImportFromDir(const string &sBasedir);
 
-	// 从一份文件列表中导入日志
-	void ImportFromFileList(string sFileList);
+	// 从一份文件列表中导入日志，其内的文件名相对于它本身的目录
+	EINT ImportFromFileList(const string &sFileList);
 
 	// 建立索引与目录树，参数表示是否强制重建
 	void BuildDateIndex(bool bRebuild = false);
@@ -57,10 +60,16 @@ public:
 	// 修改标签
 	void ChangeBookTag(const string &sOldTag, const string &sNewTag);
 
+	bool IsReady() { return m_ready; }
+
+	string Desc() const;
 private:
 	// 禁用拷贝与赋值
 	CNoteBook(const CNoteBook &that);
 	CNoteBook &operator=(const CNoteBook &that);
+
+	// 创建日记本，参数为文件名列表，相对m_basedir
+	EINT CreateNoteBook(const vector<string> &vsFileList);
 };
 
 #endif /* end of include guard: CNOTEBOOK_H__ */
