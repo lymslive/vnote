@@ -2,7 +2,6 @@
 #include <dirent.h>
 #include "CLogTool.h"
 #include <string.h>
-#include "commdef.h"
 
 CFileDir::CFileDir(const string &sName, CFileDir *pParent) :
 	// m_name(sName),

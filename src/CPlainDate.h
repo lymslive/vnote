@@ -56,6 +56,7 @@ public:
 	static DINT AddDay(DINT iDate, int iShift);
 	static DINT AddMonth(DINT iDate, int iShift);
 	static DINT AddYear(DINT iDate, int iShift);
+	static bool CheckDate(DINT iDate);
 };
 
 #endif /* end of include guard: CPLAINDATE_H__ */

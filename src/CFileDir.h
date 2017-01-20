@@ -1,16 +1,7 @@
+// 文件目录类封装
 #ifndef CFILEDIR_H__
 #define CFILEDIR_H__
-// 文件目录类封装
-
-#include <string>
-#include <vector>
-#include <set>
-#include <map>
-
-using std::string;
-using std::vector;
-using std::set;
-using std::map;
+#include "commdef.h"
 
 class CFileDir
 {

@@ -8,7 +8,7 @@
 #include <fstream>
 #include <sstream>
 
-CNoteBook::CNoteBook() : m_rootPath(NULL)
+CNoteBook::CNoteBook() : m_rootPath(NULL), m_ready(false)
 {
 }
 

@@ -185,6 +185,12 @@ DINT CPlainDate::AddYear(DINT iDate, int iShift)
 	return static_cast<DINT>(oDate);
 }
 
+bool CPlainDate::CheckDate(DINT iDate)
+{
+	CPlainDate oDate(iDate);
+	return oDate.IsValid();
+}
+
 #ifdef CPLAINDATE_TEST
 
 #include <iostream>

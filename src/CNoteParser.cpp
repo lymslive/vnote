@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <fstream>
 #include "CFileDir.h"
+#include "vnote.h"
 
 // 静态类成员初始化
 CNoteParser::SFileNamePart CNoteParser::m_sCache;

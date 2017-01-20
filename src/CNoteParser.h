@@ -6,8 +6,6 @@
 #include "commdef.h"
 #include "CPlainDate.h"
 
-using std::string;
-
 class CNote;
 
 class CNoteParser

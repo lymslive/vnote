@@ -46,6 +46,10 @@ public:
 	const VPNOTE *DateIndex(DINT iDate);
 	const VPNOTE *TagIndex(const string &sTag) const;
 
+	// 返回日记列表
+	const VPNOTE &GetNotes() const { return m_vpNote; }
+	const map<DINT, VPNOTE> &GetDateMap() const { return m_dateIndex; }
+
 	// 增加一个新日记，返回日记指针
 	CNote *AddNewNote();
 	// 删除一个日记

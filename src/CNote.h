@@ -1,18 +1,8 @@
 #ifndef CNOTE_H__
 #define CNOTE_H__
 
-#include <string>
-#include <vector>
-#include <set>
-#include <map>
 #include "CPlainDate.h"
 #include "commdef.h"
-
-using std::string;
-using std::vector;
-using std::set;
-using std::map;
-using std::ostream;
 
 class CNoteParser;
 
