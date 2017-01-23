@@ -1,29 +1,87 @@
 " vnote tools
 " Author: lymslive
-" Date: 2017-01-22
+" Date: 2017/01/23
 
 let s:default_notebook = "~/notebook"
 if exists('g:vnote_default_notebook')
     let s:default_notebook = g:vnote_default_notebook
 endif
 
+let s:note_suffix = '.md'
+" regexp: yyyy/mm/dd
+let s:day_path_patter = '\d\d\d\d/\d\d/\d\d'
+
 " need expand to handle ~(home)
 let s:current_notebook = expand(s:default_notebook)
-let s:note_file_dir = s:current_notebook . '/d'
-let s:note_tags_dir = s:current_notebook . '/t'
-let s:note_cache_dir = s:current_notebook . '/c'
+
+" build a dict serve as a data struct for global use
+let s:dNoteBook = {}
+let s:dNoteBook.basedir = s:current_notebook
+let s:dNoteBook.suffix = s:note_suffix
+
+" NoteBook Methods: 
+function! s:dNoteBook.Filedir() dict "{{{
+    return self.basedir . '/d'
+endfunction "}}}
+function! s:dNoteBook.Tagdir() dict "{{{
+    return self.basedir . '/t'
+endfunction "}}}
+function! s:dNoteBook.Cachedir() dict "{{{
+    return self.basedir . '/c'
+endfunction "}}}
+
+" Notedir: full path of a day
+function! s:dNoteBook.Notedir(day_path) dict "{{{
+    if match(a:day_path, s:day_path_patter) == -1
+        echoerr a:day_path . ' is not a valid day path as yyyy/mm/dd'
+        return ''
+    else
+        return self.Filedir() . '/' . a:day_path
+    endif
+endfunction "}}}
+
+" Notefile: full path of a note, given date and number
+" return notebook/d/yyyy/mm/dd/yyyymmdd_n.md
+function! s:dNoteBook.Notefile(day_path, seqno) dict "{{{
+    if match(a:day_path, s:day_path_patter) == -1
+        echoerr a:day_path . ' is not a valid day path as yyyy/mm/dd'
+        return ''
+    endif
+
+    let l:day_int = substitute(a:day_path, '/', '', 'g')
+    return s:dNoteBook.Filedir() . '/' . a:day_path . '/' . l:day_int . '_' . a:seqno . s:dNoteBook.suffix
+endfunction "}}}
+
+" GetNoteBook: 
+function! vnote#GetNoteBook() "{{{
+    return s:dNoteBook
+endfunction "}}}
+
+" OpenNoteBook: open another notebook overide the default
+function! vnote#OpenNoteBook(basedir) "{{{
+    let l:basedir = expand(a:basedir)
+    if !isdirectory(l:basedir)
+        echoerr a:basedir . 'is not a valid directory?'
+        return 0
+    endif
+
+    let s:dNoteBook.basedir = l:basedir
+    return 1
+endfunction "}}}
 
 " NewNote: edit new note of today
 function! vnote#NewNote() "{{{
-    let l:day_path = strftime("%Y/%m/%d")
-    let l:day_int  = strftime("%Y%m%d")
+    let l:day_path = s:TodayPath()
+    let l:day_int  = s:TodayInt()
 
-    let l:day_path_full = s:note_file_dir . '/' . l:day_path
-    let l:note_pattern = l:day_path_full . '/' . l:day_int . '_*.md'
-    let l:list_note_file = glob(l:note_pattern, 0, 1)
-    let l:count_old_note = len(l:list_note_file)
+    let l:day_path_full = s:dNoteBook.Notedir(l:day_path)
+    if empty(l:day_path_full)
+        return 0
+    endif
+
+    let l:count_old_note = s:NoteCountByDay(l:day_path)
     let l:new_number = l:count_old_note + 1
-    let l:new_note_file_path = l:day_path_full . '/' . l:day_int . '_' . l:new_number . '.md'
+    let l:new_note_file_path = s:dNoteBook.Notefile(l:day_path, l:new_number)
 
     if !isdirectory(l:day_path_full)
         call mkdir(l:day_path_full, 'p')
@@ -32,55 +90,58 @@ function! vnote#NewNote() "{{{
     execute 'edit ' . l:new_note_file_path
 endfunction "}}}
 
-" ListNote: list note of a day (default today)
-" a:1, date argument as yyyy/mm/dd
-function! vnote#ListNote(...) "{{{
-    if a:0 < 1
-        let l:day_path = strftime("%Y/%m/%d")
-    else
+" EditNote: 
+function! vnote#EditNote(...) "{{{
+    if a:0 >= 1
         let l:day_path = a:1
+    else
+        let l:day_path = s:TodayPath()
     endif
 
-    let l:day_path_full = s:note_file_dir . '/' . l:day_path
-    let l:note_pattern = l:day_path_full . '/' . '*_*.md'
-    let l:list_note_file = glob(l:note_pattern, 0, 1)
+    if a:0 >= 2
+        let l:seqno = a:2
+    else
+        let l:seqno = s:NoteCountByDay(l:day_path)
+    endif
 
-    let l:output_list = []
-    for l:note_file in l:list_note_file
-        let l:file_lines = readfile(l:note_file, '', 1)
-        let l:first_line = l:file_lines[0]
+    let l:day_path_full = s:dNoteBook.Notedir(l:day_path)
+    if empty(l:day_path_full)
+        return 0
+    endif
 
-        let l:file_name = strpart(l:note_file, len(l:day_path_full)+1)
-        let l:note_title = substitute(l:first_line, '^\s*#\s*', '', '')
-        call add(l:output_list, l:file_name . "\t" . l:note_title)
-    endfor
-
-    edit _NoteList_Buff
-    set buftype=nofile
-    call setline(1, '$ note-book ' . s:current_notebook)
-    call setline(2, '$ note-list -d ' . l:day_path)
-    call setline(3, repeat('=', 78))
-    call append(line('$'), l:output_list)
-    set filetype=notelist
-    let b:notebook = s:current_notebook
+    if l:seqno <= 0 && !isdirectory(l:day_path_full)
+        call mkdir(l:day_path_full, 'p')
+        let l:seqno = 1
+    endif
+    
+    let l:note_file_path = s:dNoteBook.Notefile(l:day_path, l:seqno)
+    execute 'edit ' . l:note_file_path
 endfunction "}}}
 
-" ReadTags: return a list of tags of one note
-" a:1 full path of note file
-" return list, one item each tag line, may including multy ``
-function! vnote#ReadTags(file) "{{{
-    let l:note_file = a:file
-    if !filereadable(l:note_file)
-        return []
+" s:TodayPath: yyyy/mm/dd as a path
+function! s:TodayPath() "{{{
+    let l:day_path = strftime("%Y/%m/%d")
+    return l:day_path
+endfunction "}}}
+
+" s:TodayInt: yyyymmdd as a integer
+function! s:TodayInt() "{{{
+    let l:day_int  = strftime("%Y%m%d")
+    return l:day_int
+endfunction "}}}
+
+" s:NoteCountByDay: 
+function! s:NoteCountByDay(day_path) "{{{
+    let l:day_path = a:day_path
+    let l:day_path_full = s:dNoteBook.Notedir(l:day_path)
+    if empty(l:day_path_full)
+        return 0
     endif
 
-    let l:tags = []
-    let l:file_lines = readfile(l:note_file, '', 10)
-    for l:line in l:file_lines
-        if l:line[0] == '`'
-            call add(l:tags, l:line)
-        endif
-    endfor
+    let l:day_int = substitute(l:day_path, '/', '', 'g')
+    let l:note_pattern = l:day_path_full . '/' . l:day_int . '_*' . s:note_suffix
+    let l:list_note_file = glob(l:note_pattern, 0, 1)
+    let l:count = len(l:list_note_file)
 
-    return l:tags
+    return l:count
 endfunction "}}}

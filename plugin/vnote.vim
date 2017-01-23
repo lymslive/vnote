@@ -3,4 +3,5 @@
 " Date: 2017-01-22
 
 command! -nargs=0 NoteNew call vnote#NewNote()
-command! -nargs=* NoteList call vnote#ListNote(<f-args>)
+command! -nargs=* NoteEdit call vnote#EditNote(<f-args>)
+command! -nargs=* NoteList call notelist#ListNote(<f-args>)
