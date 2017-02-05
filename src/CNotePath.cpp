@@ -1,6 +1,10 @@
+#include <sys/stat.h>
 #include "CNotePath.h"
 #include "commdef.h"
 #include "CLogTool.h"
+#include "vnote.h"
+#include <fstream>
+#include <unistd.h>
 
 CNotePath::CNotePath()
 {
@@ -301,6 +305,107 @@ int CNotePath::CountTagDown(map<string, int> &vmTags)
 	}
 
 	return iCount;
+}
+
+EINT CNotePath::MakeRealPath(const string &sRootdir)
+{
+	if (m_children.empty())
+	{
+		return 0;
+	}
+
+	string sFullPath;
+	if (!m_parent)
+	{
+		sFullPath = sRootdir;
+	}
+	else
+	{
+		sFullPath = sRootdir + PATH_SEP + FullName();
+	}
+
+	// 目录已经存在
+	if (access(sFullPath.c_str(), F_OK) == 0)
+	{
+		return OK;
+	}
+
+	EINT iRet = mkdir(sFullPath.c_str(), NOTE_TAGS_DIR_MODE);
+	if (iRet != OK)
+	{
+		LOG("fails to mkdir: %s", sFullPath.c_str());
+	}
+
+	return iRet;
+}
+
+EINT CNotePath::SaveTagFile(const string &sRootdir)
+{
+	if (m_notes.empty())
+	{
+		return OK;
+	}
+
+	string sFullName = sRootdir + PATH_SEP + FullName() + NOTE_TAG_FILE_SUFFIX;
+
+	std::ofstream fout(sFullName);
+	if (!fout)
+	{
+		LOG("fails to open to write tag file: %s", sFullName.c_str());
+		fout.close();
+		return NOK;
+	}
+
+	for (auto it = m_notes.begin(); it != m_notes.end(); ++it)
+	{
+		if (*it == NULL)
+		{
+			continue;
+		}
+		
+		string sLine = (*it)->ListLine();
+		fout << sLine << std::endl;
+	}
+
+	fout.close();
+	return OK;
+}
+
+EINT CNotePath::BuildTagTree(const string &sRootdir)
+{
+	EINT iRet = OK;
+
+	iRet = MakeRealPath(sRootdir);
+	if (iRet != OK)
+	{
+		LOG("abort build tag tree at: %s", m_name.c_str());
+		return iRet;
+	}
+
+	iRet = SaveTagFile(sRootdir);
+	if (iRet != OK)
+	{
+		LOG("abort build tag tree at: %s", m_name.c_str());
+		return iRet;
+	}
+
+	for (auto it = m_children.begin(); it != m_children.end(); ++it)
+	{
+		CNotePath *pChild = it->second;
+		if (pChild == NULL)
+		{
+			continue;
+		}
+
+		iRet = pChild->BuildTagTree(sRootdir);
+		if (iRet != OK)
+		{
+			LOG("abort build tag tree at: %s", m_name.c_str());
+			return iRet;
+		}
+	}
+
+	return OK;
 }
 
 CNotePath::CNotePath(const CNotePath &that)// =delete

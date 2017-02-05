@@ -3,7 +3,7 @@
 #include "CLogTool.h"
 #include "CNoteQuery.h"
 
-CNoteApp::CNoteApp() : m_pQuery(NULL)
+CNoteApp::CNoteApp() : m_pQuery(NULL), m_bMainLoop(true)
 {
 }
 
@@ -20,6 +20,11 @@ void CNoteApp::SetOption()
 {
 	m_option.add<string>("dir", 'd', "Notebook directory", true, ".");
 	m_option.add<string>("log", 'g', "Log file", false, "");
+	m_option.add("tag", 't', "Create tag tree");
+	m_option.add("cache", 'c', "Create cache as notebook db");
+	m_option.add("use-cache", 'C', "Use cache to build notebook");
+	m_option.add("Quit", 'Q', "Quit without interactive mode");
+	m_option.add("interact", 'i', "Enter interactive mode");
 }
 
 bool CNoteApp::DealOption(int argc, char *argv[])
@@ -31,8 +36,19 @@ bool CNoteApp::DealOption(int argc, char *argv[])
 
 	ICLOGTOOL->SetLogFile(sLogFile);
 
-	m_notebook.ImportFromDir(sBasedir);
+	bool bUseCache = m_option.exist("use-cache");
+	m_notebook.ImportFromDir(sBasedir, bUseCache);
 	cout << m_notebook.Desc() << endl;
+
+	if (m_option.exist("tag"))
+	{
+		m_notebook.OutputTagTree();
+	}
+
+	if (m_option.exist("cache"))
+	{
+		m_notebook.OutputCache();
+	}
 
 	m_pQuery = new CNoteQuery(&m_notebook);
 	if (!m_pQuery)
@@ -41,11 +57,25 @@ bool CNoteApp::DealOption(int argc, char *argv[])
 		return false;
 	}
 
+	if (m_option.exist("Quit"))
+	{
+		m_bMainLoop = false;
+	}
+	if (m_option.exist("interact"))
+	{
+		m_bMainLoop = true;
+	}
+
 	return true;
 }
 
 bool CNoteApp::PromptBefore()
 {
+	if (!m_bMainLoop)
+	{
+		return false;
+	}
+
 	cout << "query with date or tag:\n";
 	return true;
 }

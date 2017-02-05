@@ -53,6 +53,14 @@ public:
 	// 向下统计共有多少标签，如果传入 map ，则分别统计每个标签下的日记数量
 	int CountTagDown();
 	int CountTagDown(map<string, int> &vmTags);
+
+	// 以 sRootdir 为根目录在文件系统中建立目录（有子标签时才视为目录）
+	EINT MakeRealPath(const string &sRootdir);
+	// 在文件系统中保存标签索引文件
+	EINT SaveTagFile(const string &sRootdir);
+	// 在文件系统中建立整个标签树（递归）
+	EINT BuildTagTree(const string &sRootdir);
+
 private:
 	// 当前目录名
 	string m_name;

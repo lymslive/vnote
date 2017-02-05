@@ -3,6 +3,8 @@
 #include "CLogTool.h"
 #include <sstream>
 #include <numeric>
+#include "CFileDir.h"
+#include <stdlib.h>
 
 CNote::CNote(const string &sFileName, const string &sBasedir) :
 	m_date(0),
@@ -127,6 +129,96 @@ string CNote::Desc() const
 	str << endl;
 
 	return str.str();
+}
+
+string CNote::ListLine(bool bTags) const
+{
+	string sLine = NoteID() + CHAR_TABLE + m_title;
+
+	if (bTags)
+	{
+		for (auto it = m_tag.begin(); it != m_tag.end(); ++it)
+		{
+			sLine += CHAR_TABLE + *it;
+		}
+	}
+
+	return sLine;
+}
+
+EINT CNote::ReadCache(string sLine)
+{
+	// 日期
+	string::size_type iPos = sLine.find('_');
+	if (iPos == string::npos)
+	{
+		LOG("Invalid note cache entry line: %s", sLine.c_str());
+		return NOK;
+	}
+
+	string sDate = sLine.substr(0, iPos);
+	m_date = atoi(sDate.c_str());
+	if (m_date <= 0)
+	{
+		LOG("Invalid note cache entry line: %s", sLine.c_str());
+		return NOK;
+	}
+
+	// 序号
+	string::size_type iNextPos = sLine.find(CHAR_TABLE, ++iPos);
+	if (iNextPos == string::npos)
+	{
+		LOG("Invalid note cache entry line: %s", sLine.c_str());
+		return NOK;
+	}
+
+	string sTmp = sLine.substr(iPos, iNextPos - iPos);
+	m_seqno = atoi(sTmp.c_str());
+	if (m_seqno <= 0)
+	{
+		LOG("Invalid note cache entry line: %s", sLine.c_str());
+		return NOK;
+	}
+
+	// 标题
+	iPos = iNextPos + 1;
+	iNextPos = sLine.find(CHAR_TABLE, iPos);
+	if (iNextPos == string::npos)
+	{
+		sTmp = sLine.substr(iPos);
+	}
+	else
+	{
+		sTmp = sLine.substr(iPos, iNextPos - iPos);
+	}
+	m_title = sTmp;
+
+	// 剩余的都是标签
+	if (iNextPos == string::npos)
+	{
+		return OK;
+	}
+
+	iPos = iNextPos + 1;
+	while (iNextPos != string::npos)
+	{
+		iNextPos = sLine.find(CHAR_TABLE, iPos);
+		if (iNextPos == string::npos)
+		{
+			sTmp = sLine.substr(iPos);
+		}
+		else
+		{
+			sTmp = sLine.substr(iPos, iNextPos - iPos);
+			iPos = iNextPos + 1;
+		}
+		m_tag.insert(sTmp);
+	}
+
+	// 文件名
+	m_file = string(NOTE_DATE_DIR) + PATH_SEP + NoteID() + NOTE_FILE_SUFFIX;
+
+	return OK;
 }
 
 bool operator==(const CNote &lhs, const CNote &rhs)

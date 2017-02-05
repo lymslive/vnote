@@ -14,4 +14,13 @@ const char PREFIX_TITLE = '#';
 // 标签前缀
 const char PREFIX_TAG = '/';
 
+#define NOTE_DATE_DIR "d"
+#define NOTE_TAGS_DIR "t"
+#define NOTE_CACHE_DIR "c"
+
+#define NOTE_TAG_FILE_SUFFIX ".tag"
+#define NOTE_TAGS_DIR_MODE 0775
+#define NOTE_CACHE_FILE "notes.che"
+#define NOTE_FILE_SUFFIX ".md"
+
 #endif /* end of include guard: VNOTE_H__ */

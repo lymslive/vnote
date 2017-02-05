@@ -3,6 +3,7 @@
 
 #include "CPlainDate.h"
 #include "commdef.h"
+#include "vnote.h"
 
 class CNoteParser;
 
@@ -49,6 +50,12 @@ public:
 	string Desc() const;
 	// 日期与序号联接，可作为日记ID
 	string NoteID() const;
+	// 生成简明的列表行字符串：文件名 + 制表 + 标题
+	// 若 bTags ，则将所有标签列在其后，也用制表分隔
+	string ListLine(bool bTags = false) const;
+
+	// 从 cache 数据库中的一行完成 Note 对象
+	EINT ReadCache(string sLine);
 
 private:
 	// 日记文件名格式：yyyymmdd_n_日记标题

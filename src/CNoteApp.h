@@ -26,6 +26,8 @@ private:
 private:
 	CNoteBook m_notebook;
 	CNoteQuery *m_pQuery;
+	// 是否需要进入交互命令行主循环
+	bool m_bMainLoop;
 };
 
 #endif /* end of include guard: CNOTEAPP_H__ */

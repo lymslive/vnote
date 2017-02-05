@@ -33,7 +33,9 @@ private:
 
 public:
 	// 从根目录中搜索导入所有日志
-	EINT ImportFromDir(const string &sBasedir);
+	EINT ImportFromDir(const string &sBasedir, bool bUseCache = false);
+	// 从缓存数据库中导入日志
+	EINT ImportFromCache(const string &sCacheFile);
 
 	// 从一份文件列表中导入日志，其内的文件名相对于它本身的目录
 	EINT ImportFromFileList(const string &sFileList);
@@ -41,6 +43,11 @@ public:
 	// 建立索引与目录树，参数表示是否强制重建
 	void BuildDateIndex(bool bRebuild = false);
 	void BuildPathTree(bool bRebuild = false);
+
+	// 将标签树输出至文件系统
+	EINT OutputTagTree();
+	// 输出整个日记本缓存
+	EINT OutputCache();
 
 	// 根据索引获取一组日记指针
 	const VPNOTE *DateIndex(DINT iDate);

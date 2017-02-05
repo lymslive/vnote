@@ -1,12 +1,15 @@
 #include "CNoteBook.h"
+#include <fstream>
+#include <sstream>
+#include <algorithm>
+#include "vnote.h"
 #include "CNote.h"
 #include "CNotePath.h"
 #include "CNoteParser.h"
 #include "CLogTool.h"
-#include <algorithm>
 #include "CFileDir.h"
-#include <fstream>
-#include <sstream>
+#include <sys/stat.h>
+#include <unistd.h>
 
 CNoteBook::CNoteBook() : m_rootPath(NULL), m_ready(false)
 {
@@ -42,7 +45,7 @@ CNoteBook::~CNoteBook()
 
 }
 
-EINT CNoteBook::ImportFromDir(const string &sBasedir)
+EINT CNoteBook::ImportFromDir(const string &sBasedir, bool bUseCache)
 {
 	if (m_ready)
 	{
@@ -57,6 +60,17 @@ EINT CNoteBook::ImportFromDir(const string &sBasedir)
 	}
 
 	m_basedir = CFileDir::TrimTailSlash(sBasedir);
+
+	// 从缓存中载入日记本
+	if (bUseCache)
+	{
+		string sCacheDir = m_basedir + PATH_SEP + NOTE_CACHE_DIR;
+		string sCacheFile = sCacheDir + PATH_SEP + NOTE_CACHE_FILE;
+		if (access(sCacheFile.c_str(), R_OK) == 0)
+		{
+			return ImportFromCache(sCacheFile);
+		}
+	}
 
 	// 获取文件列表
 	CFileDir jDir(sBasedir);
@@ -86,6 +100,7 @@ EINT CNoteBook::ImportFromFileList(const string &sFileList)
 	if (!fin)
 	{
 		LOG("fails to open note file:%s", sFileList.c_str());
+		fin.close();
 		return NOK;
 	}
 
@@ -125,6 +140,52 @@ EINT CNoteBook::CreateNoteBook(const vector<string> &vsFileList)
 
 		m_vpNote.insert(pNote);
 	}
+
+	// 创建索引
+	BuildDateIndex(true);
+	BuildPathTree(true);
+
+	m_ready = true;
+
+	return OK;
+}
+
+EINT CNoteBook::ImportFromCache(const string &sCacheFile)
+{
+	std::ifstream fin(sCacheFile);
+	if (!fin)
+	{
+		LOG("fails to open note file:%s", sCacheFile.c_str());
+		fin.close();
+		return NOK;
+	}
+
+	EINT iRet = OK;
+	string sLine;
+	while (std::getline(fin, sLine))
+	{
+		if (sLine.empty())
+		{
+			continue;
+		}
+
+		CNote *pNote = new CNote();
+		if (!pNote)
+		{
+			LOG("fails to allocate space for CNote");
+			return NOK;
+		}
+
+		iRet = pNote->ReadCache(sLine);
+		if (iRet != OK)
+		{
+			LOG("fails to read cache into note");
+		}
+
+		m_vpNote.insert(pNote);
+	}
+
+	fin.close();
 
 	// 创建索引
 	BuildDateIndex(true);
@@ -198,6 +259,60 @@ void CNoteBook::BuildPathTree(bool bRebuild)
 			}
 		}
 	}
+}
+
+EINT CNoteBook::OutputTagTree()
+{
+	if (m_rootPath == NULL)
+	{
+		return NOK;
+	}
+
+	string sRootdir = m_basedir + PATH_SEP + NOTE_TAGS_DIR;
+	return m_rootPath->BuildTagTree(sRootdir);
+}
+
+EINT CNoteBook::OutputCache()
+{
+	EINT iRet = OK;
+
+	// 创建目录
+	string sCacheDir = m_basedir + PATH_SEP + NOTE_CACHE_DIR;
+	if (access(sCacheDir.c_str(), F_OK) != 0)
+	{
+		iRet = mkdir(sCacheDir.c_str(), NOTE_TAGS_DIR_MODE);
+		if (iRet != OK)
+		{
+			LOG("fails to mkdir: %s", sCacheDir.c_str());
+			return iRet;
+		}
+	}
+
+	// 新建文件
+	string sFileName = sCacheDir + PATH_SEP + NOTE_CACHE_FILE;
+	std::ofstream fout(sFileName);
+	if (!fout)
+	{
+		LOG("fails to open to write tag file: %s", sFileName.c_str());
+		fout.close();
+		return NOK;
+	}
+
+	// 写入文件
+	for (auto it = m_vpNote.begin(); it != m_vpNote.end(); ++it)
+	{
+		CNote *pNote = *it;
+		if (!pNote)
+		{
+			continue;
+		}
+
+		string sLine = pNote->ListLine(true);
+		fout << sLine << std::endl;
+	}
+
+	fout.close();
+	return OK;
 }
 
 const VPNOTE *CNoteBook::DateIndex(DINT iDate)
