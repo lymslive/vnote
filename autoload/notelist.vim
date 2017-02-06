@@ -16,6 +16,7 @@ nnoremap <Plug>(VNOTE_list_next_day) :call <SID>NextDay(1)<CR>
 nnoremap <Plug>(VNOTE_list_prev_day) :call <SID>NextDay(-1)<CR>
 
 " s:EnterNote: <CR> to edit note under cursor line
+" open note in another window if possible
 function! s:EnterNote() "{{{
     if !s:ParseEntryLine()
         return 0
@@ -25,7 +26,12 @@ function! s:EnterNote() "{{{
     let l:day_path = s:NoteEntry.year . '/' . s:NoteEntry.month . '/' . s:NoteEntry.day
     let l:note_full_path = l:dNoteBook.basedir . '/d/' . l:day_path . '/' . s:NoteEntry.file
 
-    execute 'edit ' . l:note_full_path
+    if winnr('$') > 1
+        wincmd p
+    endif
+
+    " wild match suffix of note file
+    execute 'edit ' . l:note_full_path . '.*'
 endfunction "}}}
 
 " s:ToggleTagLine: show/hide a tag line below a note entry
@@ -80,6 +86,19 @@ function! s:NextDay(shift) "{{{
     let l:day_path = b:argv[2]
     let l:day = l:day_path[-2:-1]
     let l:new_day = l:day + a:shift
+
+    if l:new_day <= 0
+        let l:new_day = 31
+    endif
+
+    if l:new_day > 31
+        let l:new_day = 1
+    endif
+
+    if l:new_day < 10
+        let l:new_day = '0' . l:new_day
+    endif
+
     " replace the last tow digits as day
     let l:new_day_path = substitute(l:day_path, '\d\d$', l:new_day, '')
 
@@ -111,14 +130,31 @@ function! s:ParseEntryLine() "{{{
     return 1
 endfunction "}}}
 
-" ListNote: list note of a day (default today)
-" a:1, date argument as yyyy/mm/dd
+" ListNote: list note by date or by tag, depend on argument
 function! notelist#ListNote(...) "{{{
     if a:0 < 1
         let l:day_path = strftime("%Y/%m/%d")
-    else
-        let l:day_path = a:1
+        return s:ListByDate(l:day_path)
     endif
+
+    let l:arg = a:1
+
+    if winnr('$') > 1
+        call notelist#FindListWindow()
+    endif
+
+    if match(l:arg, '^\d\d\d\d') != -1
+        return s:ListByDate(l:arg)
+    else
+        return s:ListByTag(l:arg)
+    endif
+
+endfunction "}}}
+
+" ListByDate: 
+" a:date argument as yyyy/mm/dd
+function! s:ListByDate(date, ...) abort "{{{
+    let l:day_path = a:date
 
     let l:dNoteBook = vnote#GetNoteBook()
     let l:day_path_full = l:dNoteBook.Notedir(l:day_path)
@@ -128,6 +164,7 @@ function! notelist#ListNote(...) "{{{
     let l:output_list = []
     for l:note_file in l:list_note_file
         let l:file_name = strpart(l:note_file, len(l:day_path_full)+1)
+        let l:file_name = substitute(l:file_name, l:dNoteBook.suffix . '$', '', '')
         let l:note_title = notelist#ReadTitle(l:note_file)
         call add(l:output_list, l:file_name . "\t" . l:note_title)
     endfor
@@ -144,6 +181,101 @@ function! notelist#ListNote(...) "{{{
 
     let b:notebook = l:dNoteBook
     let b:argv = ['note-list', '-d', l:day_path]
+    return 1
+endfunction "}}}
+
+" ListByTag: 
+" directly read notebook/t/*.tag file as note list
+function! s:ListByTag(tag, ...) abort "{{{
+    let l:dNoteBook = vnote#GetNoteBook()
+    let l:tag_dir = l:dNoteBook.Tagdir()
+
+    let l:tag_file = l:tag_dir . '/' . a:tag . '.tag'
+    if !filereadable(l:tag_file)
+        echo 'the notebook has no tag: ' . a:tag
+        return 0
+    endif
+    let l:note_list = readfile(l:tag_file)
+
+    edit _buff_
+    call setline(1, '$ note-book ' . l:dNoteBook.basedir)
+    call setline(2, '$ note-list -t ' . a:tag)
+    call setline(3, repeat('=', 78))
+    call append(line('$'), l:note_list)
+    normal! 4G
+
+    set filetype=notelist
+    set buftype=nofile
+
+    let b:notebook = l:dNoteBook
+    let b:argv = ['note-list', '-t', a:tag]
+    return 1
+endfunction "}}}
+
+" CompleteList: Custom completion for notelist
+function! notelist#CompleteList(ArgLead, CmdLine, CursorPos) abort "{{{
+    let l:dNoteBook = vnote#GetNoteBook()
+
+    if empty(a:ArgLead) || match(a:ArgLead, '^\d\d') == -1
+        " compelete tag
+        let l:tag_dir = l:dNoteBook.Tagdir()
+        let l:head = len(l:tag_dir) + 1
+        let l:tag_list = glob(l:tag_dir . '/' . a:ArgLead . '*', 0, 1)
+
+        let l:ret_list = []
+        for l:tag in l:tag_list
+            let l:tag = strpart(l:tag, l:head)
+            if match(l:tag, '\.tag$') != -1
+                let l:tag = substitute(l:tag, '\.tag$', '', '')
+            else
+                let l:tag = l:tag . '/'
+            endif
+            call add(l:ret_list, l:tag)
+        endfor
+
+        return l:ret_list
+
+    else
+        " compelete date
+        let l:day_path_pattern = '^\d\d\d\d/\d\d/\d\d'
+        if match(a:ArgLead, l:day_path_pattern) != -1
+            " already full day path
+            return []
+        else
+            let l:day_dir = l:dNoteBook.Filedir()
+            let l:head = len(l:day_dir) + 1
+            let l:day_list = glob(l:day_dir . '/' . a:ArgLead . '*', 0, 1)
+            let l:ret_list = []
+            for l:day in l:day_list
+                let l:day = strpart(l:day, l:head)
+                call add(l:ret_list, l:day)
+            endfor
+            return l:ret_list
+        endif
+    endif
+endfunction "}}}
+
+" FindListWindow: find and jump to a window that set filetype=notelist
+" return: the window nr or 0 if not found
+" action: may change the current window if found
+function! notelist#FindListWindow() abort "{{{
+    let l:old = winnr()
+    let l:new = 0
+
+    let l:count = winnr('$')
+    for l:win in range(1, l:count)
+        execute l:win . 'wincmd w'
+        if &filetype == 'notelist'
+            let l:new = l:win
+            break
+        endif
+    endfor
+
+    if l:new == 0 && l:win != l:old
+        execute l:old . 'wincmd w'
+    endif
+
+    return l:new
 endfunction "}}}
 
 " ReadTitle: get the tile of a note file from first line

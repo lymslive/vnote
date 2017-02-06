@@ -9,7 +9,7 @@ endif
 
 let s:note_suffix = '.md'
 " regexp: yyyy/mm/dd
-let s:day_path_patter = '\d\d\d\d/\d\d/\d\d'
+let s:day_path_pattern = '\d\d\d\d/\d\d/\d\d'
 
 " need expand to handle ~(home)
 let s:current_notebook = expand(s:default_notebook)
@@ -32,7 +32,7 @@ endfunction "}}}
 
 " Notedir: full path of a day
 function! s:dNoteBook.Notedir(day_path) dict "{{{
-    if match(a:day_path, s:day_path_patter) == -1
+    if match(a:day_path, s:day_path_pattern) == -1
         echoerr a:day_path . ' is not a valid day path as yyyy/mm/dd'
         return ''
     else
@@ -43,7 +43,7 @@ endfunction "}}}
 " Notefile: full path of a note, given date and number
 " return notebook/d/yyyy/mm/dd/yyyymmdd_n.md
 function! s:dNoteBook.Notefile(day_path, seqno) dict "{{{
-    if match(a:day_path, s:day_path_patter) == -1
+    if match(a:day_path, s:day_path_pattern) == -1
         echoerr a:day_path . ' is not a valid day path as yyyy/mm/dd'
         return ''
     endif
@@ -65,7 +65,12 @@ function! vnote#OpenNoteBook(basedir) "{{{
         return 0
     endif
 
+    if match(l:basedir, '/$') != -1
+        let l:basedir = substitute(l:basedir, '/$', '', '')
+    endif
+
     let s:dNoteBook.basedir = l:basedir
+    echo 'open notebook: ' . l:basedir
     return 1
 endfunction "}}}
 
