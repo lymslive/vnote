@@ -37,7 +37,7 @@ function! s:OpenNoteList() abort "{{{
         return 0
     endif
 
-    let l:tag = s:DetectTag()
+    let l:tag = note#DetectTag(1)
     if empty(l:tag)
         let l:day_path = s:GetDayPath()
         call notelist#ListNote(l:day_path)
@@ -79,9 +79,10 @@ function! s:GetDayPath() abort "{{{
 endfunction "}}}
 
 " DetectTag: get a tag under cursor, the string between two `` marks
-function! s:DetectTag() abort "{{{
+" a:bol, begin of line, require the mark at bol or not
+function! note#DetectTag(bol) abort "{{{
     let l:line = getline('.')
-    if match(l:line, '^\s*`.*`') == -1
+    if a:bol && match(l:line, '^\s*`.*`') == -1
         return ''
     endif
 

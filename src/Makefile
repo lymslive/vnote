@@ -22,3 +22,7 @@ test : $(objects)
 .PHONY: clean
 clean:
 	rm *.o *.out
+
+.PHONY: install
+install:
+	cp vnote.out ~/bin/vnote
