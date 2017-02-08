@@ -58,8 +58,13 @@ function! vnote#GetNoteBook() "{{{
 endfunction "}}}
 
 " OpenNoteBook: open another notebook overide the default
-function! vnote#OpenNoteBook(basedir) "{{{
-    let l:basedir = expand(a:basedir)
+function! vnote#OpenNoteBook(...) "{{{
+    if a:0 == 0
+        echo 'current notebook: ' . s:dNoteBook.basedir
+        return 0
+    endif
+
+    let l:basedir = expand(a:1)
     if !isdirectory(l:basedir)
         echoerr a:basedir . 'is not a valid directory?'
         return 0

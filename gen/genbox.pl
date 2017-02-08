@@ -30,8 +30,13 @@ my @end_days = (31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31);
 my @letter = qw(a b c d e f g h i j k l m n o p q r s t u v w x y z);
 
 #========= 过程控制调用 =======#
+
+if (@ARGV > 0) {
+	$rootdir = shift @ARGV;
+}
+
 PreGenerateTags();
-Debug_SeeTags();
+# Debug_SeeTags();
 GenerateBox();
 
 #========= 子过程 =======#
@@ -91,6 +96,8 @@ sub Debug_SeeTags
 # 生成日记目录结构，按年月日
 sub GenerateBox
 {
+	mkdir $rootdir unless -d $rootdir;
+
 	my $datedir = "$rootdir/d";
 	my $path = $datedir;
 	mkdir $path unless -d $path;
