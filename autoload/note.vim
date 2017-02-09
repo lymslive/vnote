@@ -275,12 +275,12 @@ endfunction "}}}
 
 " UpdateNote: save note and tag file if context possible 
 function! note#UpdateNote() abort "{{{
+    " save this note file
+    :update
+
     if !s:NoteInBook()
         return 0
     endif
-
-    " save this note file
-    :update
 
     " save relate tag file only if cursor on tag line
     let l:line = getline('.')
