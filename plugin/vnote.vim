@@ -18,11 +18,6 @@ command! -nargs=0 NoteNew call vnote#NewNote()
 " number default to the last note number of that day
 command! -nargs=* NoteEdit call vnote#EditNote(<f-args>)
 
-" NoteSave:
-" save current note file, and
-" if cursor on tag line, also save the reletive tag files
-command! -nargs=0 NoteSave call note#UpdateNote()
-
 " NoteList:
 " list note support tow or four mode:
 " :NoteList day_path, default today, list all note of this day

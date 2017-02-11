@@ -14,8 +14,10 @@ nmap <buffer> g<C-x> <Plug>(VNOTE_edit_prev_note)
 " otherwise NoteList by the date of this note
 nmap <buffer> <C-]> <Plug>(VNOTE_edit_open_list)
 
-" same as :NoteSave
-" save note and tag files if cursor on tag line
-nmap <buffer> ;w <Plug>(VNOTE_edit_smart_save)
+" NoteSave:
+" save current note file, and
+" if cursor on tag line, also save the reletive tag files
+command! -nargs=0 -buffer NoteSave call note#UpdateNote()
+nnoremap <buffer> ;w :NoteSave<CR>
 
 call note#Load()

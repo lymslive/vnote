@@ -253,6 +253,7 @@ function! s:UpdateTagFile() abort "{{{
             endif
 
             call writefile(l:liNote, l:pTagFile)
+            echo 'update tag file: ' . l:sTag
         endif
     endfor
 
