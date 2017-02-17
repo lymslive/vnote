@@ -2,6 +2,8 @@
 " Author: lymslive
 " Date: 2017-01-23
 
+let s:jNoteBook = vnote#GetNoteBook()
+
 " struct for a note entry line
 let s:NoteEntry = {'line':0, 'file':0, 'title':0, 'year':0, 'month':0, 'day':0}
 
@@ -49,6 +51,9 @@ endfunction "}}}
 " s:ToggleTagLine: show/hide a tag line below a note entry
 function! s:ToggleTagLine() "{{{
     let l:lineno = line('.')
+    if l:lineno <= 4
+        return 0
+    endif
 
     " cursor in tag line, delete it and cursor up one line
     if match(getline('.'), s:untag_line_patter) != -1
@@ -90,12 +95,12 @@ endfunction "}}}
 " a:shift, a number, shift how many day, not check beyond month end-days
 " use b:argv set by previously call of ListNote function
 function! s:NextDay(shift) "{{{
-    if b:argv[1] != '-d'
+    if !exists('b:jNoteList') || b:jNoteList.argv[0] !=# '-d'
         echo 'Not list note by day?'
-        return
+        return 0
     endif
 
-    let l:day_path = b:argv[2]
+    let l:day_path = b:jNoteList.argv[1]
     let l:day = l:day_path[-2:-1]
     let l:new_day = l:day + a:shift
 
@@ -174,163 +179,24 @@ endfunction "}}}
 
 " ListNote: list note by date or by tag, depend on argument
 " now support one string argument, but may prefix an extra -D or -T option
-function! notelist#ListNote(...) "{{{
+function! notelist#hListNote(...) "{{{
     if a:0 < 1
-        let l:day_path = strftime("%Y/%m/%d")
-        return s:ListByDate(l:day_path)
+        let l:sDatePath = strftime("%Y/%m/%d")
     endif
 
     if winnr('$') > 1 && &filetype != 'notelist'
         call notelist#FindListWindow()
     endif
 
-    let l:arg = a:1
-    if l:arg == '-D'
-        return s:BrowseDate(a:000)
-    elseif l:arg == '-T'
-        return s:BrowseTag(a:000)
-    endif
-
-    if match(l:arg, '^\d\d\d\d') != -1
-        return s:ListByDate(l:arg)
+    if exists('b:jNoteList')
+        return b:jNoteList.RefreshList(a:000)
     else
-        return s:ListByTag(l:arg)
-    endif
-
-endfunction "}}}
-
-" CreateListBuff: 
-" a:argv, string list, the argument of note-list command
-" a:content, string list, append this content to buff
-function! s:CreateListBuff(argv, content) abort "{{{
-    let l:dNoteBook = vnote#GetNoteBook()
-
-    let l:argv = ['note-list']
-    call extend(l:argv, a:argv)
-
-    edit _buff_
-    call setline(1, '$ note-book ' . l:dNoteBook.basedir)
-    call setline(2, '$ ' . join(l:argv, ' '))
-    call setline(3, repeat('=', 78))
-    call append(line('$'), a:content)
-    normal! 4G
-
-    set filetype=notelist
-    set buftype=nofile
-
-    let b:notebook = l:dNoteBook
-    let b:argv = l:argv
-    return 1
-endfunction "}}}
-
-" ListByDate: 
-" a:date argument as yyyy/mm/dd
-function! s:ListByDate(date, ...) abort "{{{
-    let l:day_path = a:date
-
-    let l:dNoteBook = vnote#GetNoteBook()
-    let l:day_path_full = l:dNoteBook.Notedir(l:day_path)
-    let l:note_pattern = l:day_path_full . '/' . '*_*' . l:dNoteBook.suffix
-    let l:list_note_file = glob(l:note_pattern, 0, 1)
-
-    let l:output_list = []
-    for l:note_file in l:list_note_file
-        let l:file_name = strpart(l:note_file, len(l:day_path_full)+1)
-        let l:file_name = substitute(l:file_name, l:dNoteBook.suffix . '$', '', '')
-        let l:note_title = notelist#ReadTitle(l:note_file)
-        call add(l:output_list, l:file_name . "\t" . l:note_title)
-    endfor
-
-    return s:CreateListBuff(['-d', l:day_path], l:output_list)
-endfunction "}}}
-
-" ListByTag: 
-" directly read notebook/t/*.tag file as note list
-function! s:ListByTag(tag, ...) abort "{{{
-    let l:dNoteBook = vnote#GetNoteBook()
-    let l:tag_dir = l:dNoteBook.Tagdir()
-
-    let l:tag_file = l:tag_dir . '/' . a:tag . '.tag'
-    if !filereadable(l:tag_file)
-        echo 'the notebook has no tag: ' . a:tag
-        return 0
-    endif
-    let l:note_list = readfile(l:tag_file)
-
-    return s:CreateListBuff(['-t', a:tag], l:note_list)
-endfunction "}}}
-
-" BrowseDate: 
-function! s:BrowseDate(argv) abort "{{{
-    let l:argc = len(a:argv)
-    if a:argv[0] != '-D'
-        echoerr 'argument dismatch'
-        return 0
-    endif
-
-    if l:argc <= 1
-        let l:ArgLead = ''
-    else
-        let l:ArgLead = a:argv[1]
-    endif
-
-    let l:day_path_pattern = '^\d\d\d\d/\d\d/\d\d'
-    if match(l:ArgLead, l:day_path_pattern) != -1
-        " already full day path
-        return s:ListByDate(l:ArgLead)
-    else
-        let l:dNoteBook = vnote#GetNoteBook()
-        let l:day_dir = l:dNoteBook.Filedir()
-        if !empty(l:ArgLead) && l:ArgLead[-1] != '/'
-            let l:ArgLead = l:ArgLead . '/'
-        endif
-        let l:day_list = glob(l:day_dir . '/' . l:ArgLead . '*', 0, 1)
-        let l:head = len(l:day_dir) + 1
-        call map(l:day_list, 'strpart(v:val, l:head)')
-        return s:CreateListBuff(a:argv, l:day_list)
-    endif
-endfunction "}}}
-
-" BrowseTag: 
-function! s:BrowseTag(argv) abort "{{{
-    let l:argc = len(a:argv)
-    if a:argv[0] != '-T'
-        echoerr 'argument dismatch'
-        return 0
-    endif
-
-    if l:argc <= 1
-        let l:ArgLead = ''
-    else
-        let l:ArgLead = a:argv[1]
-    endif
-
-    let l:dNoteBook = vnote#GetNoteBook()
-    let l:tag_dir = l:dNoteBook.Tagdir()
-
-    if !empty(l:ArgLead) && l:ArgLead[-1] != '/'
-        let l:tag_file = l:tag_dir . '/' . l:ArgLead . '.tag'
-        if filereadable(l:tag_file)
-            " browse a specific tag-file
-            return s:ListByTag(l:ArgLead)
+        let l:jNoteList = class#notelist#new(s:jNoteBook)
+        let l:iRet = l:jNoteList.RefreshList(a:00)
+        if l:iRet == 0
+            b:jNoteList = l:jNoteList
         endif
     endif
-
-    let l:head = len(l:tag_dir) + 1
-    let l:tag_list = glob(l:tag_dir . '/' . l:ArgLead . '*', 0, 1)
-
-    let l:ret_list = []
-    for l:tag in l:tag_list
-        let l:tag = strpart(l:tag, l:head)
-        if match(l:tag, '\.tag$') != -1
-            let l:tag = substitute(l:tag, '\.tag$', '', '')
-        else
-            let l:tag = l:tag . '/'
-        endif
-        call add(l:ret_list, l:tag)
-    endfor
-
-    return s:CreateListBuff(a:argv, l:ret_list)
 endfunction "}}}
 
 " CompleteList: Custom completion for notelist

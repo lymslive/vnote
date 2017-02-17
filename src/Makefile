@@ -26,3 +26,7 @@ clean:
 .PHONY: install
 install:
 	cp vnote.out ~/bin/vnote
+
+.PHONY: tag
+tag:
+	ctags -R --c++-kinds=+p --fields=+iaS --extra=+q .

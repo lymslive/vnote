@@ -135,6 +135,11 @@ sub GenerateBox
 					# 改为：文件名中不必嵌入标题了
 					my $file = "${year}${month}${day}_${seqno}";
 					my $file_path = "$path/$file" . '.md';
+					# 一半概率为私有日记，文件名末尾附减号 -
+					if (int(rand(2)) == 1) 
+					{
+						$file_path = "$path/$file" . '-.md';
+					}
 					# 生成一篇日记
 					GenerateNote($file_path, $title);
 				}
