@@ -22,13 +22,10 @@ let s:class._version_ = 1
 " dateInt, yyyymmdd
 " number, n
 " private, -
+let s:class.filename = ''
 let s:class.dateInt = 0
 let s:class.noteNo = 0
 let s:class.private = v:false
-
-let s:class.year = 0
-let s:class.month = 0
-let s:class.day = 0
 
 function! class#notename#class() abort "{{{
     return s:class
@@ -52,12 +49,13 @@ endfunction "}}}
 
 " ParseName: 
 function! s:class.ParseName(filename) dict abort "{{{
-    let l:sBaseName = fnamemodify(a:filename, ':t:r')
-    let l:lsMatch = matchlist(l:sBaseName, s:PATTERN)
+    " let l:sBaseName = fnamemodify(a:filename, ':t:r')
+    let l:lsMatch = matchlist(a:filename, s:PATTERN)
     if empty(l:lsMatch)
-        echoerr 'not valid note file name: ' . l:sBaseName
+        echoerr 'not valid note file name: ' . a:filename
     endif
 
+    let self.filename = l:lsMatch[0]
     let self.dateInt = l:lsMatch[1]
     let self.dateNo = l:lsMatch[2]
     if empty(l:lsMatch[3])
@@ -66,14 +64,6 @@ function! s:class.ParseName(filename) dict abort "{{{
         let self.private = v:true
     endif
 
-    call self.SplitDate_()
-endfunction "}}}
-
-" SplitDate_:
-function! s:class.SplitDate_() dict abort "{{{
-    let self.year = strpart(self.dateInt, 0, 4)
-    let self.month = strpart(self.dateInt, 4, 2)
-    let self.day = strpart(self.dateInt, 6, 2)
 endfunction "}}}
 
 " GetNoteID: 
@@ -86,47 +76,32 @@ function! s:class.IsPrivate() dict abort "{{{
     return self.private
 endfunction "}}}
 
-" GetDatePath: 
+" GetDatePath: return yyyy/mm/dd
 function! s:class.GetDatePath() dict abort "{{{
-    return join([self.year, self.month, self.day], '/')
+    let l:jDate = class#date#new(self.dateInt)
+    return l:jDate.string('/')
 endfunction "}}}
 
-" ShiftDay: change day filed and return self objcet
-function! s:class.ShiftDay(shift) dict abort "{{{
-    let self.day += a:shift
-
-    if self.day > 31
-        let self.day = 1
+" GetFullPath: 
+function! s:class.GetFullPath(jNoteBook) dict abort "{{{
+    let l:pNoteFile = self.GetDatePath() . '/' . self.string()
+    if class#notebook#isobject(a:jNoteBook)
+        let l:pDirectory = a:jNoteBook.Datedir()
+        let l:sExtention = a:jNoteBook.suffix
+        return l:pDirectory . '/' . l:pNoteFile . l:sExtention
+    else
+        let l:pNoteFile
     endif
-    if self.day <= 0
-       let self.day = 31 
-    endif
-
-    if self.day < 10
-        let self.day = '0' . self.day
-    endif
-
-    let self.dateInt = self.year . self.month . self.day
-    return self
 endfunction "}}}
 
-" ShiftMonth: 
-function! s:class.ShiftMonth(shift) dict abort "{{{
-    let self.month += a:shift
+" string as filename
+function! s:class.string() dict abort "{{{
+    return self.filename
+endfunction "}}}
 
-    if self.month > 12
-        let self.month = 1
-    endif
-    if self.month <= 0
-        let self.month = 12 
-    endif
-
-    if self.month < 10
-        let self.month = '0' . self.month
-    endif
-
-    let self.dateInt = self.year . self.month . self.day
-    return self
+" note number
+function! s:class.number() dict abort "{{{
+    return self.noteNo
 endfunction "}}}
 
 " ISOBJECT:

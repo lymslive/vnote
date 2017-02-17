@@ -20,9 +20,6 @@ let s:class.HEADLINE = 10
 " the full path name of note
 let s:class.path = ''
 
-" parts of filename, class#notename
-let s:class.part = {}
-
 function! class#note#class() abort "{{{
     return s:class
 endfunction "}}}
@@ -65,9 +62,9 @@ function! s:class.IsinBook(jNoteBook) dict abort "{{{
     endif
 endfunction "}}}
 
-" GetNoteID: 
-function! s:class.GetNoteID() dict abort "{{{
-    return self.part.GetNoteID()
+" GetNoteName: 
+function! s:class.GetNoteName() dict abort "{{{
+    return fnamemodify(self.path, ':t:r')
 endfunction "}}}
 
 " GetNoteTitle: 
