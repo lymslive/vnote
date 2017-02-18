@@ -4,5 +4,5 @@ tags
 *.o
 *.out
 core.*
-Session.vim
+Session*.vim
 _box/

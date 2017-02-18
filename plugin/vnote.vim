@@ -2,8 +2,6 @@
 " Author: lymslive
 " Date: 2017-01-22
 
-let g:DEBUG = 1
-
 " NoteBook:
 " no argument, show the current notebook
 " with one argument, switch to set that directory as current notebook
