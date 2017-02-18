@@ -9,13 +9,13 @@ if exists('s:load') && !exists('g:DEBUG')
     finish
 endif
 
+" constant value
+let s:HEADLINE = 10
+
 " CLASS:
 let s:class = class#old()
 let s:class._name_ = 'class#note'
 let s:class._version_ = 1
-
-" constant value
-let s:class.HEADLINE = 10
 
 " the full path name of note
 let s:class.path = ''
@@ -35,7 +35,6 @@ endfunction "}}}
 function! class#note#ctor(this, argv) abort "{{{
     if len(a:argv) > 0 && !empty(a:argv[0])
         let a:this.path = a:argv[0]
-        let a:this.part = class#notename#new(a:this.path)
     else
         echoerr 'class#note expect a note file path to construct objcet'
     endif
@@ -67,13 +66,22 @@ function! s:class.GetNoteName() dict abort "{{{
     return fnamemodify(self.path, ':t:r')
 endfunction "}}}
 
+" GetHeadLine: 
+function! s:class.GetHeadLine(iMaxLine) dict abort "{{{
+    if !filereadable(self.path)
+        return []
+    else
+        return readfile(self.path, '', 0 + a:iMaxLine)
+    endif
+endfunction "}}}
+
 " GetNoteTitle: 
 function! s:class.GetNoteTitle() dict abort "{{{
-    if !filereadable(self.path)
+    let l:lsLine = self.GetHeadLine(1)
+    if empty(l:lsLine)
         return ''
     endif
 
-    let l:lsLine = readfile(self.path, 1)
     let l:sFirst = l:lsLine[0]
     let l:sTitle = substitute(l:sFirst, '^\s*#\s*', '', '')
 
@@ -83,10 +91,7 @@ endfunction "}}}
 " GetTagLine: 
 " return the note tags in one string, include `` quote each
 function! s:class.GetTagLine() dict abort "{{{
-    if !filereadable(self.path)
-        return ''
-    endif
-    let l:lsLine = readfile(self.path, '', self.HEADLINE)
+    let l:lsLine = self.GetHeadLine(s:HEADLINE)
     return self.GetTagLine_(l:lsLine)
 endfunction "}}}
 
@@ -118,10 +123,7 @@ endfunction "}}}
 " GetTagList: 
 " return a list of tags, exclude `` quote each
 function! s:class.GetTagList() dict abort "{{{
-    if !filereadable(self.path)
-        return []
-    endif
-    let l:lsLine = readfile(self.path, '', self.HEADLINE)
+    let l:lsLine = self.GetHeadLine(s:HEADLINE)
     return self.GetTagList_(l:lsLine)
 endfunction "}}}
 
@@ -136,7 +138,7 @@ function! s:class.GetTagList_(lsLine) dict abort "{{{
                 let b:TagOn = v:true
             endif 
             let l:lsTmp = self.FindTags_(l:sLine)
-            if !empty(l:lsiTmp)
+            if !empty(l:lsTmp)
                 call extend(l:lsTag, l:lsTmp)
             endif
         else

@@ -43,7 +43,7 @@ function! class#date#ctor(this, argv) abort "{{{
     if l:argc == 0
         let l:sDatePath = strftime("%Y/%m/%d") 
     elseif l:argc > 0
-        let l:sDatePath = argv[0]
+        let l:sDatePath = a:argv[0]
     endif
 
     if empty(l:sDatePath)
@@ -51,17 +51,17 @@ function! class#date#ctor(this, argv) abort "{{{
     endif
 
     if match(l:sDatePath, '^\d\{8\}') != -1
-        let self.year = strpart(l:sDatePath, 0, 4)
-        let self.month = strpart(l:sDatePath, 4, 2)
-        let self.day = strpart(l:sDatePath, 6, 2)
+        let a:this.year = strpart(l:sDatePath, 0, 4)
+        let a:this.month = strpart(l:sDatePath, 4, 2)
+        let a:this.day = strpart(l:sDatePath, 6, 2)
         return 0
     endif
 
     let l:lsSplit = split(l:sDatePath, '[^0-9]\+')
-    if len(l:lsSplit) > 3
-        let self.year = l:lsSplit[0]
-        let self.month = l:lsSplit[1]
-        let sefl.day = l:lsSplit[2]
+    if len(l:lsSplit) >= 3
+        let a:this.year = l:lsSplit[0]
+        let a:this.month = l:lsSplit[1]
+        let a:this.day = l:lsSplit[2]
         return 0
     else
         return -1
@@ -132,5 +132,12 @@ endfunction "}}}
 
 " TEST:
 function! class#date#test(...) abort "{{{
+    let l:jDate = class#date#new()
+    echo l:jDate.string('/')
+    echo class#date#new().string('-')
+    echo class#date#new().number()
+    echo class#date#new('2010/10/10').number()
+    echo class#date#new(20101010).string('.')
+    echo class#date#new('20101010').string('=')
     return 0
 endfunction "}}}

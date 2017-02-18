@@ -40,22 +40,9 @@ function! class#notebuff#isobject(that) abort "{{{
     return s:class._isobject_(a:that)
 endfunction "}}}
 
-" GetNoteTitle: overide base class
-function! s:class.GetNoteTitle() dict abort "{{{
-    let l:sFirst = getline(1)
-    let l:sTitle = substitute(l:sFirst, '^\s*#\s*', '', '')
-
-    return l:sTitle
-endfunction "}}}
-
-" GetTagLine: overide base class
-function! s:class.GetTagLine() dict abort "{{{
-    return self.GetTagLine_(getline(1, self.HEADLINE))
-endfunction "}}}
-
-" GetTagList: overide base class
-function! s:class.GetTagList() dict abort "{{{
-    return self.GetTagList_(getline(1, self.HEADLINE))
+" GetHeadLine:  overide base class
+function! s:class.GetHeadLine(iMaxLine) dict abort "{{{
+    return getline(1, a:iMaxLine)
 endfunction "}}}
 
 " LOAD:

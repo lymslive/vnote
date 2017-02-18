@@ -10,8 +10,8 @@ nnoremap <Plug>(VNOTE_list_prev_day) :call <SID>NextDay(-1)<CR>
 nnoremap <Plug>(VNOTE_list_next_month) :call <SID>NextMonth(1)<CR>
 nnoremap <Plug>(VNOTE_list_prev_month) :call <SID>NextMonth(-1)<CR>
 nnoremap <Plug>(VNOTE_list_smart_jump) :call <SID>SmartJump()<CR>
-nnoremap <Plug>(VNOTE_list_browse_tag) :call notelist#ListNote('-T')<CR>
-nnoremap <Plug>(VNOTE_list_browse_date) :call notelist#ListNote('-D')<CR>
+nnoremap <Plug>(VNOTE_list_browse_tag) :call notelist#hNoteList('-T')<CR>
+nnoremap <Plug>(VNOTE_list_browse_date) :call notelist#hNoteList('-D')<CR>
 
 " import s:jNoteBook from vnote
 let s:jNoteBook = vnote#GetNoteBook()
@@ -23,9 +23,12 @@ let s:untag_line_patter = '^\(-\{8,\}\)\t\(.*\)'
 
 " ListNote: list note by date or by tag, depend on argument
 " now support one string argument, but may prefix an extra -D or -T option
-function! notelist#hListNote(...) "{{{
+function! notelist#hNoteList(...) "{{{
     if a:0 < 1
         let l:sDatePath = strftime("%Y/%m/%d")
+        let l:argv = [l:sDatePath]
+    else
+        let l:argv = a:000
     endif
 
     if winnr('$') > 1 && &filetype != 'notelist'
@@ -33,12 +36,12 @@ function! notelist#hListNote(...) "{{{
     endif
 
     if exists('b:jNoteList')
-        return b:jNoteList.RefreshList(a:000)
+        return b:jNoteList.RefreshList(l:argv)
     else
         let l:jNoteList = class#notelist#new(s:jNoteBook)
-        let l:iRet = l:jNoteList.RefreshList(a:00)
+        let l:iRet = l:jNoteList.RefreshList(l:argv)
         if l:iRet == 0
-            b:jNoteList = l:jNoteList
+            let b:jNoteList = l:jNoteList
             return 0
         else
             return -1
@@ -56,11 +59,11 @@ function! s:EnterNote() "{{{
     " browse mode
     if b:jNoteList.argv[0] ==# '-D' || b:jNoteList.argv[0] ==# '-T'
         let l:select = getline('.')
-        return notelist#ListNote(b:jNoteBook.argv[0], l:select)
+        return notelist#hNoteList(b:jNoteList.argv[0], l:select)
     endif
 
     " list mode
-    let l:jNoteEntry = class#notename(getline('.'))
+    let l:jNoteEntry = class#notename#new(getline('.'))
     if empty(l:jNoteEntry.string())
         return 0
     endif
@@ -89,10 +92,6 @@ function! s:ToggleTagLine() "{{{
         return 0
     endif
 
-    if !s:ParseEntryLine()
-        return 0
-    endif
-
     " next line is tag line, delete it and cursor hold
     if l:lineno < line('$')
         if match(getline(l:lineno+1), s:untag_line_patter) != -1
@@ -105,7 +104,7 @@ function! s:ToggleTagLine() "{{{
 
     " show tag of current note entry inserting next line, cursor hold
 
-    let l:jNoteEntry = class#notename(getline('.'))
+    let l:jNoteEntry = class#notename#new(getline('.'))
     if empty(l:jNoteEntry.string())
         return -1
     endif
@@ -129,11 +128,11 @@ function! s:NextDay(shift) "{{{
     endif
 
     let l:sDatePath = b:jNoteList.argv[1]
-    let l:jDate = class#date(l:sDatePath)
+    let l:jDate = class#date#new(l:sDatePath)
     call l:jDate.ShiftDay(a:shift)
     let l:sDatePath = l:jDate.string('/')
 
-    call notelist#ListNote(l:sDatePath)
+    call notelist#hNoteList(l:sDatePath)
 endfunction "}}}
 
 " NextMonth: 
@@ -144,11 +143,11 @@ function! s:NextMonth(shift) abort "{{{
     endif
 
     let l:sDatePath = b:jNoteList.argv[1]
-    let l:jDate = class#date(l:sDatePath)
+    let l:jDate = class#date#new(l:sDatePath)
     call l:jDate.ShiftMonth(a:shift)
     let l:sDatePath = l:jDate.string('/')
 
-    call notelist#ListNote(l:new_day_path)
+    call notelist#hNoteList(l:sDatePath)
 endfunction "}}}
 
 " CompleteList: Custom completion for notelist
@@ -204,18 +203,18 @@ function! s:SmartJump() abort "{{{
     endif
 
     " cursor in entry line?
-    let l:jNoteEntry = class#notename(getline('.'))
+    let l:jNoteEntry = class#notename#new(getline('.'))
     if !empty(l:jNoteEntry.string())
         let l:sDatePath = l:jNoteEntry.GetDatePath()
         if l:sDatePath !=# b:jNoteList.argv[1]
-            return notelist#hListNote(l:sDatePath)
+            return notelist#hNoteList(l:sDatePath)
         endif
     endif
 
     " cursor on opend tag line
     let l:sTag = note#DetectTag(0)
-    if !empty(l:sTag) && l:tag != b:jNoteBook.argv[1]
-        return notelist#hListNote(l:sTag)
+    if !empty(l:sTag) && l:sTag != b:jNoteList.argv[1]
+        return notelist#hNoteList(l:sTag)
     endif
 
     return 0
@@ -251,7 +250,7 @@ function! s:CheckEntryMap() abort "{{{
         return v:false
     endif
 
-    if line('.') <= s:HEADLINE
+    if line('.') < s:HEADLINE
         return v:false
     endif
 

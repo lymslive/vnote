@@ -38,29 +38,41 @@ function! vnote#OpenNoteBook(...) "{{{
 endfunction "}}}
 
 " NewNote: edit new note of today
-function! vnote#hNewNote(...) "{{{
-    let l:sDatePath = s:TodayPath()
+function! vnote#hNoteNew(...) "{{{
+    let l:sDatePath = strftime("%Y/%m/%d")
 
     if a:0 > 0 && a:1 ==# '-'
-        let l:pNoteFile = s:jNoteBook.AllocNewNote(l:sDatePath, v:true)
+        let l:bPrivate = v:true
     else
-        let l:pNoteFile = s:jNoteBook.AllocNewNote(l:sDatePath)
+        let l:bPrivate = v:false
     endif
 
+    let l:pNoteFile = s:jNoteBook.AllocNewNote(l:sDatePath, l:bPrivate)
     let l:pDirectory = s:jNoteBook.Notedir(l:sDatePath)
     if !isdirectory(l:pDirectory)
         call mkdir(l:pDirectory, 'p')
     endif
 
     execute 'edit ' . l:pNoteFile
+
+    " pre-insert tow lines
+    call append(0, '# note title')
+    if l:bPrivate
+        call append(1, '`-`')
+    else
+        call append(1, '`+`')
+    endif
+
+    " put cursor on title
+    normal ggw
 endfunction "}}}
 
 " EditNote: 
-function! vnote#hEditNote(...) "{{{
+function! vnote#hNoteEdit(...) "{{{
     if a:0 >= 1
         let l:sDatePath = a:1
     else
-        let l:sDatePath = s:TodayPath()
+        let l:sDatePath = strftime("%Y/%m/%d")
     endif
 
     let l:pDirectory = s:jNoteBook.Notedir(l:sDatePath)
@@ -74,17 +86,5 @@ function! vnote#hEditNote(...) "{{{
     let l:pNoteFile = s:jNoteBook.GetLastNote(l:sDatePath)
     " to match private note also
     execute 'edit ' . fnamemodify(l:pNoteFile, ':r') . '*'
-endfunction "}}}
-
-" s:TodayPath: yyyy/mm/dd as a path
-function! s:TodayPath() "{{{
-    let l:day_path = strftime("%Y/%m/%d")
-    return l:day_path
-endfunction "}}}
-
-" s:TodayInt: yyyymmdd as a integer
-function! s:TodayInt() "{{{
-    let l:day_int  = strftime("%Y%m%d")
-    return l:day_int
 endfunction "}}}
 

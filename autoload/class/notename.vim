@@ -52,12 +52,13 @@ function! s:class.ParseName(filename) dict abort "{{{
     " let l:sBaseName = fnamemodify(a:filename, ':t:r')
     let l:lsMatch = matchlist(a:filename, s:PATTERN)
     if empty(l:lsMatch)
-        echoerr 'not valid note file name: ' . a:filename
+        " echoerr 'not valid note file name: ' . a:filename
+        return -1
     endif
 
     let self.filename = l:lsMatch[0]
     let self.dateInt = l:lsMatch[1]
-    let self.dateNo = l:lsMatch[2]
+    let self.noteNo = l:lsMatch[2]
     if empty(l:lsMatch[3])
         let self.private = v:false
     else
@@ -78,6 +79,10 @@ endfunction "}}}
 
 " GetDatePath: return yyyy/mm/dd
 function! s:class.GetDatePath() dict abort "{{{
+    if self.dateInt <= 0
+        return ''
+    endif
+
     let l:jDate = class#date#new(self.dateInt)
     return l:jDate.string('/')
 endfunction "}}}

@@ -92,19 +92,19 @@ function! s:class.Notedir(sDatePath) dict abort "{{{
     endif
 endfunction "}}}
 
-" Notefile: full path of a note file
-" input: (sDatePath, iNoteNumber, [bPrivate])
+" Notefile: full path of a note file, by rule, may not exists yet
+" input: (sDatePath, iNumber, [bPrivate])
 " return: <notebook>/d/yyyy/mm/dd/yyyymmdd_n[-].md
-function! s:class.Notefile(sDatePath, iNoteNumber, ...) dict abort "{{{
+function! s:class.Notefile(sDatePath, iNumber, ...) dict abort "{{{
     if match(a:sDatePath, self.pattern.datePath) == -1
         echoerr a:sDatePath . ' is not a valid day path as yyyy/mm/dd'
         return ''
     endif
 
     let l:iDateInt = substitute(a:sDatePath, '/', '', 'g')
-    let l:pFileName = self.Datedir() . '/' . a:sDatePath . '/' . l:iDateInt . '_' . a:iNoteNumber
+    let l:pFileName = self.Datedir() . '/' . a:sDatePath . '/' . l:iDateInt . '_' . a:iNumber
 
-    if a:0 > 0 && !a:1
+    if a:0 > 0 && a:1
         let l:pFileName .= '-'
     endif
 
@@ -113,24 +113,34 @@ function! s:class.Notefile(sDatePath, iNoteNumber, ...) dict abort "{{{
     return l:pFileName
 endfunction "}}}
 
-" NoteCount: how many note in a day (yyyy/mm/dd)
-function! s:class.NoteCount(sDatePath) dict abort "{{{
+" GlobNote: glob note file in a date, and optional note number
+function! s:class.GlobNote(sDatePath, ...) dict abort "{{{
     let l:pDirectory = self.Notedir(a:sDatePath)
     if empty(l:pDirectory)
-        return 0
+        return []
     endif
 
     let l:iDateInt = substitute(a:sDatePath, '/', '', 'g')
-    let l:sPattern = l:pDirectory . '/' . l:iDateInt . '_*' . self.suffix
-    let l:lpNoteFile = glob(l:sPattern, 0, 1)
-    let l:iCount = len(l:lpNoteFile)
+    if a:0 > 0 && a:1 > 0
+        let l:sNoteGlob = l:pDirectory . '/' . l:iDateInt . '_' . a:1 . '*' . self.suffix
+    else
+        let l:sNoteGlob = l:pDirectory . '/' . l:iDateInt . '_*' . self.suffix
+    endif
 
+    let l:lpNoteFile = glob(l:sNoteGlob, 0, 1)
+    return l:lpNoteFile
+endfunction "}}}
+
+" NoteCount: how many note in a day (yyyy/mm/dd)
+function! s:class.NoteCount(sDatePath) dict abort "{{{
+    let l:lpNoteFile = self.GlobNote(a:sDatePath)
+    let l:iCount = len(l:lpNoteFile)
     return l:iCount
 endfunction "}}}
 
 " AllocNewNote: return a full path name used as new note in a day
 function! s:class.AllocNewNote(sDatePath, ...) dict abort "{{{
-    let l:iCount = self.NoteCount()
+    let l:iCount = self.NoteCount(a:sDatePath)
     let l:iCount += 1
     if a:0 > 0
         let l:bPrivate = a:1
@@ -142,11 +152,38 @@ endfunction "}}}
 
 " GetLastNote: return full path name of the last note in a day
 function! s:class.GetLastNote(sDatePath) dict abort "{{{
-    let l:iCount = self.NoteCount()
+    let l:iCount = self.NoteCount(a:sDatePath)
     if l:iCount <= 0
         let l:iCount = 1
     endif
     return self.Notefile(a:sDatePath, l:iCount)
+endfunction "}}}
+
+" FindNoteByDateNo: 
+" given a date and number, return the note file full path
+" the note may or may not be private, that have - suffix
+" option: if a:1 nonempty, allow return a nonexists note file name
+function! s:class.FindNoteByDateNo(sDatePath, iNumber, ...) abort "{{{
+    let l:lpNoteFile = self.GlobNote(a:sDatePath, a:iNumber)
+    let l:iCount = len(l:lpNoteFile)
+
+    if l:iCount == 1
+        return l:lpNoteFile[0]
+    elseif l:iCount > 1
+        echo 'have more than one note, something wrong:'
+        for l:pNoteFile in l:lpNoteFile
+            echo l:pNoteFile
+        endfor
+        return ''
+    elseif l:iCount == 0
+        if a:0 > 0 && !empty(a:1)
+            return self.Notefile(a:sDatePath, a:iNumber)
+        else
+            return ''
+        endif
+    endif
+
+    return ''
 endfunction "}}}
 
 " LOAD:

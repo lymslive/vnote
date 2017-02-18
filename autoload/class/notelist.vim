@@ -10,7 +10,8 @@ if exists('s:load') && !exists('g:DEBUG')
 endif
 
 " note-list buffer name
-let s:bufferName = '_NLS_'
+let s:BUFFER_NAME = '_NLS_'
+let s:SEPARATE_LINE = repeat('=', 78)
 
 " CLASS:
 let s:class = class#old()
@@ -47,7 +48,7 @@ endfunction "}}}
 " SetNoteBook: 
 function! s:class.SetNoteBook(jNoteBook) dict abort "{{{
     if class#notebook#isobject(a:jNoteBook)
-        let self.NoteBook = a:jNoteBook
+        let self.notebook = a:jNoteBook
         return 0
     else
         echoerr 'expect an object of class#notebook'
@@ -76,6 +77,12 @@ function! s:class.RefreshList(argv) dict abort "{{{
     " get the first argument
     let l:sArg = ''
     let l:iPostArgc = len(l:lsPostArgv)
+
+    " the special - tag
+    if l:iPostArgc == 0 && !empty(a:argv) && a:argv[-1] ==# '-'
+        let l:sArg = '-'
+    endif
+
     if l:iPostArgc > 0
         let l:sArg = l:lsPostArgv[0]
     endif
@@ -113,10 +120,10 @@ function! s:class.RedrawContent(lsContent) dict abort "{{{
     :1,$delet
 
     " set buffer content
-    call setline(1, '$ note-book ' . self.noteBook.basedir)
-    call setline(2, '$ note-list ' . join(self.argv))
-    call setline(3, repeat('=', 78))
-    call append(line('$'), a:lsrContent)
+    call setline(1, '$ NoteBook ' . self.notebook.basedir)
+    call setline(2, '$ NoteList ' . join(self.argv))
+    call setline(3, s:SEPARATE_LINE)
+    call append(line('$'), a:lsContent)
 
     " put cursor
     normal! 4G
@@ -133,7 +140,7 @@ endfunction "}}}
 " GetBufferName: return a file name for note-list buffer
 function! s:class.GetBufferName() dict abort "{{{
     let l:jNoteBook = self.notebook
-    let l:pBuffer = l:jNoteBook.Cachedir() . '/' . s:bufferName
+    let l:pBuffer = l:jNoteBook.Cachedir() . '/' . s:BUFFER_NAME
     return l:pBuffer
 endfunction "}}}
 
@@ -145,11 +152,10 @@ function! s:class.ListByDate(sDatePath, ...) dict abort "{{{
 
     let l:lsOutput = []
     for l:pNote in l:lpNoteFile
-        let l:pFileName = strpart(l:pNote, len(l:pDiretory)+1)
-        let l:sNoteID = substitute(l:pFileName, self.notebook.suffix . '$', '', '')
-        let l:jNote = class#note(l:pNote)
+        let l:jNote = class#note#new(l:pNote)
+        let l:sNoteName = l:jNote.GetNoteName()
         let l:sNoteTitle = l:jNote.GetNoteTitle()
-        call add(l:lsOutput, l:sNoteID . "\t" . l:sNoteTitle)
+        call add(l:lsOutput, l:sNoteName . "\t" . l:sNoteTitle)
     endfor
 
     let self.argv = ['-d', a:sDatePath]
@@ -157,7 +163,7 @@ function! s:class.ListByDate(sDatePath, ...) dict abort "{{{
 endfunction "}}}
 
 " ListByTag: note-list -t {tag-name}
-function! s:class.ListByTag(sTag, ..) dict abort "{{{
+function! s:class.ListByTag(sTag, ...) dict abort "{{{
     let l:pDiretory = self.notebook.Tagdir()
     let l:pTagFile = l:pDiretory . '/' . a:sTag . '.tag'
     if !filereadable(l:pTagFile)
