@@ -156,7 +156,7 @@ function! s:class.GetLastNote(sDatePath) dict abort "{{{
     if l:iCount <= 0
         let l:iCount = 1
     endif
-    return self.Notefile(a:sDatePath, l:iCount)
+    return self.FindNoteByDateNo(a:sDatePath, l:iCount, 1)
 endfunction "}}}
 
 " FindNoteByDateNo: 

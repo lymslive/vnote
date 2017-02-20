@@ -79,12 +79,13 @@ function! vnote#hNoteEdit(...) "{{{
     if empty(l:pDirectory)
         return 0
     endif
-    if !isdirectory(l:pDirectory)
-        call mkdir(l:pDirectory, 'p')
-    endif
 
     let l:pNoteFile = s:jNoteBook.GetLastNote(l:sDatePath)
-    " to match private note also
-    execute 'edit ' . fnamemodify(l:pNoteFile, ':r') . '*'
+    if !empty(l:pNoteFile)
+        if !isdirectory(l:pDirectory)
+            call mkdir(l:pDirectory, 'p')
+        endif
+        execute 'edit ' . l:pNoteFile
+    endif
 endfunction "}}}
 
