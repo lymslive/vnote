@@ -60,7 +60,7 @@ $ make install
 ## 命令与快捷键参考
 
 * `:NoteNew` 新建日记，按今天日期递增一个编号，若提供 `-` 参数则创建私有日记。
-* `:NoteSave` （快捷键 `;w`），保存日记，光标在标签行中更新标签索引文件。
+* `:NoteSave` （快捷键 `;w`），保存日记，当前光标若在标签行时更新标签索引文件。
 * `:NoteEdit` 按日期(`yyyy/mm/dd`格式)与编号参数打开日记，默认今天最大编号日记。
 * `:NoteList` 打开日记列表，支持日期或标签参数，默认今天日期。
 * `map <CR>` 在日记列表中回车，打开相应的日记文件，多窗口时在另一个窗口打开。
@@ -81,8 +81,8 @@ $ make install
 ## 更多参考链接
 
 * [doc/tutor](doc/tutor.md) 一篇更详细的 vnote 日记玩转教程。
-* [实例](https://github.com/lymslive/notebook)，笔者自己的笔记本目录，不定期更
-  新同步。
+* [lymslive/notebook 实例](https://github.com/lymslive/notebook)
+  笔者自己的笔记本目录，不定期更新同步。
 
 ## 致谢
 
