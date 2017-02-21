@@ -23,6 +23,7 @@ utf-8 编码时，涉及中文的日记/笔记及标签也能正常处理。目�
   动生成标签索引文件。多层子标签类似目录路径层次处理。
 * 支持笔记列表功能，可以按日期或标签列表。从列表中选定笔记打开相应文件编辑。支
   持多窗口，当存在多窗口时会在另一个窗口打开笔记文件。
+* 支持 unite 接口，提供 notelist 源。
 
 ## 安装
 
@@ -44,6 +45,9 @@ let $VIMHOME = $HOME."/.vim"
 set rtp+=$VIMHOME/bundle/vimloo
 set rtp+=$VIMHOME/bundle/vnote
 ```
+
+当然，如果要使用 `:Unite notelist` 源，还需安装
+[Unite](https://github.com/Shougo/unite.vim)。
 
 ### C++ 工具部分编译安装
 
@@ -88,4 +92,5 @@ $ make install
 
 * C++ 程序 vnote 在处理命令参数时，采用了 tanakh 提供的模板库，传送门：
 https://github.com/tanakh/cmdline
+* Shougo 大神的 unite 通用列表搜索插件：https://github.com/Shougo/unite.vim
 

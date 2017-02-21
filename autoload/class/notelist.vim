@@ -56,8 +56,14 @@ function! s:class.SetNoteBook(jNoteBook) dict abort "{{{
     endif
 endfunction "}}}
 
-" RefreshList: 
+" RefreshList: Interface of NoteList command, fresh the notelist
 function! s:class.RefreshList(argv) dict abort "{{{
+    let l:lsContent = self.GatherContent(a:argv)
+    return self.RedrawContent(l:lsContent)
+endfunction "}}}
+
+" GatherContent: parse argv and then configue out list content
+function! s:class.GatherContent(argv) dict abort "{{{
     " set option schema
     let l:jOption = class#cmdline#new('NoteList')
     call l:jOption.AddSingle('d', 'date', 'note in this date')
@@ -105,10 +111,10 @@ function! s:class.RefreshList(argv) dict abort "{{{
         endif
     endif
 
-    return self.RedrawContent(l:lsContent)
+    return l:lsContent
 endfunction "}}}
 
-" RedrawContent: 
+" RedrawContent: update the notelist buffer
 function! s:class.RedrawContent(lsContent) dict abort "{{{
     " may need edit a new buffer
     if &filetype !=# 'notelist'
