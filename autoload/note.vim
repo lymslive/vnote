@@ -6,6 +6,7 @@
 nnoremap <Plug>(VNOTE_edit_next_note) :call <SID>EditNext(1)<CR>
 nnoremap <Plug>(VNOTE_edit_prev_note) :call <SID>EditNext(-1)<CR>
 nnoremap <Plug>(VNOTE_edit_open_list) :call <SID>OpenNoteList()<CR>
+nnoremap <Plug>(VNOTE_edit_smart_tab) :call note#hSmartTab<CR>
 
 " import s:jNoteBook from vnote
 let s:jNoteBook = vnote#GetNoteBook()
@@ -62,6 +63,19 @@ function! s:OpenNoteList() abort "{{{
         call notelist#hNoteList(l:sTag)
     endif
 
+endfunction "}}}
+
+" SmartTab: 
+function! note#hSmartTab() abort "{{{
+    if winnr('$') > 1
+        let l:iWin = notelist#FindListWindow()
+        if l:iWin == 0 && l:iWin == winnr()
+            :wincmd p
+        endif
+    else
+        :vsplit
+        call s:OpenNoteList()
+    endif
 endfunction "}}}
 
 " DetectTag: get a tag under cursor, the string between two `` marks

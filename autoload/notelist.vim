@@ -10,6 +10,7 @@ nnoremap <Plug>(VNOTE_list_prev_day) :call <SID>NextDay(-1)<CR>
 nnoremap <Plug>(VNOTE_list_next_month) :call <SID>NextMonth(1)<CR>
 nnoremap <Plug>(VNOTE_list_prev_month) :call <SID>NextMonth(-1)<CR>
 nnoremap <Plug>(VNOTE_list_smart_jump) :call <SID>SmartJump()<CR>
+nnoremap <Plug>(VNOTE_list_smart_tab) :call notelist#hSmartTab<CR>
 nnoremap <Plug>(VNOTE_list_browse_tag) :call notelist#hNoteList('-T')<CR>
 nnoremap <Plug>(VNOTE_list_browse_date) :call notelist#hNoteList('-D')<CR>
 
@@ -71,7 +72,7 @@ function! s:EnterNote() "{{{
     let l:pFileName = l:jNoteEntry.GetFullPath(s:jNoteBook)
 
     if winnr('$') > 1
-        wincmd p
+        :wincmd p
     endif
 
     execute 'edit ' . l:pFileName
@@ -117,6 +118,16 @@ function! s:ToggleTagLine() "{{{
     call append('.', l:sLeadLine . "\t" . l:sTagLine)
 
     return 0
+endfunction "}}}
+
+" SmartTab: vsplit windown to open note or switch window 
+function! notelist#hSmartTab() abort "{{{
+    if winnr('$') > 1
+        :wincmd p
+    else
+        :vsplit
+        call s:EnterNote()
+    endif
 endfunction "}}}
 
 " s:NextDay: list notes of another day
@@ -224,23 +235,15 @@ endfunction "}}}
 " return: the window nr or 0 if not found
 " action: may change the current window if found
 function! notelist#FindListWindow() abort "{{{
-    let l:old = winnr()
-    let l:new = 0
-
     let l:count = winnr('$')
     for l:win in range(1, l:count)
-        execute l:win . 'wincmd w'
-        if &filetype == 'notelist'
-            let l:new = l:win
-            break
+        if getwinvar(l:win, '&filetype') ==# 'notelist'            
+            execute l:win . 'wincmd w'
+            return l:win
         endif
     endfor
 
-    if l:new == 0 && l:win != l:old
-        execute l:old . 'wincmd w'
-    endif
-
-    return l:new
+    return 0
 endfunction "}}}
 
 " CheckEntryMap: return true if key map success on list entry context

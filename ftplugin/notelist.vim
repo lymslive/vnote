@@ -16,6 +16,8 @@ nmap <buffer> <CR> <Plug>(VNOTE_list_edit_note)
 " this map open a line to show tags of the note under cursor
 nmap <buffer> <Space> <Plug>(VNOTE_list_toggle_tagline)
 
+nmap <buffer> <Tab> <Plug>(VNOTE_list_smart_tab)
+
 " these map only used when NoteList by date
 nmap <buffer> <C-a> <Plug>(VNOTE_list_next_day)
 nmap <buffer> <C-x> <Plug>(VNOTE_list_prev_day)

@@ -14,6 +14,8 @@ nmap <buffer> g<C-x> <Plug>(VNOTE_edit_prev_note)
 " otherwise NoteList by the date of this note
 nmap <buffer> <C-]> <Plug>(VNOTE_edit_open_list)
 
+nmap <buffer> <Tab> <Plug>(VNOTE_edit_smart_tab)
+
 " NoteSave:
 " save current note file, and
 " if cursor on tag line, also save the reletive tag files
