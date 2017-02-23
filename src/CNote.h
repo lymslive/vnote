@@ -50,6 +50,8 @@ public:
 	string Desc() const;
 	// 日期与序号联接，可作为日记ID
 	string NoteID() const;
+	// 日记文件名，日期序号私有标记，不再有标题
+	string NoteName() const;
 	// 生成简明的列表行字符串：文件名 + 制表 + 标题
 	// 若 bTags ，则将所有标签列在其后，也用制表分隔
 	string ListLine(bool bTags = false) const;
@@ -61,6 +63,7 @@ private:
 	// 日记文件名格式：yyyymmdd_n_日记标题
 	DINT m_date;
 	int m_seqno;
+	bool m_private;
 	string m_title;
 	// 日记可归属于多个目录及标签
 	set<string> m_tag;

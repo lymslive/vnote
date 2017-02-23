@@ -148,6 +148,8 @@ function! s:UpdateTagFile() abort "{{{
     endif
 
     for l:sTag in l:lsTag
+        let l:sTag = tolower(l:sTag)
+
         " read in old notelist of that tag
         let l:pTagFile = l:pTagDir . '/' . l:sTag . '.tag'
         if filereadable(l:pTagFile)

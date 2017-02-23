@@ -120,6 +120,7 @@ EINT CNoteParser::SplitFileName(const string &sFileName, CNote &jNote)
 	{
 		jNote.m_date = m_sCache.iDate;
 		jNote.m_seqno = m_sCache.iSeqno;
+		jNote.m_private = m_sCache.bPrivatea;
 		jNote.m_title = m_sCache.sTitle;
 	}
 
@@ -167,6 +168,17 @@ bool CNoteParser::FilterFileName(const string &sFileName)
 	if (iPos != string::npos && ++iPos != sLastName.size())
 	{
 		m_sCache.sTitle = sLastName.substr(iPos);
+	}
+
+	// 是否有私有标记
+	iPos = sLastName.find("-.", HEAD_DATE_STRING_LENGTH + 1);
+	if (iPos != string::npos)
+	{
+		m_sCache.bPrivatea = true;
+	}
+	else
+	{
+		m_sCache.bPrivatea = false;
 	}
 
 	m_sCache.bValid = true;

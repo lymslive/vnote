@@ -27,7 +27,7 @@ my $path_per_note = 2;
 my @end_days = (31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31);
 
 # 随机单词所取的字母
-my @letter = qw(a b c d e f g h i j k l m n o p q r s t u v w x y z);
+my @letter = qw(a b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z);
 
 #========= 过程控制调用 =======#
 
@@ -199,7 +199,7 @@ sub RandWord
 	my @chars = ();
 	for (my $var = 0; $var < $length; $var++)
 	{
-		my $index = int(rand(26));
+		my $index = int(rand(scalar @letter));
 		push @chars, $letter[$index];
 	}
 	

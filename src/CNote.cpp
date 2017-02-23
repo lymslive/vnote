@@ -5,10 +5,12 @@
 #include <numeric>
 #include "CFileDir.h"
 #include <stdlib.h>
+#include <algorithm>
 
 CNote::CNote(const string &sFileName, const string &sBasedir) :
 	m_date(0),
 	m_seqno(0),
+	m_private(false),
 	m_delete(false),
 	m_bad(false),
 	m_file(sFileName)
@@ -40,6 +42,7 @@ bool CNote::InTag(string sTag)
 		return false;
 	}
 
+	std::transform(sTag.begin(), sTag.end(), sTag.begin(), tolower);
 	auto it = m_tag.find(sTag);
 	return it != m_tag.end();
 }
@@ -52,6 +55,7 @@ void CNote::AddTag(string sTag)
 		return;
 	}
 
+	std::transform(sTag.begin(), sTag.end(), sTag.begin(), tolower);
 	m_tag.insert(sTag);
 }
 
@@ -110,6 +114,17 @@ string CNote::NoteID() const
 	return str.str();
 }
 
+string CNote::NoteName() const
+{
+	string sName = NoteID();
+	if (m_private)
+	{
+		sName.append("-");
+	}
+
+	return sName;
+}
+
 string CNote::Desc() const
 {
 	using std::ostringstream;
@@ -133,7 +148,7 @@ string CNote::Desc() const
 
 string CNote::ListLine(bool bTags) const
 {
-	string sLine = NoteID() + CHAR_TABLE + m_title;
+	string sLine = NoteName() + CHAR_TABLE + m_title;
 
 	if (bTags)
 	{

@@ -41,6 +41,7 @@ public:
 		bool bValid;
 		DINT iDate;
 		int iSeqno;
+		bool bPrivatea;
 		string sTitle;
 	};
 	static SFileNamePart m_sCache;

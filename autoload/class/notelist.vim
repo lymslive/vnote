@@ -174,14 +174,15 @@ endfunction "}}}
 
 " ListByTag: note-list -t {tag-name}
 function! s:class.ListByTag(sTag, ...) dict abort "{{{
+    let l:sTag = tolower(a:sTag)
     let l:pDiretory = self.notebook.Tagdir()
-    let l:pTagFile = l:pDiretory . '/' . a:sTag . '.tag'
+    let l:pTagFile = l:pDiretory . '/' . l:sTag . '.tag'
     if !filereadable(l:pTagFile)
-        echo 'the notebook has no tag: ' . a:sTag
+        echo 'the notebook has no tag: ' . l:sTag
         return []
     endif
 
-    let self.argv = ['-t', a:sTag]
+    let self.argv = ['-t', l:sTag]
     return readfile(l:pTagFile)
 endfunction "}}}
 
@@ -211,17 +212,18 @@ endfunction "}}}
 " BrowseTag: 
 function! s:class.BrowseTag(ArgLead) dict abort "{{{
     let l:pDiretory = self.notebook.Tagdir()
+    let l:ArgLead = tolower(a:ArgLead)
 
     " check browse a specific tag-file
-    if !empty(a:ArgLead) && a:ArgLead[-1] != '/'
-        let l:pTagFile = l:pDiretory . '/' . a:ArgLead . '.tag'
+    if !empty(l:ArgLead) && l:ArgLead[-1] != '/'
+        let l:pTagFile = l:pDiretory . '/' . l:ArgLead . '.tag'
         if filereadable(l:pTagFile)
-            return self.ListByTag(a:ArgLead)
+            return self.ListByTag(l:ArgLead)
         endif
     endif
 
     let l:iHead = len(l:pDiretory) + 1
-    let l:lpTag = glob(l:pDiretory . '/' . a:ArgLead . '*', 0, 1)
+    let l:lpTag = glob(l:pDiretory . '/' . l:ArgLead . '*', 0, 1)
 
     let l:lsRet = []
     for l:pTag in l:lpTag
@@ -234,7 +236,7 @@ function! s:class.BrowseTag(ArgLead) dict abort "{{{
         call add(l:lsRet, l:sTag)
     endfor
 
-    let self.argv = ['-T', a:ArgLead]
+    let self.argv = ['-T', l:ArgLead]
     return l:lsRet
 endfunction "}}}
 
