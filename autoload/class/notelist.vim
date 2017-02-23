@@ -127,6 +127,7 @@ function! s:class.RedrawContent(lsContent) dict abort "{{{
         execute ':edit ' . l:pBuffer
     endif
 
+    set modifiable
     " clear old content
     :1,$delet
 
@@ -145,6 +146,7 @@ function! s:class.RedrawContent(lsContent) dict abort "{{{
         set buftype=nofile
     endif
 
+    set nomodifiable
     return 0
 endfunction "}}}
 
@@ -224,20 +226,60 @@ function! s:class.BrowseTag(ArgLead) dict abort "{{{
 
     let l:iHead = len(l:pDiretory) + 1
     let l:lpTag = glob(l:pDiretory . '/' . l:ArgLead . '*', 0, 1)
+    call map(l:lpTag, 'strpart(v:val, l:iHead)')
 
     let l:lsRet = []
-    for l:pTag in l:lpTag
-        let l:sTag = strpart(l:pTag, l:iHead)
-        if match(l:sTag, '\.tag$') != -1
+    let l:lsPath = []
+    let l:lsLeaf = []
+    for l:sTag in l:lpTag
+        if l:sTag =~ '\.tag$'
             let l:sTag = substitute(l:sTag, '\.tag$', '', '')
+            if l:sTag == '+'
+                call add(l:lsRet, l:sTag)
+            elseif l:sTag == '-'
+                call add(l:lsRet, l:sTag)
+            else
+                call add(l:lsLeaf, l:sTag)
+            endif
         else
             let l:sTag = l:sTag . '/'
+            call add(l:lsPath, l:sTag)
         endif
-        call add(l:lsRet, l:sTag)
     endfor
+
+    if !empty(l:lsPath)
+        call sort(l:lsPath)
+        call extend(l:lsRet, l:lsPath)
+    endif
+    if !empty(l:lsLeaf)
+        call sort(l:lsLeaf)
+        call extend(l:lsRet, l:lsLeaf)
+    endif
 
     let self.argv = ['-T', l:ArgLead]
     return l:lsRet
+endfunction "}}}
+
+" BackList: 
+function! s:class.BackList() dict abort "{{{
+    let l:cType = self.argv[0]
+    let l:cType = substitute(l:cType, '^-', '', '')
+    if stridx('TDtd', l:cType) < 0
+        :LOG '[notelist] can only back in -DTdt modes'
+        return -1
+    endif
+
+    let l:sArg = self.argv[1]
+    if empty(l:sArg)
+        :LOG '[notelist] alread in the top level'
+        return 0
+    endif
+
+    let l:lsPath = split(l:sArg, '/')
+    call remove(l:lsPath, -1)
+
+    let l:lsArgv = [toupper(self.argv[0]), join(l:lsPath, '/')]
+    return self.RefreshList(l:lsArgv)
 endfunction "}}}
 
 " LOAD:

@@ -11,6 +11,7 @@ nnoremap <Plug>(VNOTE_list_next_month) :call <SID>NextMonth(1)<CR>
 nnoremap <Plug>(VNOTE_list_prev_month) :call <SID>NextMonth(-1)<CR>
 nnoremap <Plug>(VNOTE_list_smart_jump) :call <SID>SmartJump()<CR>
 nnoremap <Plug>(VNOTE_list_smart_tab) :call notelist#hSmartTab()<CR>
+nnoremap <Plug>(VNOTE_list_back_list) :call notelist#hBackList()<CR>
 nnoremap <Plug>(VNOTE_list_browse_tag) :call notelist#hNoteList('-T')<CR>
 nnoremap <Plug>(VNOTE_list_browse_date) :call notelist#hNoteList('-D')<CR>
 
@@ -48,6 +49,15 @@ function! notelist#hNoteList(...) "{{{
             return -1
         endif
     endif
+endfunction "}}}
+
+" BackList: back to list a top level
+function! notelist#hBackList() abort "{{{
+    if &filetype !=# 'notelist' || !exists('b:jNoteList')
+        :ELOG '[notelist] not in notelist buffer??'
+        return -1
+    endif
+    return b:jNoteList.BackList()
 endfunction "}}}
 
 " s:EnterNote: <CR> to edit note under cursor line
@@ -134,7 +144,7 @@ endfunction "}}}
 " a:shift, a number, shift how many day, not check beyond month end-days
 function! s:NextDay(shift) "{{{
     if !exists('b:jNoteList') || b:jNoteList.argv[0] !=# '-d'
-        echo 'Not list note by day?'
+        :WLOG 'Not list note by day?'
         return 0
     endif
 
@@ -149,7 +159,7 @@ endfunction "}}}
 " NextMonth: 
 function! s:NextMonth(shift) abort "{{{
     if !exists('b:jNoteList') || b:jNoteList.argv[0] !=# '-d'
-        echo 'Not list note by day?'
+        :WLOG 'Not list note by day?'
         return 0
     endif
 
