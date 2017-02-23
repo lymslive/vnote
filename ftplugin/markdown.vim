@@ -19,7 +19,11 @@ nmap <buffer> <Tab> <Plug>(VNOTE_edit_smart_tab)
 " NoteSave:
 " save current note file, and
 " if cursor on tag line, also save the reletive tag files
-command! -nargs=0 -buffer NoteSave call note#UpdateNote()
-nnoremap <buffer> ;w :NoteSave<CR>
+" command! -nargs=0 -buffer NoteSave call note#UpdateNote()
+" nnoremap <buffer> ;w :NoteSave<CR>
 
+augroup VNOTE_EDIT
+    autocmd! * <buffer>
+    autocmd BufWritePost <buffer> call note#UpdateNote()
+augroup end
 call note#Load()

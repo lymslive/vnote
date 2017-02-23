@@ -196,7 +196,7 @@ endfunction "}}}
 " UpdateNote: save note and tag file if context possible 
 function! note#UpdateNote() abort "{{{
     " save this note file
-    :update
+    " :update
 
     if !s:NoteInBook()
         return 0
