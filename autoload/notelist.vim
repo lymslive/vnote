@@ -10,7 +10,7 @@ nnoremap <Plug>(VNOTE_list_prev_day) :call <SID>NextDay(-1)<CR>
 nnoremap <Plug>(VNOTE_list_next_month) :call <SID>NextMonth(1)<CR>
 nnoremap <Plug>(VNOTE_list_prev_month) :call <SID>NextMonth(-1)<CR>
 nnoremap <Plug>(VNOTE_list_smart_jump) :call <SID>SmartJump()<CR>
-nnoremap <Plug>(VNOTE_list_smart_tab) :call notelist#hSmartTab<CR>
+nnoremap <Plug>(VNOTE_list_smart_tab) :call notelist#hSmartTab()<CR>
 nnoremap <Plug>(VNOTE_list_browse_tag) :call notelist#hNoteList('-T')<CR>
 nnoremap <Plug>(VNOTE_list_browse_date) :call notelist#hNoteList('-D')<CR>
 

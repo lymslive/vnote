@@ -66,6 +66,7 @@ endfunction "}}}
 function! s:class.GatherContent(argv) dict abort "{{{
     " set option schema
     let l:jOption = class#cmdline#new('NoteList')
+    call l:jOption.AddSingle('a', 'all', 'glob all notes')
     call l:jOption.AddSingle('d', 'date', 'note in this date')
     call l:jOption.AddSingle('t', 'tag', 'note has this tag')
     call l:jOption.AddSingle('D', 'Date-Tree', 'browse by date')
@@ -74,7 +75,8 @@ function! s:class.GatherContent(argv) dict abort "{{{
     " parser a:argv
     let l:iErr = l:jOption.Check(a:argv)
     if l:iErr != 0
-        return l:iErr
+        :ELOG 'notelist argument invalid'
+        return []
     endif
 
     " let self.argv = a:argv
@@ -95,7 +97,10 @@ function! s:class.GatherContent(argv) dict abort "{{{
 
     " dispatch note-list mode
     let l:lsContent = []
-    if l:jOption.Has('Date-Tree')
+
+    if l:jOption.Has('all')
+        let l:lsContent = self.ListByDate('')
+    elseif l:jOption.Has('Date-Tree')
         let l:lsContent = self.BrowseDate(l:sArg)
     elseif l:jOption.Has('Tag-Tree')
         let l:lsContent = self.BrowseTag(l:sArg)
@@ -104,7 +109,7 @@ function! s:class.GatherContent(argv) dict abort "{{{
     elseif l:jOption.Has('tag')
         let l:lsContent = self.ListByTag(l:sArg)
     else
-        if match(l:sArg, self.notebook.pattern.datePath) != -1
+        if l:sArg =~ self.notebook.pattern.dateYear || empty(l:sArg)
             let l:lsContent = self.ListByDate(l:sArg)
         else
             let l:lsContent = self.ListByTag(l:sArg)
@@ -150,22 +155,21 @@ function! s:class.GetBufferName() dict abort "{{{
     return l:pBuffer
 endfunction "}}}
 
-" ListByDate: note-list -d {yyyy/mm/dd}
+" ConvertEntry: return a note entry string from note file full path
+function! s:class.ConvertEntry(pNoteFile) dict abort "{{{
+    let l:jNote = class#note#new(a:pNoteFile)
+    let l:sNoteName = l:jNote.GetNoteName()
+    let l:sNoteTitle = l:jNote.GetNoteTitle()
+    return l:sNoteName . "\t" . l:sNoteTitle
+endfunction "}}}
+
+" ListByDate: note-list -d {yyyy[/mm/dd]}
+" empty argument will glob all notes in notebook
 function! s:class.ListByDate(sDatePath, ...) dict abort "{{{
-    let l:pDiretory = self.notebook.Notedir(a:sDatePath)
-    let l:sNoteGlob = l:pDiretory . '/*_*' . self.notebook.suffix 
-    let l:lpNoteFile = glob(l:sNoteGlob, 0, 1)
-
-    let l:lsOutput = []
-    for l:pNote in l:lpNoteFile
-        let l:jNote = class#note#new(l:pNote)
-        let l:sNoteName = l:jNote.GetNoteName()
-        let l:sNoteTitle = l:jNote.GetNoteTitle()
-        call add(l:lsOutput, l:sNoteName . "\t" . l:sNoteTitle)
-    endfor
-
+    let l:lpNoteFile = self.notebook.GlobNote(a:sDatePath)
+    call map(l:lpNoteFile, 'self.ConvertEntry(v:val)')
     let self.argv = ['-d', a:sDatePath]
-    return l:lsOutput
+    return l:lpNoteFile
 endfunction "}}}
 
 " ListByTag: note-list -t {tag-name}
@@ -236,7 +240,7 @@ endfunction "}}}
 
 " LOAD:
 let s:load = 1
-echo 'class#notelist is loading ...'
+DLOG 'class#notelist is loading ...'
 function! class#notelist#load(...) abort "{{{
     if a:0 > 0 && !empty(a:1) && exists('s:load')
         unlet s:load

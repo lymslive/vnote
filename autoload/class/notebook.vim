@@ -23,7 +23,9 @@ let s:class.suffix = '.md'
 " regexp used
 let s:class.pattern = {}
 " yyyy/mm/dd
-let s:class.pattern.datePath = '^\d\d\d\d/\d\d/\d\d'
+let s:class.pattern.datePath = '^\d\d\d\d/\d\d/\d\d\ze/\?'
+let s:class.pattern.dateYear = '^\d\d\d\d\ze/\?'
+let s:class.pattern.dateMonth = '^\d\d\d\d/\d\d\ze/\?'
 " yyyymmdd
 let s:class.pattern.dateInt = '^\d\{8\}'
 " yyyymmdd_n- \1=NoteDate, \2=NoteNumber, \3=Private
@@ -84,7 +86,7 @@ endfunction "}}}
 " Notedir: full path of day
 " intput: yyyy/mm/dd
 function! s:class.Notedir(sDatePath) dict abort "{{{
-    if match(a:sDatePath, self.pattern.datePath) == -1
+    if a:sDatePath !~ self.pattern.datePath
         echoerr a:sDatePath . ' is not a valid day path as yyyy/mm/dd'
         return ''
     else
@@ -115,16 +117,24 @@ endfunction "}}}
 
 " GlobNote: glob note file in a date, and optional note number
 function! s:class.GlobNote(sDatePath, ...) dict abort "{{{
-    let l:pDirectory = self.Notedir(a:sDatePath)
-    if empty(l:pDirectory)
+    let l:pDatedir = self.Datedir()
+    if empty(a:sDatePath)
+        let l:pDiretory = l:pDatedir
+    elseif a:sDatePath =~ self.pattern.dateYear
+        let l:pDiretory = l:pDatedir . '/' . a:sDatePath
+    else
+        :ELOG 'expact date path argument as yyyy[/mm/dd]'
         return []
     endif
 
-    let l:iDateInt = substitute(a:sDatePath, '/', '', 'g')
-    if a:0 > 0 && a:1 > 0
-        let l:sNoteGlob = l:pDirectory . '/' . l:iDateInt . '_' . a:1 . '*' . self.suffix
+    if a:sDatePath =~ self.pattern.datePath
+        " full date path
+        let l:iDateInt = substitute(a:sDatePath, '/', '', 'g')
+        let l:iNumber = get(a:000, 0, '')
+        let l:sNoteGlob = printf('%s/%s_%s*%s', l:pDiretory, l:iDateInt, l:iNumber, self.suffix)
     else
-        let l:sNoteGlob = l:pDirectory . '/' . l:iDateInt . '_*' . self.suffix
+        " partial date path, glob recursively
+        let l:sNoteGlob = printf('%s/**/*%s', l:pDiretory, self.suffix)
     endif
 
     let l:lpNoteFile = glob(l:sNoteGlob, 0, 1)

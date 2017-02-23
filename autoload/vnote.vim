@@ -10,8 +10,11 @@ endif
 let s:current_notebook = expand(s:default_notebook)
 
 " GetNoteBook: 
-let s:jNoteBook = class#notebook#new(s:current_notebook)
+let s:jNoteBook = {}
 function! vnote#GetNoteBook() "{{{
+    if empty(s:jNoteBook)
+        let s:jNoteBook = class#notebook#new(s:current_notebook)
+    endif
     return s:jNoteBook
 endfunction "}}}
 

@@ -19,8 +19,7 @@ function! s:source.gather_candidates(args, context) abort "{{{
     let l:args = unite#helper#parse_source_args(a:args)
 
     if empty(args)
-        let l:sDatePath = strftime("%Y/%m/%d")
-        let l:args = [l:sDatePath]
+        let l:args = []
     endif
 
     let l:jNoteBook = vnote#GetNoteBook()
