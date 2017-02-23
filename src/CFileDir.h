@@ -29,9 +29,9 @@ public:
 
 	// 递归展开所有文件名（包含），存入 vsFileList 之后
 	// 可指定目录深度，默认 0 不限，1 表示只含当前目录
-	// 只含普通文件名，不包括目录名
+	// 只含普通文件名，不包括目录名，可指定 pSuffix 后缀名
 	// 宜由根目录对象调用，输出文件名为相对根目录的相对路径名
-	void GetAllFiles(vector<string> &vsFileList, int iDepth = 0);
+	void GetAllFiles(vector<string> &vsFileList, int iDepth = 0, const char *pSuffix = NULL);
 private:
 	// 当前目录名
 	string m_name;

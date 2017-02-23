@@ -179,7 +179,7 @@ string CFileDir::RelativeName() const
 	return sFullName;
 }
 
-void CFileDir::GetAllFiles(vector<string> &vsFileList, int iDepth)
+void CFileDir::GetAllFiles(vector<string> &vsFileList, int iDepth, const char *pSuffix)
 {
 	// 本目录的文件
 	string sFullPath = RelativeName();
@@ -190,6 +190,13 @@ void CFileDir::GetAllFiles(vector<string> &vsFileList, int iDepth)
 
 	for (auto it = m_files.begin(); it != m_files.end(); ++it)
 	{
+		if (!pSuffix)
+		{
+			if ((*it).find(pSuffix) == string::npos)
+			{
+				continue;
+			}
+		}
 		vsFileList.push_back(sFullPath + *it);
 	}
 
@@ -211,7 +218,7 @@ void CFileDir::GetAllFiles(vector<string> &vsFileList, int iDepth)
 		CFileDir *pChild = it->second;
 		ASSERT_RET(pChild);
 
-		pChild->GetAllFiles(vsFileList, iDepth);
+		pChild->GetAllFiles(vsFileList, iDepth, pSuffix);
 	}
 }
 

@@ -73,9 +73,9 @@ EINT CNoteBook::ImportFromDir(const string &sBasedir, bool bUseCache)
 	}
 
 	// 获取文件列表
-	CFileDir jDir(sBasedir);
+	CFileDir jDir(sBasedir + PATH_SEP + NOTE_DATE_DIR);
 	vector<string> vsFileList;
-	jDir.GetAllFiles(vsFileList, 0);
+	jDir.GetAllFiles(vsFileList, 0, NOTE_FILE_SUFFIX);
 
 	return CreateNoteBook(vsFileList);
 }
@@ -124,14 +124,14 @@ EINT CNoteBook::CreateNoteBook(const vector<string> &vsFileList)
 	// 先创建所有日记
 	for (auto it = vsFileList.begin(); it != vsFileList.end(); ++it)
 	{
-		string sFileName = m_basedir + PATH_SEP + *it;
 		// 过滤不合适的文件名
 		if (!CNoteParser::FilterFileName(*it))
 		{
 			continue;
 		}
 
-		CNote *pNote = new CNote(*it, m_basedir);
+		string sFileName = m_basedir + PATH_SEP + NOTE_DATE_DIR + PATH_SEP + *it;
+		CNote *pNote = new CNote(sFileName);
 		if (!pNote)
 		{
 			LOG("fails to allocate space for CNote");
