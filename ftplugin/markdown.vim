@@ -15,10 +15,16 @@ nmap <buffer> <Tab> <Plug>(VNOTE_edit_smart_tab)
 " abbreviate <buffer> todo: - [todo]
 abbreviate <buffer> <expr> todo: note#hTodo_i()
 abbreviate <buffer> <expr> -t note#hTodo_i()
-command! -nargs=* -buffer TODO call note#hTodo(<f-args>)
+command! -buffer -nargs=* TODO call note#hTodo(<f-args>)
+
+" handle <CR> map
+nnoremap <buffer> <expr> <CR> note#hEnterExpr()
+inoremap <buffer> <expr> <CR> note#hEnterExpr_i()
+
+command! -buffer -nargs=* NoteTag call note#hNoteTag(<f-args>)
 
 " AutoSave:
 augroup VNOTE_EDIT
     autocmd! * <buffer>
-    autocmd BufWritePost <buffer> call note#UpdateNote()
+    autocmd BufWritePost <buffer> call note#OnSaveNote()
 augroup end

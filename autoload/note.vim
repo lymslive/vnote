@@ -119,96 +119,29 @@ function! note#DetectTag(bol) abort "{{{
     endif
 endfunction "}}}
 
-" UpdateTagFile: update each tag file of current note
-function! s:UpdateTagFile() abort "{{{
-    if !s:NoteInBook()
-        return 0
-    endif
-
-    let l:jNoteBuff = s:GetNoteObject()
-    let l:lsTag = l:jNoteBuff.GetTagList()
-    if empty(l:lsTag)
-        return 0
-    endif
-
-    " note entry of current note
-    let l:sNoteName = l:jNoteBuff.GetNoteName()
-    let l:sTitle = l:jNoteBuff.GetNoteTitle()
-    let l:sNoteEntry = l:sNoteName . "\t" . l:sTitle
-
-    let l:pTagDir = s:jNoteBook.Tagdir()
-    if !isdirectory(l:pTagDir)
-        call mkdir(l:pTagDir, 'p')
-    endif
-
-    for l:sTag in l:lsTag
-        let l:sTag = tolower(l:sTag)
-
-        " read in old notelist of that tag
-        let l:pTagFile = l:pTagDir . '/' . l:sTag . '.tag'
-        if filereadable(l:pTagFile)
-            let l:lsNote = readfile(l:pTagFile)
-        else
-            let l:lsNote = []
-        endif
-
-        let l:bFound = v:false
-        for l:note in l:lsNote
-            if match(l:note, '^' . l:sNoteName) != -1
-                let l:bFound = v:true
-                break
-            endif
-        endfor
-
-        if l:bFound == v:false
-            call add(l:lsNote, l:sNoteEntry)
-
-            " complex tag, treat as path
-            if match(l:sTag, '/') != -1
-                let l:idx = len(l:pTagFile) - 1
-                while l:idx >= 0
-                    if l:pTagFile[l:idx] == '/'
-                        break
-                    endif
-                    let l:idx = l:idx - 1
-                endwhile
-                " trim the last /
-                let l:pTagDir = strpart(l:pTagFile, 0, l:idx)
-                if !isdirectory(l:pTagDir)
-                    call mkdir(l:pTagDir, 'p')
-                endif
-            endif
-
-            call writefile(l:lsNote, l:pTagFile)
-            echo 'update tag file: ' . l:sTag
-        endif
-    endfor
-
-    return 0
-endfunction "}}}
-
 " UpdateNote: triggle by some write event
-function! note#UpdateNote() abort "{{{
+function! note#OnSaveNote() abort "{{{
     " :update
 
     if !s:NoteInBook()
         return 0
     endif
 
+    let l:jNoteBuff = s:GetNoteObject()
     if vnote#GetConfig().always_update_tag
-        call s:UpdateTagFile()
+        let l:iRet = l:jNoteBuff.UpdateTagFile(s:jNoteBook)
     else
         " save relate tag file only if cursor on tag line
         let l:sLine = getline('.')
         if match(l:sLine, '^\s*`') != -1
-            call s:UpdateTagFile()
+            let l:iRet = l:jNoteBuff.UpdateTagFile(s:jNoteBook)
         endif
     endif
 
-    return 1
+    return l:iRet
 endfunction "}}}
 
-" hTodo: 
+" Todo: modify todo item
 function! note#hTodo(...) abort "{{{
     let l:iProgress = 0
     let l:sText = ''
@@ -226,7 +159,7 @@ function! note#hTodo(...) abort "{{{
 
     let l:sLine = getline('.')
     " modify current todo's progress
-    let l:sTodoPattern = '^[-+*]\s\+\[todo\(:\d\+%\)\?\]'
+    let l:sTodoPattern = '^[-+*]\s\+\[todo\(:\d\+%\?\)\?\]'
     if l:sLine =~ l:sTodoPattern
         if l:iProgress >= 100
             let l:sTodoLabel = printf('+ [todo:%d%%]', 100)
@@ -239,6 +172,7 @@ function! note#hTodo(...) abort "{{{
             let l:sLine = substitute(l:sLine, l:sTodoPattern, l:sTodoLabel, '')
         endif
         call setline('.', l:sLine)
+        normal! $
         return 0
     endif
 
@@ -260,17 +194,57 @@ function! note#hTodo(...) abort "{{{
 
 endfunction "}}}
 
-" hTodo_i: 
+" Todo_i: 
 function! note#hTodo_i() abort "{{{
-    let l:sToday = strftime('%Y-%m-%d')
-    " let l:sInsert = printf("+ \<C-V>[%s\<C-V>] \<C-V>[todo\<C-V>]", l:sToday)
-    let l:sInsert = "- \<C-V>[todo\<C-V>]"
-    return l:sInsert
+    let l:sCmd = "\<ESC>:TODO\<CR>a"
+    return l:sCmd
 endfunction "}}}
 
-" Load: 
-function! note#Load() "{{{
-    return 1
+" EnterNormal: for nmap <expr> <CR>
+function! note#hEnterExpr() abort "{{{
+    let l:sTodoPattern = '^[-+*]\s\+\[todo\(:\d\+%\?\)\?\]'
+    let l:sLine = getline('.')
+    if l:sLine =~ l:sTodoPattern
+        return ':TODO '
+    else
+        return ':Note'
+    endif
+endfunction "}}}
+
+" EnterNormal_i: for imap <expr> <CR>
+function! note#hEnterExpr_i() abort "{{{
+    let l:sLine = getline('.')
+    if col('.') <= len(l:sLine)
+        return "\<CR>"
+    endif
+
+    let l:sTodoPattern = '^[-+*]\s\+\[todo\(:\d\+%\?\)\?\]'
+    if l:sLine =~ l:sTodoPattern
+        return "\<CR>- [todo] "
+    elseif l:sLine =~ '^\s*[-+*]\s\+'
+        return "\<CR>" . matchstr(l:sLine, '^\s*[-+*]\s\+')
+    else
+        return "\<CR>"
+    endif
+endfunction "}}}
+
+" NoteTag: 
+function! note#hNoteTag(...) abort "{{{
+    let l:jNoteBuff = s:GetNoteObject()
+
+    if a:0 == 0
+        return l:jNoteBuff.UpdateTagFile()
+    elseif a:1 == 1
+        return l:jNOteBuff.AddTag(a:1)
+    else
+        if a:1 ==# '-d'
+            let l:lsTag = a:000[1:]
+            return l:jNoteBuff.RemoveTag(l:lsTag)
+        else
+            let l:lsTag = a:000
+            return l:jNoteBuff.AddTag(l:lsTag)
+        endif
+    endif
 endfunction "}}}
 
 " note#Test: 

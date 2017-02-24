@@ -60,3 +60,16 @@ function! vnote#SetConfig(...) abort "{{{
 
     return 0
 endfunction "}}}
+
+" hNoteConfig: 
+function! vnote#hNoteConfig(...) abort "{{{
+    if a:0 == 0
+        :LOG '[vnote] current config:'
+        echo s:dConfig
+        return 0
+    endif
+
+    let l:sArg = join(a:000, "\t")
+    let l:lsArgv = split(l:sArg, '[\s,=;:]\+')
+    return vnote#SetConfig(l:lsArgv)
+endfunction "}}}

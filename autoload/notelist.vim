@@ -158,49 +158,6 @@ function! notelist#NextMonth(shift) abort "{{{
     call notelist#hNoteList(l:sDatePath)
 endfunction "}}}
 
-" CompleteList: Custom completion for notelist
-function! notelist#CompleteList(ArgLead, CmdLine, CursorPos) abort "{{{
-    let l:dNoteBook = vnote#GetNoteBook()
-
-    if empty(a:ArgLead) || match(a:ArgLead, '^\d\d') == -1
-        " compelete tag
-        let l:tag_dir = l:dNoteBook.Tagdir()
-        let l:head = len(l:tag_dir) + 1
-        let l:tag_list = glob(l:tag_dir . '/' . a:ArgLead . '*', 0, 1)
-
-        let l:ret_list = []
-        for l:tag in l:tag_list
-            let l:tag = strpart(l:tag, l:head)
-            if match(l:tag, '\.tag$') != -1
-                let l:tag = substitute(l:tag, '\.tag$', '', '')
-            else
-                let l:tag = l:tag . '/'
-            endif
-            call add(l:ret_list, l:tag)
-        endfor
-
-        return l:ret_list
-
-    else
-        " compelete date
-        let l:day_path_pattern = '^\d\d\d\d/\d\d/\d\d'
-        if match(a:ArgLead, l:day_path_pattern) != -1
-            " already full day path
-            return []
-        else
-            let l:day_dir = l:dNoteBook.Filedir()
-            let l:head = len(l:day_dir) + 1
-            let l:day_list = glob(l:day_dir . '/' . a:ArgLead . '*', 0, 1)
-            let l:ret_list = []
-            for l:day in l:day_list
-                let l:day = strpart(l:day, l:head)
-                call add(l:ret_list, l:day)
-            endfor
-            return l:ret_list
-        endif
-    endif
-endfunction "}}}
-
 " SmartJump: 
 " when open tag line and cursor on a tag, switch list by this tag
 " or when cursor on note entry, switch list by its date
