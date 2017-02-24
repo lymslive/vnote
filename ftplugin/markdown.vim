@@ -12,6 +12,11 @@ nmap <buffer> <C-]> <Plug>(VNOTE_edit_open_list)
 
 nmap <buffer> <Tab> <Plug>(VNOTE_edit_smart_tab)
 
+" abbreviate <buffer> todo: - [todo]
+abbreviate <buffer> <expr> todo: note#hTodo_i()
+abbreviate <buffer> <expr> -t note#hTodo_i()
+command! -nargs=* -buffer TODO call note#hTodo(<f-args>)
+
 " AutoSave:
 augroup VNOTE_EDIT
     autocmd! * <buffer>
