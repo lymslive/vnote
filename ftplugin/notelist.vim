@@ -1,10 +1,6 @@
 " notelist filetype tools
 " Author: lymslive
-" Date: 2017-01-22
-
-" notelist header line relate var
-let b:notebook = {}
-let b:argv = []
+" Date: 2017-02-24
 
 " enter to edit the note under the cursor
 " if have more than one window, open the note in another window
@@ -40,4 +36,3 @@ nmap <buffer> D <Plug>(VNOTE_list_browse_date)
 " if cursor on a tag(when open tag line), NoteList by that tag
 nmap <buffer> t <Plug>(VNOTE_list_smart_jump)
 
-call notelist#Load()

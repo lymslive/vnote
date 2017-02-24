@@ -2,12 +2,6 @@
 " Author: lymslive
 " Date: 2017/01/23
 
-" map define
-nnoremap <Plug>(VNOTE_edit_next_note) :call <SID>EditNext(1)<CR>
-nnoremap <Plug>(VNOTE_edit_prev_note) :call <SID>EditNext(-1)<CR>
-nnoremap <Plug>(VNOTE_edit_open_list) :call <SID>OpenNoteList()<CR>
-nnoremap <Plug>(VNOTE_edit_smart_tab) :call note#hSmartTab()<CR>
-
 " import s:jNoteBook from vnote
 let s:jNoteBook = vnote#GetNoteBook()
 
@@ -26,7 +20,7 @@ function! s:NoteInBook() abort "{{{
 endfunction "}}}
 
 " EditNext: edit next note of the same day
-function! s:EditNext(shift) "{{{
+function! note#EditNext(shift) "{{{
     if !s:NoteInBook()
         return 0
     endif
@@ -48,7 +42,7 @@ function! s:EditNext(shift) "{{{
 endfunction "}}}
 
 " OpenNoteList: call ListNote with tag under cursor or current day
-function! s:OpenNoteList() abort "{{{
+function! note#OpenNoteList() abort "{{{
     if !s:NoteInBook()
         echo 'not in notebook?'
         return 0
@@ -74,7 +68,7 @@ function! note#hSmartTab() abort "{{{
         endif
     else
         :vsplit
-        call s:OpenNoteList()
+        call note#OpenNoteList()
     endif
 endfunction "}}}
 
@@ -193,19 +187,22 @@ function! s:UpdateTagFile() abort "{{{
     return 0
 endfunction "}}}
 
-" UpdateNote: save note and tag file if context possible 
+" UpdateNote: triggle by some write event
 function! note#UpdateNote() abort "{{{
-    " save this note file
     " :update
 
     if !s:NoteInBook()
         return 0
     endif
 
-    " save relate tag file only if cursor on tag line
-    let l:sLine = getline('.')
-    if match(l:sLine, '^\s*`') != -1
+    if vnote#GetConfig().always_update_tag
         call s:UpdateTagFile()
+    else
+        " save relate tag file only if cursor on tag line
+        let l:sLine = getline('.')
+        if match(l:sLine, '^\s*`') != -1
+            call s:UpdateTagFile()
+        endif
     endif
 
     return 1

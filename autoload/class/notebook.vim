@@ -198,7 +198,7 @@ endfunction "}}}
 
 " LOAD:
 let s:load = 1
-echo 'class#notebook is loading ...'
+:DLOG 'class#notebook is loading ...'
 function! class#notebook#load(...) abort "{{{
     if a:0 > 0 && !empty(a:1) && exists('s:load')
         unlet s:load
