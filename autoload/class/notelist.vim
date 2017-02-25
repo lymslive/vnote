@@ -23,6 +23,7 @@ let s:class.notebook = {}
 
 " the argument of note-list
 let s:class.argv = []
+let s:class.content = []
 
 function! class#notelist#class() abort "{{{
     return s:class
@@ -43,6 +44,7 @@ function! class#notelist#ctor(this, argv) abort "{{{
         echoerr 'expect a class#notebook to construct a class#notelist object'
     endif
     let a:this.argv = []
+    let a:this.content = []
 endfunction "}}}
 
 " SetNoteBook: 
@@ -58,8 +60,8 @@ endfunction "}}}
 
 " RefreshList: Interface of NoteList command, fresh the notelist
 function! s:class.RefreshList(argv) dict abort "{{{
-    let l:lsContent = self.GatherContent(a:argv)
-    return self.RedrawContent(l:lsContent)
+    let self.content = self.GatherContent(a:argv)
+    return self.RedrawContent()
 endfunction "}}}
 
 " GatherContent: parse argv and then configue out list content
@@ -118,14 +120,14 @@ function! s:class.GatherContent(argv) dict abort "{{{
 endfunction "}}}
 
 " RedrawContent: update the notelist buffer
-function! s:class.RedrawContent(lsContent) dict abort "{{{
+function! s:class.RedrawContent() dict abort "{{{
     " may need edit a new buffer
     if &filetype !=# 'notelist'
         let l:pBuffer = self.GetBufferName()
         execute ':edit ' . l:pBuffer
     endif
 
-    set modifiable
+    setlocal modifiable
     " clear old content
     :1,$delet
 
@@ -133,7 +135,7 @@ function! s:class.RedrawContent(lsContent) dict abort "{{{
     call setline(1, '$ NoteBook ' . self.notebook.basedir)
     call setline(2, '$ NoteList ' . join(self.argv))
     call setline(3, s:SEPARATE_LINE)
-    call append(line('$'), a:lsContent)
+    call append(line('$'), self.content)
 
     " put cursor
     normal! 4G
@@ -144,7 +146,7 @@ function! s:class.RedrawContent(lsContent) dict abort "{{{
         set buftype=nofile
     endif
 
-    set nomodifiable
+    setlocal nomodifiable
     return 0
 endfunction "}}}
 

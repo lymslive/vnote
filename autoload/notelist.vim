@@ -12,7 +12,9 @@ let s:untag_line_patter = '^\(-\{8,\}\)\t\(.*\)'
 
 " ListNote: list note by date or by tag, depend on argument
 " now support one string argument, but may prefix an extra -D or -T option
+" :NoteList [-vhn] [-r] [-dtDT] arg
 function! notelist#hNoteList(...) "{{{
+    " default argument
     if a:0 < 1
         let l:sDatePath = strftime("%Y/%m/%d")
         let l:argv = [l:sDatePath]
@@ -20,12 +22,35 @@ function! notelist#hNoteList(...) "{{{
         let l:argv = a:000
     endif
 
-    if winnr('$') > 1 && &filetype != 'notelist'
-        call notelist#FindListWindow()
+    " target window option: -h(split) -v(vsplit) -n(tabnew)
+    let l:sArg = l:argv[0]
+    let l:sTarget = ''
+    if l:sArg =~ '^-[vhn]$'
+        let l:sTarget = l:sArg[1]
+        call remove(l:arv, 0)
     endif
 
+    " try to find a notelist window
+    if winnr('$') > 1 && &filetype != 'notelist'
+        let l:iWinnr = notelist#FindListWindow()
+        if l:iWinnr == 0 && !empty(l:sTarget)
+            if l:sTarget ==# 'v'
+                :vsplit
+            elseif l:sTarget ==# 'h'
+                :split
+            elseif l:sTarget ==# 'n'
+                :tabnew
+            endif
+        endif
+    endif
+
+    " calling notelist object
     if exists('b:jNoteList')
-        return b:jNoteList.RefreshList(l:argv)
+        if l:argv[0] ==# '-r'
+            return b:jNoteList.RedrawContent()
+        else
+            return b:jNoteList.RefreshList(l:argv)
+        endif
     else
         let l:jNoteList = class#notelist#new(s:jNoteBook)
         let l:iRet = l:jNoteList.RefreshList(l:argv)

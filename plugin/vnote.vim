@@ -11,7 +11,8 @@ command! -nargs=? -complete=file
 " NoteNew:
 " edit a new note with today path, add on note number, that is:
 " year/month/today/yyyymmdd_<n+1>.md
-command! -nargs=? NoteNew call notebook#hNoteNew(<f-args>)
+command! -nargs=* -complete=customlist,vnote#complete#NoteTag
+        \ NoteNew call notebook#hNoteNew(<f-args>)
 
 " NoteEdit:
 " accept at most two arguments: NoteEdit day_path(yyyy/mm/dd) number

@@ -34,11 +34,28 @@ endfunction "}}}
 " NewNote: edit new note of today
 function! notebook#hNoteNew(...) "{{{
     let l:sDatePath = strftime("%Y/%m/%d")
+    let l:bPrivate = v:false
+    let l:lsTag = []
+    let l:lsTitle = []
 
-    if a:0 > 0 && a:1 ==# '-'
+    if a:0 == 1 && a:1 ==# '-'
         let l:bPrivate = v:true
     else
-        let l:bPrivate = v:false
+        " complex argument parse
+        let l:jOption = class#cmdline#new('NoteNew')
+        call l:jOption.AddMore('t', 'tag', 'tags of new note', [])
+        call l:jOption.AddMore('-T', 'title', 'the title of new note', [])
+        call l:jOption.SetDash('sepecial private tag -')
+
+        let l:iErr = l:jOption.Check(a:000)
+        if l:iErr != 0
+            :ELOG 'notelist argument invalid'
+            return l:iErr
+        endif
+
+        let l:bPrivate = l:jOption.HasDash()
+        let l:lsTag = l:jOption.Get('tag')
+        let l:lsTitle = l:jOption.Get('title')
     endif
 
     let l:pNoteFile = s:jNoteBook.AllocNewNote(l:sDatePath, l:bPrivate)
@@ -49,12 +66,27 @@ function! notebook#hNoteNew(...) "{{{
 
     execute 'edit ' . l:pNoteFile
 
-    " pre-insert tow lines
-    call append(0, '# note title')
-    if l:bPrivate
-        call append(1, '`-`')
+    " generate title
+    if empty(l:lsTitle)
+        call append(0, '# note title')
     else
-        call append(1, '`+`')
+        call append(0, '# ' . join(l:lsTitle, ' '))
+    endif
+
+    " generate tags
+    let l:sTagLine = ''
+    if l:bPrivate
+        let l:sTagLine .= '`-`'
+    else
+        let l:sTagLine .= '`+`'
+    endif
+    if !empty(l:lsTag)
+        call map(l:lsTag, 'printf("`%s`", v:val)')
+        let l:sTagLine .= ' ' . join(l:lsTag, ' ')
+    endif
+
+    if !empty(l:sTagLine)
+        call append(1, l:sTagLine)
     endif
 
     " put cursor on title

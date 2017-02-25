@@ -21,7 +21,8 @@ command! -buffer -nargs=* TODO call note#hTodo(<f-args>)
 nnoremap <buffer> <expr> <CR> note#hEnterExpr()
 inoremap <buffer> <expr> <CR> note#hEnterExpr_i()
 
-command! -buffer -nargs=* NoteTag call note#hNoteTag(<f-args>)
+command! -buffer -nargs=* -complete=customlist,vnote#complete#NoteTag
+        \ NoteTag call note#hNoteTag(<f-args>)
 
 " AutoSave:
 augroup VNOTE_EDIT
