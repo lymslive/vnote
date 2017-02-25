@@ -128,6 +128,7 @@ function! note#OnSaveNote() abort "{{{
     endif
 
     let l:jNoteBuff = s:GetNoteObject()
+    let l:iRet = 0
     if vnote#GetConfig().always_update_tag
         let l:iRet = l:jNoteBuff.UpdateTagFile(s:jNoteBook)
     else

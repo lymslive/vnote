@@ -71,6 +71,7 @@ function! s:class.GatherContent(argv) dict abort "{{{
     call l:jOption.AddSingle('t', 'tag', 'note has this tag')
     call l:jOption.AddSingle('D', 'Date-Tree', 'browse by date')
     call l:jOption.AddSingle('T', 'Tag-Tree', 'browse by tag')
+    call l:jOption.SetDash('sepecial private tag -')
 
     " parser a:argv
     let l:iErr = l:jOption.Check(a:argv)
@@ -86,13 +87,10 @@ function! s:class.GatherContent(argv) dict abort "{{{
     let l:sArg = ''
     let l:iPostArgc = len(l:lsPostArgv)
 
-    " the special - tag
-    if l:iPostArgc == 0 && !empty(a:argv) && a:argv[-1] ==# '-'
-        let l:sArg = '-'
-    endif
-
     if l:iPostArgc > 0
         let l:sArg = l:lsPostArgv[0]
+    elseif l:jOption.HasDash()
+        let l:sArg = '-'
     endif
 
     " dispatch note-list mode

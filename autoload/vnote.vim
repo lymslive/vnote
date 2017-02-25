@@ -8,11 +8,10 @@ let s:default_notebook = "~/notebook"
 if exists('g:vnote_default_notebook')
     let s:default_notebook = g:vnote_default_notebook
 endif
-let s:current_notebook = expand(s:default_notebook)
+let s:default_notebook = expand(s:default_notebook)
 
 " global configue for vnote
 let s:dConfig = {}
-let s:dConfig.notebook = s:current_notebook
 let s:dConfig.max_tags = 5
 let s:dConfig.save_minus_tag = v:true
 let s:dConfig.save_plus_tag = v:true
@@ -25,7 +24,7 @@ let s:dConfig.always_update_tag = v:false
 let s:jNoteBook = {}
 function! vnote#GetNoteBook() "{{{
     if empty(s:jNoteBook)
-        let s:jNoteBook = class#notebook#new(s:dConfig.notebook)
+        let s:jNoteBook = class#notebook#new(s:default_notebook)
     endif
     return s:jNoteBook
 endfunction "}}}
@@ -65,7 +64,8 @@ endfunction "}}}
 function! vnote#hNoteConfig(...) abort "{{{
     if a:0 == 0
         :LOG '[vnote] current config:'
-        echo s:dConfig
+        let l:dict = module#less#dict#import()
+        echo l:dict.Display(s:dConfig)
         return 0
     endif
 

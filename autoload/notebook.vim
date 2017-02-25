@@ -27,7 +27,6 @@ function! notebook#OpenNoteBook(...) "{{{
 
     call s:jNoteBook.SetBasedir(l:pBasedir)
     :LOG 'open notebook: ' . l:pBasedir
-    let s:dConfig.notebook = l:pBasedir
 
     return 0
 endfunction "}}}
