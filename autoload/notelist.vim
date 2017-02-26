@@ -15,51 +15,64 @@ let s:untag_line_patter = '^\(-\{8,\}\)\t\(.*\)'
 " :NoteList [-vhn] [-r] [-dtDT] arg
 function! notelist#hNoteList(...) "{{{
     " default argument
+    let l:sDatePath = strftime("%Y/%m/%d")
     if a:0 < 1
-        let l:sDatePath = strftime("%Y/%m/%d")
         let l:argv = [l:sDatePath]
     else
         let l:argv = a:000
     endif
 
-    " target window option: -h(split) -v(vsplit) -n(tabnew)
-    let l:sArg = l:argv[0]
-    let l:sTarget = ''
-    if l:sArg =~ '^-[vhn]$'
-        let l:sTarget = l:sArg[1]
-        call remove(l:arv, 0)
+    let l:jOption = class#cmdline#new('NoteList')
+    call l:jOption.AddSingle('s', 'split', 'split new window')
+    call l:jOption.AddSingle('v', 'vertical', 'vsplit new window')
+    call l:jOption.AddSingle('n', 'tabnew', 'tab new window')
+    call l:jOption.AddSingle('r', 'resume', 'resume last NoteList')
+    let l:iErr = l:jOption.ParseCheck(l:argv, 2)
+    if l:iErr != 0
+        return l:iErr
     endif
 
     " try to find a notelist window
-    if winnr('$') > 1 && &filetype != 'notelist'
+    if &filetype != 'notelist'
         let l:iWinnr = notelist#FindListWindow()
-        if l:iWinnr == 0 && !empty(l:sTarget)
-            if l:sTarget ==# 'v'
+        if l:iWinnr == 0
+            if l:jOption.Has('vertical')
                 :vsplit
-            elseif l:sTarget ==# 'h'
+            elseif l:jOption.Has('split')
                 :split
-            elseif l:sTarget ==# 'n'
+            elseif l:jOption.Has('tabnew')
                 :tabnew
             endif
         endif
     endif
 
-    " calling notelist object
-    if exists('b:jNoteList')
-        if l:argv[0] ==# '-r'
-            return b:jNoteList.RedrawContent()
-        else
-            return b:jNoteList.RefreshList(l:argv)
-        endif
+    " open the lister buffer
+    let l:pListerName = s:jNoteBook.GetListerName()
+    if bufname('%') !=# l:pListerName
+        execute 'edit ' . l:pListerName
+    endif
+
+    if !exists('b:jNoteList') || b:jNoteList.notebook isnot s:jNoteBook
+        let b:jNoteList = s:jNoteBook.CreateLister()
+        let l:dStatis = vnote#GetStatis()
+        let l:dStatis.lister += 1
+    endif
+
+    " pass the real lister argument
+    let l:lsPostArgv = l:jOption.GetPost()
+    if len(l:argv) > 2
+        call extend(l:lsPostArgv, l:argv[2:])
+    endif
+    if empty(l:lsPostArgv)
+        call add(l:lsPostArgv, l:sDatePath)
+    endif
+
+    if l:jOption.Has('resume')
+        " return b:jNoteList.RedrawContent()
+        " since notelist buff is hidden, directlly open it to resume
+        return b:jNoteList.AjustSeparateLine()
     else
-        let l:jNoteList = class#notelist#new(s:jNoteBook)
-        let l:iRet = l:jNoteList.RefreshList(l:argv)
-        if l:iRet == 0
-            let b:jNoteList = l:jNoteList
-            return 0
-        else
-            return -1
-        endif
+        return b:jNoteList.RefreshList(l:lsPostArgv)
     endif
 endfunction "}}}
 

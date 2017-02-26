@@ -11,7 +11,7 @@ let s:dConfig = vnote#GetConfig()
 " OpenNoteBook: open another notebook overide the default
 function! notebook#OpenNoteBook(...) "{{{
     if a:0 == 0
-        echo 'current notebook: ' . s:dNoteBook.basedir
+        echo 'current notebook: ' . s:jNoteBook.basedir
         return 0
     endif
 
@@ -44,10 +44,10 @@ function! notebook#hNoteNew(...) "{{{
         " complex argument parse
         let l:jOption = class#cmdline#new('NoteNew')
         call l:jOption.AddMore('t', 'tag', 'tags of new note', [])
-        call l:jOption.AddMore('-T', 'title', 'the title of new note', [])
-        call l:jOption.SetDash('sepecial private tag -')
+        call l:jOption.AddMore('T', 'title', 'the title of new note', [])
+        call l:jOption.AddDash('create private dairy')
 
-        let l:iErr = l:jOption.Check(a:000)
+        let l:iErr = l:jOption.ParseCheck(a:000)
         if l:iErr != 0
             :ELOG 'notelist argument invalid'
             return l:iErr
@@ -56,6 +56,17 @@ function! notebook#hNoteNew(...) "{{{
         let l:bPrivate = l:jOption.HasDash()
         let l:lsTag = l:jOption.Get('tag')
         let l:lsTitle = l:jOption.Get('title')
+
+        let l:lsPost = l:jOption.GetPost()
+        if !empty(l:lsPost)
+            if empty(l:lsTag)
+                let l:lsTag = l:lsPost
+            elseif empty(l:lsTitle)
+                let l:lsTitle = l:lsPost
+            else
+                :WLOG 'ignor position arguments'
+            endif
+        endif
     endif
 
     let l:pNoteFile = s:jNoteBook.AllocNewNote(l:sDatePath, l:bPrivate)

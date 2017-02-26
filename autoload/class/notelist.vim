@@ -9,10 +9,6 @@ if exists('s:load') && !exists('g:DEBUG')
     finish
 endif
 
-" note-list buffer name
-let s:BUFFER_NAME = '_NLS_'
-let s:SEPARATE_LINE = repeat('=', 78)
-
 " CLASS:
 let s:class = class#old()
 let s:class._name_ = 'class#notelist'
@@ -23,7 +19,6 @@ let s:class.notebook = {}
 
 " the argument of note-list
 let s:class.argv = []
-let s:class.content = []
 
 function! class#notelist#class() abort "{{{
     return s:class
@@ -44,7 +39,6 @@ function! class#notelist#ctor(this, argv) abort "{{{
         echoerr 'expect a class#notebook to construct a class#notelist object'
     endif
     let a:this.argv = []
-    let a:this.content = []
 endfunction "}}}
 
 " SetNoteBook: 
@@ -60,8 +54,12 @@ endfunction "}}}
 
 " RefreshList: Interface of NoteList command, fresh the notelist
 function! s:class.RefreshList(argv) dict abort "{{{
-    let self.content = self.GatherContent(a:argv)
-    return self.RedrawContent()
+    if a:argv ==# self.argv
+        return 0
+        :LOG 'directly redraw as same argv'
+    endif
+    let l:lsContent = self.GatherContent(a:argv)
+    return self.RedrawContent(l:lsContent)
 endfunction "}}}
 
 " GatherContent: parse argv and then configue out list content
@@ -73,12 +71,11 @@ function! s:class.GatherContent(argv) dict abort "{{{
     call l:jOption.AddSingle('t', 'tag', 'note has this tag')
     call l:jOption.AddSingle('D', 'Date-Tree', 'browse by date')
     call l:jOption.AddSingle('T', 'Tag-Tree', 'browse by tag')
-    call l:jOption.SetDash('sepecial private tag -')
+    " call l:jOption.AddDash('sepecial private tag -')
 
     " parser a:argv
-    let l:iErr = l:jOption.Check(a:argv)
+    let l:iErr = l:jOption.ParseCheck(a:argv)
     if l:iErr != 0
-        :ELOG 'notelist argument invalid'
         return []
     endif
 
@@ -91,8 +88,6 @@ function! s:class.GatherContent(argv) dict abort "{{{
 
     if l:iPostArgc > 0
         let l:sArg = l:lsPostArgv[0]
-    elseif l:jOption.HasDash()
-        let l:sArg = '-'
     endif
 
     " dispatch note-list mode
@@ -120,11 +115,10 @@ function! s:class.GatherContent(argv) dict abort "{{{
 endfunction "}}}
 
 " RedrawContent: update the notelist buffer
-function! s:class.RedrawContent() dict abort "{{{
-    " may need edit a new buffer
-    if &filetype !=# 'notelist'
-        let l:pBuffer = self.GetBufferName()
-        execute ':edit ' . l:pBuffer
+function! s:class.RedrawContent(lsContent) dict abort "{{{
+    if bufname('%') !=# self.notebook.GetListerName()
+        execute 'edit ' . l:pListerName
+        :ELOG 'try to write list content to non-lister buffer'
     endif
 
     setlocal modifiable
@@ -134,8 +128,8 @@ function! s:class.RedrawContent() dict abort "{{{
     " set buffer content
     call setline(1, '$ NoteBook ' . self.notebook.basedir)
     call setline(2, '$ NoteList ' . join(self.argv))
-    call setline(3, s:SEPARATE_LINE)
-    call append(line('$'), self.content)
+    call setline(3, self.GetSepapateLine())
+    call append(line('$'), a:lsContent)
 
     " put cursor
     normal! 4G
@@ -144,17 +138,34 @@ function! s:class.RedrawContent() dict abort "{{{
     if &filetype !=# 'notelist'
         set filetype=notelist
         set buftype=nofile
+        setlocal bufhidden=hide
+        setlocal noswapfile
     endif
 
     setlocal nomodifiable
     return 0
 endfunction "}}}
 
-" GetBufferName: return a file name for note-list buffer
-function! s:class.GetBufferName() dict abort "{{{
-    let l:jNoteBook = self.notebook
-    let l:pBuffer = l:jNoteBook.Cachedir() . '/' . s:BUFFER_NAME
-    return l:pBuffer
+" GetSepapateLine: 
+function! s:class.GetSepapateLine() dict abort "{{{
+    let l:len = 70
+    if winwidth(0) < l:len
+        let l:len = winwidth(0)
+    endif
+    return repeat('=', l:len)
+endfunction "}}}
+
+" AjustSeparateLine: 
+function! s:class.AjustSeparateLine() dict abort "{{{
+    if line('$') >= 3 && getline(3) =~ '^#\+'
+        let l:sNewLine = self.GetSepapateLine()
+        if len(l:sNewLine) != len(getline(3))
+            setlocal modifiable
+            call setline(3, l:sNewLine)
+            setlocal nomodifiable
+        endif
+    endif
+    return 0
 endfunction "}}}
 
 " ConvertEntry: return a note entry string from note file full path
@@ -170,7 +181,11 @@ endfunction "}}}
 function! s:class.ListByDate(sDatePath, ...) dict abort "{{{
     let l:lpNoteFile = self.notebook.GlobNote(a:sDatePath)
     call map(l:lpNoteFile, 'self.ConvertEntry(v:val)')
-    let self.argv = ['-d', a:sDatePath]
+    if empty(a:sDatePath)
+        let self.argv = ['-a']
+    else
+        let self.argv = ['-d', a:sDatePath]
+    endif
     return l:lpNoteFile
 endfunction "}}}
 

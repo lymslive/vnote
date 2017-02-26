@@ -9,6 +9,9 @@ if exists('s:load') && !exists('g:DEBUG')
     finish
 endif
 
+" note-list buffer name
+let s:BUFFER_NAME = '_NLS_'
+
 " CLASS:
 let s:class = class#old()
 let s:class._name_ = 'class#notebook'
@@ -194,6 +197,17 @@ function! s:class.FindNoteByDateNo(sDatePath, iNumber, ...) abort "{{{
     endif
 
     return ''
+endfunction "}}}
+
+" GetListerName: return a file name for note-list buffer
+function! s:class.GetListerName() dict abort "{{{
+    let l:pBuffer = self.Cachedir() . '/' . s:BUFFER_NAME
+    return l:pBuffer
+endfunction "}}}
+
+" CreateLister: 
+function! s:class.CreateLister() dict abort "{{{
+    return class#notelist#new(self)
 endfunction "}}}
 
 " LOAD:

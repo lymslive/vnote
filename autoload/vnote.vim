@@ -73,3 +73,11 @@ function! vnote#hNoteConfig(...) abort "{{{
     let l:lsArgv = split(l:sArg, '[\s,=;:]\+')
     return vnote#SetConfig(l:lsArgv)
 endfunction "}}}
+
+" statistics infor
+let s:dStatis = {}
+let s:dStatis.lister = 0
+" GetStatis: 
+function! vnote#GetStatis() abort "{{{
+    return s:dStatis
+endfunction "}}}
