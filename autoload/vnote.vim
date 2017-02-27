@@ -18,7 +18,6 @@ let s:dConfig.save_plus_tag = v:true
 let s:dConfig.autosave_minus_tag = v:false
 let s:dConfig.autosave_plus_tag = v:false
 let s:dConfig.rename_by_tag = v:false
-let s:dConfig.always_update_tag = v:false
 
 " GetNoteBook: 
 let s:jNoteBook = {}
@@ -60,7 +59,7 @@ function! vnote#SetConfig(...) abort "{{{
     return 0
 endfunction "}}}
 
-" hNoteConfig: 
+" NoteConfig: 
 function! vnote#hNoteConfig(...) abort "{{{
     if a:0 == 0
         :LOG '[vnote] current config:'
@@ -81,3 +80,22 @@ let s:dStatis.lister = 0
 function! vnote#GetStatis() abort "{{{
     return s:dStatis
 endfunction "}}}
+
+" FindWindow: find and jump between notelist window and note(markdown) window
+function! vnote#FindListWindow() abort "{{{
+    let l:window = module#less#window#import()
+    return l:window.FindWindow('notelist')
+endfunction "}}}
+function! vnote#GotoListWindow() abort "{{{
+    let l:window = module#less#window#import()
+    return l:window.GotoWindow('notelist')
+endfunction "}}}
+function! vnote#FindNoteWindow() abort "{{{
+    let l:window = module#less#window#import()
+    return l:window.FindWindow('markdown')
+endfunction "}}}
+function! vnote#GotoNoteWindow() abort "{{{
+    let l:window = module#less#window#import()
+    return l:window.GotoWindow('markdown')
+endfunction "}}}
+

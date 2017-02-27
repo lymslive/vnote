@@ -12,15 +12,6 @@ nmap <buffer> <C-]> <Plug>(VNOTE_edit_open_list)
 
 nmap <buffer> <Tab> <Plug>(VNOTE_edit_smart_tab)
 
-" abbreviate <buffer> todo: - [todo]
-abbreviate <buffer> <expr> todo: note#hTodo_i()
-abbreviate <buffer> <expr> -t note#hTodo_i()
-command! -buffer -nargs=* TODO call note#hTodo(<f-args>)
-
-" handle <CR> map
-nnoremap <buffer> <expr> <CR> note#hEnterExpr()
-inoremap <buffer> <expr> <CR> note#hEnterExpr_i()
-
 command! -buffer -nargs=* -complete=customlist,vnote#complete#NoteTag
         \ NoteTag call note#hNoteTag(<f-args>)
 

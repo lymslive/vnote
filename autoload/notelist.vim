@@ -34,7 +34,7 @@ function! notelist#hNoteList(...) "{{{
 
     " try to find a notelist window
     if &filetype != 'notelist'
-        let l:iWinnr = notelist#FindListWindow()
+        let l:iWinnr = vnote#GotoListWindow()
         if l:iWinnr == 0
             if l:jOption.Has('vertical')
                 :vsplit
@@ -48,7 +48,7 @@ function! notelist#hNoteList(...) "{{{
 
     " open the lister buffer
     let l:pListerName = s:jNoteBook.GetListerName()
-    if bufname('%') !=# l:pListerName
+    if expand('%:p') !=# l:pListerName
         execute 'edit ' . l:pListerName
     endif
 
@@ -219,21 +219,6 @@ function! notelist#hSmartJump() abort "{{{
     if !empty(l:sTag) && l:sTag != b:jNoteList.argv[1]
         return notelist#hNoteList(l:sTag)
     endif
-
-    return 0
-endfunction "}}}
-
-" FindListWindow: find and jump to a window that set filetype=notelist
-" return: the window nr or 0 if not found
-" action: may change the current window if found
-function! notelist#FindListWindow() abort "{{{
-    let l:count = winnr('$')
-    for l:win in range(1, l:count)
-        if getwinvar(l:win, '&filetype') ==# 'notelist'            
-            execute l:win . 'wincmd w'
-            return l:win
-        endif
-    endfor
 
     return 0
 endfunction "}}}

@@ -49,7 +49,6 @@ function! notebook#hNoteNew(...) "{{{
 
         let l:iErr = l:jOption.ParseCheck(a:000)
         if l:iErr != 0
-            :ELOG 'notelist argument invalid'
             return l:iErr
         endif
 

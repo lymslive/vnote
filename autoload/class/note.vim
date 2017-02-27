@@ -20,6 +20,9 @@ let s:class._version_ = 1
 " the full path name of note
 let s:class.path = ''
 
+" the notebook which this note belong to
+let s:class.notebook = {}
+
 function! class#note#class() abort "{{{
     return s:class
 endfunction "}}}
@@ -38,6 +41,15 @@ function! class#note#ctor(this, argv) abort "{{{
     else
         echoerr 'class#note expect a note file path to construct objcet'
     endif
+
+    if len(a:argv) > 1 && class#notebook#isobject(a:argv[1])
+        let a:this.notebook = a:argv[1]
+        if !a:this.IsinBook()
+            :ELOG 'this note is not in this notebook?'
+        endif
+    else
+        let a:this.notebook = {}
+    endif
 endfunction "}}}
 
 " OLD:
@@ -53,8 +65,9 @@ function! class#note#isobject(that) abort "{{{
 endfunction "}}}
 
 " IsinBook: check if this note file is in a notebook directory
-function! s:class.IsinBook(jNoteBook) dict abort "{{{
-    if match(self.path, '^' . a:jNoteBook.Datedir()) != -1
+function! s:class.IsinBook(...) dict abort "{{{
+    let l:jNoteBook = a:0 > 0 ? a:1 : self.notebook
+    if match(self.path, '^' . l:jNoteBook.Datedir()) != -1
         return v:true
     else
         return v:false

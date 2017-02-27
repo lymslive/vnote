@@ -15,7 +15,10 @@ let s:class._name_ = 'class#notebuff'
 let s:class._version_ = 1
 
 " buffer number of the note, 0 is current buffer
-let s:buffer = 0
+" let s:class.bufnr = 0
+
+" saved tag cache
+let s:class.tagsave = {}
 
 function! class#notebuff#class() abort "{{{
     return s:class
@@ -32,7 +35,12 @@ endfunction "}}}
 function! class#notebuff#ctor(this, argv) abort "{{{
     let l:Suctor = s:class._suctor_()
     let l:pFileName = expand('%:p')
-    call l:Suctor(a:this, [l:pFileName])
+    if len(a:argv) > 0
+        call l:Suctor(a:this, [l:pFileName, a:argv[0]])
+    else
+        call l:Suctor(a:this, [l:pFileName])
+    endif
+    let a:this.tagsave = {}
 endfunction "}}}
 
 " ISOBJECT:
@@ -46,14 +54,26 @@ function! s:class.GetHeadLine(iMaxLine) dict abort "{{{
 endfunction "}}}
 
 " UpdateTagFile: 
-function! s:class.UpdateTagFile(jNoteBook) dict abort "{{{
-    if !class#notebook#isobject(a:jNoteBook)
-        echoerr 'expect a notebook objcet'
-        return -1
-    endif
-
+function! s:class.UpdateTagFile() dict abort "{{{
     let l:lsTag = self.GetTagList()
     if empty(l:lsTag)
+        return 0
+    endif
+
+    for l:sTag in l:lsTag
+        let l:iRet = self.UpdateOneTag(l:sTag)
+        if l:iRet != 0
+            return l:iRet
+        endif
+    endfor
+
+    return 0
+endfunction "}}}
+
+" UpdateOneTag: 
+function! s:class.UpdateOneTag(sTag) dict abort "{{{
+    let l:sTag = tolower(a:sTag)
+    if has_key(self.tagsave, l:sTag)
         return 0
     endif
 
@@ -62,92 +82,122 @@ function! s:class.UpdateTagFile(jNoteBook) dict abort "{{{
     let l:sTitle = self.GetNoteTitle()
     let l:sNoteEntry = l:sNoteName . "\t" . l:sTitle
 
-    let l:pTagDir = a:jNoteBook.Tagdir()
+    let l:pTagDir = self.notebook.Tagdir()
     if !isdirectory(l:pTagDir)
         call mkdir(l:pTagDir, 'p')
     endif
 
+    " read in old notelist of that tag
+    let l:pTagFile = l:pTagDir . '/' . l:sTag . '.tag'
+    if filereadable(l:pTagFile)
+        let l:lsNote = readfile(l:pTagFile)
+    else
+        let l:lsNote = []
+    endif
+
+    let l:iFound = match(l:lsNote, '^' . l:sNoteName)
+    let l:bFound = l:iFound != -1
+
     let l:iRet = 0
-    for l:sTag in l:lsTag
-        let l:sTag = tolower(l:sTag)
+    if l:bFound == v:false
+        call add(l:lsNote, l:sNoteEntry)
 
-        " read in old notelist of that tag
-        let l:pTagFile = l:pTagDir . '/' . l:sTag . '.tag'
-        if filereadable(l:pTagFile)
-            let l:lsNote = readfile(l:pTagFile)
+        " complex tag, treat as path
+        if match(l:sTag, '/') != -1
+            let l:pTagDir = fnamemodify(l:pTagFile, ':p:h')
+            if !isdirectory(l:pTagDir)
+                call mkdir(l:pTagDir, 'p')
+            endif
+        endif
+
+        let l:iRet = writefile(l:lsNote, l:pTagFile)
+        if l:iRet == 0
+            :LOG 'update tag file: ' . l:sTag
         else
-            let l:lsNote = []
+            :LOG 'fail to update tag file: ' . l:sTag
         endif
+    endif
 
-        let l:bFound = v:false
-        for l:note in l:lsNote
-            if l:note =~ '^' . l:sNoteName
-                let l:bFound = v:true
-                break
-            endif
-        endfor
+    if l:iRet == 0
+        let self.tagsave[l:sTag] = v:true
+    endif
+    return l:iRet
+endfunction "}}}
 
-        if l:bFound == v:false
-            call add(l:lsNote, l:sNoteEntry)
+" RemoveUpdateTag:
+function! s:class.RemoveUpdateTag(sTag) dict abort "{{{
+    let l:sTag = tolower(a:sTag)
+    let l:sNoteName = self.GetNoteName()
 
-            " complex tag, treat as path
-            if match(l:sTag, '/') != -1
-                let l:idx = len(l:pTagFile) - 1
-                while l:idx >= 0
-                    if l:pTagFile[l:idx] == '/'
-                        break
-                    endif
-                    let l:idx = l:idx - 1
-                endwhile
-                " trim the last /
-                let l:pTagDir = strpart(l:pTagFile, 0, l:idx)
-                if !isdirectory(l:pTagDir)
-                    call mkdir(l:pTagDir, 'p')
-                endif
-            endif
+    let l:pTagDir = self.notebook.Tagdir()
+    let l:pTagFile = l:pTagDir . '/' . l:sTag . '.tag'
+    if !filereadable(l:pTagFile)
+        return 0
+    endif
 
-            let l:iRet = writefile(l:lsNote, l:pTagFile)
-            if l:iRet == 0
-                :LOG 'update tag file: ' . l:sTag
-            else
-                break
-            endif
-        endif
-    endfor
+    let l:lsNote = readfile(l:pTagFile)
+    let l:iFound = match(l:lsNote, '^' . l:sNoteName)
+    if l:iFound == -1
+        return 0
+    endif
+
+    call remove(l:lsNote, l:iFound)
+    :LOG 'remove tag: ' . a:sTag
+    let l:iRet = writefile(l:lsNote, l:pTagFile)
+    if l:iRet == 0 && has_key(self.tagsave, l:sTag)
+        remove(self.tagsave, l:sTag)
+    endif
 
     return l:iRet
 endfunction "}}}
 
 " AddTag: 
 function! s:class.AddTag(...) dict abort "{{{
-    let l:list = medule#less#list#import()
+    let l:list = module#less#list#import()
     let l:lsTag = l:list.Flat(a:000)
-    let l:iCount = 0
     for l:sTag in l:lsTag
-        let l:iCount += self._AddTag(l:sTag)
+        call self._AddTag(l:sTag)
     endfor
-    return l:iCount
 endfunction "}}}
 
 " _AddTag: 
 function! s:class._AddTag(sTag) dict abort "{{{
-    " code
+    let l:lsTag = self.GetTagList()
+    call map(l:lsTag, 'tolower(v:val)')
+    if index(l:lsTag, tolower(a:sTag)) != -1
+        :WLOG 'tag already in this note: ' . a:sTag
+        return 0
+    endif
+
+    let l:sTag = printf('`%s`', a:sTag)
+    let l:sLine = getline(2)
+    if l:sLine =~ '^\s*`.\+`'
+        call setline(2, l:sLine . ' ' . l:sTag)
+    else
+        call append(1, l:sTag)
+    endif
+
+    return self.UpdateOneTag(l:sTag)
 endfunction "}}}
 
 " RemoveTag: 
 function! s:class.RemoveTag(...) dict abort "{{{
-    let l:list = medule#less#list#import()
+    let l:list = module#less#list#import()
     let l:lsTag = l:list.Flat(a:000)
-    let l:iCount = 0
     for l:sTag in l:lsTag
-        let l:iCount += self._RemoveTag(l:sTag)
+        call self._RemoveTag(l:sTag)
     endfor
-    return l:iCount
 endfunction "}}}
 
 " _RemoveTag: 
-function! s:class._RemoveTag() dict abort "{{{
-    " code
+function! s:class._RemoveTag(sTag) dict abort "{{{
+    let l:lsTag = self.GetTagList()
+    call map(l:lsTag, 'tolower(v:val)')
+    if index(l:lsTag, tolower(a:sTag)) == -1
+        :WLOG 'tag note in this note: ' . a:sTag
+        return 0
+    endif
+    return self.RemoveUpdateTag(l:sTag)
 endfunction "}}}
 
 " LOAD:

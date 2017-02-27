@@ -116,8 +116,8 @@ endfunction "}}}
 
 " RedrawContent: update the notelist buffer
 function! s:class.RedrawContent(lsContent) dict abort "{{{
-    if bufname('%') !=# self.notebook.GetListerName()
-        execute 'edit ' . l:pListerName
+    if expand('%:p') !=# self.notebook.GetListerName()
+        execute 'edit ' . self.notebook.GetListerName()
         :ELOG 'try to write list content to non-lister buffer'
     endif
 
