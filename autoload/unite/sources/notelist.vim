@@ -18,13 +18,22 @@ let s:source = {
 function! s:source.gather_candidates(args, context) abort "{{{
     let l:args = unite#helper#parse_source_args(a:args)
 
-    if empty(args)
+    if empty(l:args)
         let l:args = []
     endif
 
-    let l:jNoteBook = vnote#GetNoteBook()
-    let l:jNoteList = class#notelist#new(l:jNoteBook)
-    let l:lsContent = l:jNoteList.GatherContent(l:args)
+    " try get candidates from current notelist buffer
+    let l:lsContent = []
+    if empty(l:args) && &filetype ==# 'notelist'
+        let l:lsContent = s:GetBuffContent()
+    endif
+
+    " parser args to get list content
+    if empty(l:lsContent)
+        let l:jNoteBook = vnote#GetNoteBook()
+        let l:jNoteList = class#notelist#new(l:jNoteBook)
+        let l:lsContent = l:jNoteList.GatherContent(l:args)
+    endif
 
     let candidates = []
     for l:sEntry in l:lsContent
@@ -52,3 +61,19 @@ endfunction "}}}
 function! s:source.complete(args, context, arglead, cmdline, cursorpos) abort "{{{
     return notelist#CompleteList(a:arglead, a:cmdline, a:cursorpos)
 endfunction"}}}
+
+" GetBuffContent: 
+function! s:GetBuffContent() abort "{{{
+    if !exists('b:jNoteList')
+        return []
+    endif
+
+    let l:HEADLINE = 4
+    if line('$') < l:HEADLINE
+        return []
+    endif
+
+    let l:lsContent = getline(4, '$')
+    let l:pattern = '\d\+_\d\+.*\t'
+    return filter(l:lsContent, 'v:val =~ l:parttern')
+endfunction "}}}

@@ -177,7 +177,9 @@ function! s:class._AddTag(sTag) dict abort "{{{
         call append(1, l:sTag)
     endif
 
-    return self.UpdateOneTag(l:sTag)
+    return 0
+    " delay to autosave tagfile when write
+    " return self.UpdateOneTag(l:sTag)
 endfunction "}}}
 
 " RemoveTag: 

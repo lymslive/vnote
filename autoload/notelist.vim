@@ -237,6 +237,53 @@ function! s:CheckEntryMap() abort "{{{
     return v:true
 endfunction "}}}
 
+" RefineArg: 
+function! notelist#hRefineArg() abort "{{{
+    if exists('b:jNoteList')
+        return ':NoteList ' . join(b:jNoteList.argv)
+    else
+        return ':'
+    endif
+endfunction "}}}
+
+" PasteTag: pick and paste current tag to current editing note
+function! notelist#hPasteTag() abort "{{{
+    if !exists('b:jNoteList')
+        :WLOG 'b:jNoteList objcet not ready?'
+        return -1
+    endif
+
+    let l:sTag = ''
+    if b:jNoteList.argv[0] ==# '-t'
+        let l:sTag = b:jNoteList.argv[1]
+    elseif b:jNoteList.argv[0] ==# '-T'
+        if line('.') >= s:HEADLINE
+            let l:sTag = getline('.')
+        else
+            let l:sTag = b:jNoteList.argv[1]
+        endif
+    else
+        :WLOG 'can only pick tag in -t|-T mode'
+        return -1
+    endif
+
+    if empty(l:sTag)
+        :WLOG 'can not pick any tag?'
+        return -1
+    endif
+
+    let l:iWin = vnote#GotoNoteWindow()
+    if l:iWin > 0
+        call note#hNoteTag(l:sTag)
+    endif
+
+    let l:sTagQuote = printf('`%s`', l:sTag)
+    call setreg('"', l:sTagQuote)
+    :LOG 'the tag have also copy to default register: ' . l:sTagQuote
+
+    return 0
+endfunction "}}}
+
 " Load: call this function to triggle load this script
 function! notelist#Load() "{{{
     return 1

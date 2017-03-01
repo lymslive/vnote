@@ -74,6 +74,7 @@ function! notebook#hNoteNew(...) "{{{
         call mkdir(l:pDirectory, 'p')
     endif
 
+    call vnote#GotoNoteWindow()
     execute 'edit ' . l:pNoteFile
 
     " generate title
@@ -121,6 +122,7 @@ function! notebook#hNoteEdit(...) "{{{
         if !isdirectory(l:pDirectory)
             call mkdir(l:pDirectory, 'p')
         endif
+        call vnote#GotoNoteWindow()
         execute 'edit ' . l:pNoteFile
     endif
 endfunction "}}}

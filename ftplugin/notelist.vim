@@ -36,3 +36,8 @@ nmap <buffer> D <Plug>(VNOTE_list_browse_date)
 " if cursor on a tag(when open tag line), NoteList by that tag
 nmap <buffer> t <Plug>(VNOTE_list_smart_jump)
 
+" goto the command line and copy the argments
+nnoremap <buffer> <expr> : notelist#hRefineArg()
+
+" switch to unite
+nnoremap <buffer> u :Unite notelist<CR>
