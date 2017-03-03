@@ -21,6 +21,7 @@ nnoremap <Plug>(VNOTE_list_smart_tab) :call notelist#hSmartTab()<CR>
 nnoremap <Plug>(VNOTE_list_back_list) :call notelist#hBackList()<CR>
 nnoremap <Plug>(VNOTE_list_browse_tag) :call notelist#hNoteList('-T')<CR>
 nnoremap <Plug>(VNOTE_list_browse_date) :call notelist#hNoteList('-D')<CR>
+nnoremap <Plug>(VNOTE_list_switch_unite) :Unite notelist<CR>
 
 " recommend local in note buffer (markdown)
 nnoremap <Plug>(VNOTE_edit_next_note) :call note#EditNext(1)<CR>

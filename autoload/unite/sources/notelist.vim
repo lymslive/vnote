@@ -28,9 +28,13 @@ function! s:source.gather_candidates(args, context) abort "{{{
         let l:lsContent = s:GetBuffContent()
     endif
 
+    let l:jNoteBook = vnote#GetNoteBook()
+
     " parser args to get list content
     if empty(l:lsContent)
-        let l:jNoteBook = vnote#GetNoteBook()
+        if empty(l:args)
+            let l:args = ['-a']
+        endif
         let l:jNoteList = class#notelist#new(l:jNoteBook)
         let l:lsContent = l:jNoteList.GatherContent(l:args)
     endif
@@ -75,5 +79,5 @@ function! s:GetBuffContent() abort "{{{
 
     let l:lsContent = getline(4, '$')
     let l:pattern = '\d\+_\d\+.*\t'
-    return filter(l:lsContent, 'v:val =~ l:parttern')
+    return filter(l:lsContent, 'v:val =~ l:pattern')
 endfunction "}}}

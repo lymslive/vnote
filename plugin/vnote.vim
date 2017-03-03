@@ -15,9 +15,9 @@ command! -nargs=* -complete=customlist,vnote#complete#NoteTag
         \ NoteNew call notebook#hNoteNew(<f-args>)
 
 " NoteEdit:
-" accept at most two arguments: NoteEdit day_path(yyyy/mm/dd) number
+" accept an optional argument: NoteEdit day_path(yyyy/mm/dd)
 " day_path default to today path
-" number default to the last note number of that day
+" edit the last note of that day
 command! -nargs=* NoteEdit call notebook#hNoteEdit(<f-args>)
 
 " NoteList:

@@ -4,7 +4,7 @@
 
 " import s:jNoteBook from vnote
 let s:jNoteBook = vnote#GetNoteBook()
-let s:HEADLINE = 4
+let s:HEADLINE = 3
 
 " regexp for match note entry line
 let s:entry_line_patter = '^\(\d\{8\}_\d\+.*\)\t\(.*\)'
@@ -88,7 +88,10 @@ endfunction "}}}
 " EnterNote: <CR> to edit note under cursor line
 " open note in another window if possible
 function! notelist#hEnterNote() "{{{
-    if !s:CheckEntryMap()
+    if !s:CheckBuffer()
+        return -1
+    elseif !s:CheckEntry()
+        :WLOG 'please cursor on note entry and press enter'
         return -1
     endif
 
@@ -106,7 +109,9 @@ function! notelist#hEnterNote() "{{{
 
     let l:pFileName = l:jNoteEntry.GetFullPath(s:jNoteBook)
 
-    if winnr('$') > 1
+    " try goto note window
+    let l:iWin = vnote#GotoNoteWindow()
+    if l:iWin == 0 && winnr('$') > 1
         :wincmd p
     endif
 
@@ -115,10 +120,19 @@ endfunction "}}}
 
 " ToggleTagLine: show/hide a tag line below a note entry
 function! notelist#ToggleTagLine() "{{{
-    if !s:CheckEntryMap()
+    if !s:CheckBuffer() || !s:CheckEntry()
+        return -1
+    elseif b:jNoteList.argv[0] != '-t' && b:jNoteList.argv[0] != '-d'
+        :WLOG 'this map can only be used in -t or -d mode'
         return -1
     endif
 
+    setlocal modifiable
+    call s:_ToggleTagLine()
+    setlocal nomodifiable
+    return 0
+endfunction "}}}
+function! s:_ToggleTagLine() "{{{
     let l:lineno = line('.')
 
     " cursor in tag line, delete it and cursor up one line
@@ -201,7 +215,7 @@ endfunction "}}}
 " or when cursor on note entry, switch list by its date
 " igore the same tag or date
 function! notelist#hSmartJump() abort "{{{
-    if !s:CheckEntryMap()
+    if !s:CheckBuffer() || !s:CheckEntry()
         return -1
     endif
 
@@ -224,17 +238,12 @@ function! notelist#hSmartJump() abort "{{{
 endfunction "}}}
 
 " CheckEntryMap: return true if key map success on list entry context
-function! s:CheckEntryMap() abort "{{{
-    if !exists('b:jNoteList') || &filetype !=# 'notelist'
-        echo 'Not notelist buffer?'
-        return v:false
-    endif
-
-    if line('.') < s:HEADLINE
-        return v:false
-    endif
-
-    return v:true
+function! s:CheckEntry() abort "{{{
+    return line('.') > s:HEADLINE
+endfunction "}}}
+" CheckBuffer: return true if valid notelist buffer
+function! s:CheckBuffer() abort "{{{
+    return &filetype ==# 'notelist' && exists('b:jNoteList')
 endfunction "}}}
 
 " RefineArg: 

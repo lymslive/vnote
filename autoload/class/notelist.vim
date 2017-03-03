@@ -100,11 +100,16 @@ function! s:class.GatherContent(argv) dict abort "{{{
     elseif l:jOption.Has('Tag-Tree')
         let l:lsContent = self.BrowseTag(l:sArg)
     elseif l:jOption.Has('date')
+        if empty(l:sArg)
+            let l:sArg = strftime("%Y/%m/%d")
+        endif
         let l:lsContent = self.ListByDate(l:sArg)
     elseif l:jOption.Has('tag')
         let l:lsContent = self.ListByTag(l:sArg)
     else
-        if l:sArg =~ self.notebook.pattern.dateYear || empty(l:sArg)
+        if empty(l:sArg)
+            let l:lsContent = self.ListByDate(strftime("%Y/%m/%d"))
+        elseif l:sArg =~ self.notebook.pattern.dateYear
             let l:lsContent = self.ListByDate(l:sArg)
         else
             let l:lsContent = self.ListByTag(l:sArg)
