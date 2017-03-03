@@ -37,6 +37,8 @@ nmap <buffer> D <Plug>(VNOTE_list_browse_date)
 " if cursor on a tag(when open tag line), NoteList by that tag
 nmap <buffer> t <Plug>(VNOTE_list_smart_jump)
 
+nmap <buffer> p <Plug>(VNOTE_list_pick_tag)
+
 " switch to unite
 nmap <buffer> u <Plug>(VNOTE_list_switch_unite)
 

@@ -7,14 +7,21 @@ License: MIT license
 ========================================================+=====================
 CONTENTS						*vnote*
 
-1. Introduction
-2. Install
-3. Usage
-4. Interface
-  4.1 Global Commands
-  4.2 Mappings in notelist
-  4.3 Mappings in notebuff
-5. Custom
+1. Introduction						|vnote-introduction|
+2. Install						|vnote-install|
+3. Usage						|vnote-usage|
+4. Interface						|vnote-interface|
+  4.1 Global Commands					|vnote-command|
+  4.2 Mappings in notelist				|vnote-notelist|
+  4.3 Mappings in notebuff				|vnote-notebuff|
+      markdown for note					|markdown-note|
+      markdown for text					|markdown-edit|
+5. Custom						|vnote-custom|
+  5.1 Config variable					|vnote-config|
+  5.2 Local remap schema				|vnote-remap|
+6. Vnote command line tool				|vnote-cli|
+7. FAQ							|vnote-faq|
+8. Credit						|vnote-credit|
 
 ========================================================+=====================
 1. Introduction						*vnote-introduction*
@@ -158,7 +165,7 @@ is defined in scrip in "ftplugin/" subdirectory. The virtual <Plug> mappings
 are defined in script "plugin/mappings.vim".
 
 --------------------------------------------------------+---------------------
-4.1 Global Commands					*vnote-commands*
+4.1 Global Commands					*vnote-command*
 
 :NoteBook [{directory}]					*NoteBook*
 	Change the current notebook to the one in {directory}. If omits the
@@ -275,6 +282,11 @@ t 					*<Plug>(VNOTE_list_smart_jump)*
 	is on some tag. Otherwise switch to list by the date of current
 	note entry under cursor.
 
+p 					*<Plug>(VNOTE_list_pick_tag)*
+	Can only use in "-T" or "-t" list mode. Yank the current selected
+	tag to the unnamed register, and if there is another note window
+	opened, add the tag to that note buffer.
+
 u 					*<Plug>(VNOTE_list_switch_unite)*
 	Switch to unite search mode, gather the candidate from current
 	notelist buffer content. Only can be used when |:Unite| command
@@ -294,7 +306,7 @@ deified in script "ftplugin/markdow*.vim". They can be divined into two groups
 by purpose, one is relate to notebook or notelist, and one relate to editing
 markdown file as any other markdown plugin.
 
-markdown mappings for note~
+markdown mappings for note~				*markdown-note*
 
 g<C-a>					*<Plug>(VNOTE_edit_next_note)*
 g<C-x>					*<Plug>(VNOTE_edit_prev_note)*
@@ -319,7 +331,39 @@ g<C-x>					*<Plug>(VNOTE_edit_prev_note)*
 	Use ":NoteTag -d" to remove tag has advantage to update tagfile, while
 	directly delete tag text in buffer, will not update tagfile.
 
-markdown mappings for text~
+markdown mappings for text~				*markdown-edit*
+
+:TODO [{progress}] [{item}]				*vnote-TODO*
+	Add a todo item, or update the progress of todo item.
+	Local command to note buffer, or markdown filetype.
+	There are three symbols to mark unorder list in markdown. |vnote| use
+	these three symbols to denote differen status of a todo item:
+		- [todo] a todo item
+		* [todo:xx%] a doing item, xx% is the progress from 1% to 99%
+		+ [todo] a done item, that progress 100%.
+	If cursor on a normal line, ":TODO {item}" add a new todo item.
+	If cursor on a line has a todo item, ":TODO {progress}" update the
+	progress, which marked as done when greater or equal to 100.
+
+todo:
+-t			abbreviate <buffer> <expr> -t edit#markdown#hTodo_i()
+	"-t" or "todo:" is abbreviate in insert mode, to insert a todo
+	notation quickly. It do somethin like "<ESC>:TODO<CR>".
+
+<CR>		nnoremap <buffer> <expr> <CR> edit#markdown#hEnterExpr()
+	When cursor on a line with todo item, press <CR> goto command line
+	and input ":TODO " command, waiting for further arugment. It is a
+	quick way to use |vnote-TODO| command.
+	Otherwise, goto command line and input ":Note", with no space, then
+	press <Tab> can complete commands provided by |vnote|, which all start
+	with ":Note".
+
+i_<CR>		inoremap <buffer> <expr> <CR> edit#markdown#hEnterExpr_i()
+	This is the map to handle <CR> in insert mode.
+	When in a line with todo item, also add a new todo item in next line.
+	When in a line with normal unorder list, add a new unorder list.
+	When in a line with ordered list, add a new list, and make order +1.
+	Otherwise, perform as normal <CR>
 
 ========================================================+=====================
 5. Custom						*vnote-custom*
