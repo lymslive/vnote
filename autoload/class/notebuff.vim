@@ -60,13 +60,22 @@ function! s:class.UpdateTagFile() dict abort "{{{
         return 0
     endif
 
-    for l:sTag in l:lsTag
+    let l:config = vnote#GetConfig()
+    let l:iCount = 0
+    let l:iEnd = len(l:lsTag)
+
+    while l:iCount < l:config.note_file_max_tags && l:iCount < l:iEnd
         let l:iRet = self.UpdateOneTag(l:sTag)
         if l:iRet != 0
             return l:iRet
         endif
-    endfor
 
+        let l:iCount += 1
+    endwhile
+
+    if l:iCount < l:iEnd
+        :WLOG 'too many tags, the last few tags donot save'
+    endif
     return 0
 endfunction "}}}
 

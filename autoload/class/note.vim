@@ -2,7 +2,7 @@
 " Author: lymslive
 " Description: a class that represent a note file
 " Create: 2017-02-17
-" Modify: 2017-02-17
+" Modify: 2017-03-04
 
 "LOAD:
 if exists('s:load') && !exists('g:DEBUG')
@@ -11,6 +11,7 @@ endif
 
 " constant value
 let s:HEADLINE = 10
+let s:config = vnote#GetConfig()
 
 " CLASS:
 let s:class = class#old()
@@ -104,7 +105,7 @@ endfunction "}}}
 " GetTagLine: 
 " return the note tags in one string, include `` quote each
 function! s:class.GetTagLine() dict abort "{{{
-    let l:lsLine = self.GetHeadLine(s:HEADLINE)
+    let l:lsLine = self.GetHeadLine(get(s:config, 'note_file_head_line', s:HEADLINE))
     return self.GetTagLine_(l:lsLine)
 endfunction "}}}
 
@@ -136,7 +137,7 @@ endfunction "}}}
 " GetTagList: 
 " return a list of tags, exclude `` quote each
 function! s:class.GetTagList() dict abort "{{{
-    let l:lsLine = self.GetHeadLine(s:HEADLINE)
+    let l:lsLine = self.GetHeadLine(get(s:config, 'note_file_head_line', s:HEADLINE))
     return self.GetTagList_(l:lsLine)
 endfunction "}}}
 

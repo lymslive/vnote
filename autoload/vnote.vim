@@ -12,12 +12,11 @@ let s:default_notebook = expand(s:default_notebook)
 
 " global configue for vnote
 let s:dConfig = {}
-let s:dConfig.max_tags = 5
-let s:dConfig.save_minus_tag = v:true
-let s:dConfig.save_plus_tag = v:true
-let s:dConfig.autosave_minus_tag = v:false
-let s:dConfig.autosave_plus_tag = v:false
-let s:dConfig.rename_by_tag = v:false
+let s:dConfig.note_file_head_line = 10
+let s:dConfig.note_file_max_tags = 5
+let s:dConfig.auto_add_minus_tag = v:true
+let s:dConfig.auto_add_plus_tag = v:true
+" let s:dConfig.rename_by_tag = v:false
 
 " GetNoteBook: 
 let s:jNoteBook = {}
@@ -51,9 +50,15 @@ function! vnote#SetConfig(...) abort "{{{
 
     let l:dict = module#less#dict#import()
     let l:dArg = l:dict.FromList(a:000)
-    if has_key(l:dArg, 'notebook')
-        let l:dArg['notebook'] = expand(l:dArg['notebook'])
+
+    let l:math = module#less#math#import() 
+    if has_key(l:dArg, 'note_file_head_line')
+        let l:dArg['note_file_head_line'] = l:math.LimitBetween(l:dArg['note_file_head_line'], 2, 20)
     endif
+    if has_key(l:dArg, 'note_file_max_tags')
+        let l:dArg['note_file_max_tags'] = l:math.LimitBetween(l:dArg['note_file_max_tags'], 2, 10)
+    endif
+
     call l:dict.Absorb(s:dConfig, l:dArg)
 
     return 0

@@ -87,10 +87,15 @@ function! notebook#hNoteNew(...) "{{{
     " generate tags
     let l:sTagLine = ''
     if l:bPrivate
-        let l:sTagLine .= '`-`'
+        if s:config.auto_add_minus_tag
+            let l:sTagLine .= '`-`'
+        endif
     else
-        let l:sTagLine .= '`+`'
+        if s:config.auto_add_plus_tag
+            let l:sTagLine .= '`+`'
+        endif
     endif
+
     if !empty(l:lsTag)
         call map(l:lsTag, 'printf("`%s`", v:val)')
         let l:sTagLine .= ' ' . join(l:lsTag, ' ')

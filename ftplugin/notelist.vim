@@ -2,6 +2,8 @@
 " Author: lymslive
 " Date: 2017-02-24
 
+:PLUGINLOCAL
+
 " enter to edit the note under the cursor
 " if have more than one window, open the note in another window
 " if NoteList -D or -T mode, enter to list the subpath
@@ -45,3 +47,4 @@ nmap <buffer> u <Plug>(VNOTE_list_switch_unite)
 " goto the command line and copy the argments
 nnoremap <buffer> <expr> C notelist#hRefineArg()
 
+:PLUGINAFTER

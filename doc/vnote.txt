@@ -218,7 +218,13 @@ are defined in script "plugin/mappings.vim".
 	When no argument, display the current config directory. otherwise,
 	pairs of arguments must be provided, the first is key, and the second
 	is value to be set. The vaild config key can be queried by this command
-	without argument.
+	without argument, see also |vnote-config|
+	For example, to show all the current config value: >
+		:NoteConfig
+<
+	to change the value of 'note_file_max_tags' :>
+		:NoteConfig note_file_max_tags 7
+<
 
 --------------------------------------------------------+---------------------
 4.2 Mappings in notelist				*vnote-notelist*
@@ -368,5 +374,43 @@ i_<CR>		inoremap <buffer> <expr> <CR> edit#markdown#hEnterExpr_i()
 ========================================================+=====================
 5. Custom						*vnote-custom*
 
+5.1 Config variable					*vnote-config*
+
+Most configurable variable is saved in a dictionay, that can be query and set
+by commend |NoteConfig|. The variable and meaning are list below, with default
+value after each.
+
+note_file_head_line = 10
+	How many line are parsed at most to gather tag information of a note.
+	Valid value is between [2, 20]
+
+note_file_max_tags = 5
+	How many tag are supported at most. If there are too many tags in a 
+	note buffer, the ones exceeds this limit will not auto saved.
+	For performance purpose, avoid to update too many tagfiles.
+	Valid vaue is between [2, 10]
+
+auto_add_minus_tag = v:true
+auto_add_plus_tag = v:true
+	When new note is created by |NoteNew|, whether to insert `-` or `+`
+	tag automatically. `-` is for private diary, `+` is for public note.
+
+
+5.2 Local remap schema					*vnote-remap*
+
+It it hoped that the default settings and mappings is acceptable. However, for
+the advanced user, if really want to change some mappings because of habit or
+conflict or other reason, there also a full controled schema to do so.
+
+The script in "plugin/" and "ftplugin/" subdirectory containing nearly only 
+mappings and commands for use interface, that detailed in |vnote-interface|.
+If you donnot care about future update matter, feel free to directly edit the
+map you donnot like in place, those script is really simple.
+
+A nearter way is ":saveas" a relation local script file, replace the ".vim" 
+extention with ".local", in the same directory. Then when this plugin loaded,
+your local script will be sourced, instead of the origin shipped script.
+
+The trick is the command |PLUGINLOCAL| and |PLUGINAFTER| provided by |vimloo|.
 ========================================================+=====================
 vim:tw=78:ts=8:ft=text:norl:

@@ -31,3 +31,5 @@ command! -nargs=* -complete=customlist,vnote#complete#NoteList
 
 command! -nargs=* -complete=customlist,vnote#complete#NoteConfig
         \ NoteConfig call vnote#hNoteConfig(<f-args>)
+
+:PLUGINAFTER
