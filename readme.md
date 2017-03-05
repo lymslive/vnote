@@ -1,8 +1,8 @@
 # vnote: a note/diary manage plugin in vim
 `vnote` `git/readme`
 
-a chinese version [readme](readme-zh.md) is also availabe.
-[一份中文的说明文档也是可利用的](readme-zh.md)。
+A __chinese version__ readme is also availabe
+([一份中文的说明文档也是可利用的](readme-zh.md)).
 
 ## Introduction
 
@@ -18,7 +18,7 @@ a chinese version [readme](readme-zh.md) is also availabe.
 * gcc version: 4.4.7 (optional)
 * Unite.vim plugin: (optional)
 
-### Depedente:
+### Dependent:
 * vimloo: https://github.com/lymslive/vimloo
 
 ### Manually Install:
