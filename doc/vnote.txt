@@ -412,5 +412,90 @@ extention with ".local", in the same directory. Then when this plugin loaded,
 your local script will be sourced, instead of the origin shipped script.
 
 The trick is the command |PLUGINLOCAL| and |PLUGINAFTER| provided by |vimloo|.
+So |vimloo| path must appear berfore |vnote| path in the 'runtimepath' list,
+or in another way, install |vimloo| plugin before |vnote|.
+
+When load a "*.vim" script begin with the command ":PLUGINLOCAL", except
+comment header, it will try to source another script with the same name but
+with ".local" extention, if such file found, the current script finish
+immediately, otherswise the current script loads as normal.
+
+When loading a "*.vim" script end with the command ":PLUGINAFTER", then it
+will also try to source the same but "*.after" file.
+
+In fact, the command ":PLUGINLOCAL" and ":PLUGINAFTER" can appear at any
+position of a script. The different is that ":PLUGINCOCAL" may skip the
+following part of that script.
+
+For example 1. you can add more key maps to |vnote| as following way: >
+	$ cd right/path/to/vnote/plugin
+	$ vim vnote.after
+	: nnoremap <leader>n :NoteNew<CR>
+	: nnoremap <leader>d :NoteNew -<CR>
+	: nnoremap <leader>D :NoteList -D<CR>
+	: nnoremap <leader>T :NoteList -T<CR>
+	:wq
+<
+That says create a "vnote.after" file, and input four maps in that file. It is
+only a example, it is your term to select a <leader>, and descide whether
+really needed and valuable.
+
+For example 2. redefine key maps for notelist buffer completely: >
+	$ cd right/path/to/vnote/ftplugin
+	$ cp notelist.vim notelist.local
+	$ vim notelist.local
+	: g/^PLUGIN/delete
+	: g/^" /delete
+	" make other changes
+<
+That says make a copy of "notelist.vim" as "notelist.local", so to edit your
+local script based on the shipped script. It is better to delete the
+":PlUGINLOCAL" and ":PLUGINAFTER" command in the local sricpt, as there is no
+need to check local script as itself. The comment can be deleted to make local
+script shorter and compact. But commnet is allowed as any normal VimL script.
+
+For example 3. disable the "markdown_eidt.vim" if you perfer to other markdown
+plugin to avoid key map conflict: >
+	$ cd right/path/to/vnote/ftplugin
+	$ touch markdown_edit.local
+<
+That says create an empty file named "markdown_edit.local" to shield
+"markdown_edit.vim". Of course you can add a dummy comment in that file to 
+describe such purporse.
+
+Attention: the "*.vim" files in "plugin/" and "ftplugin/" are automatically
+loaded at some point. So to make better control of local script, it is
+desgined not end with ".vim" extention. And when edit them in vim, they are
+not detected as vim filetype, without syntax colour support and so on. If you
+feel that trouble, ":set ft=vim" temporary. After all, the local script should
+keep simple.
+
 ========================================================+=====================
-vim:tw=78:ts=8:ft=text:norl:
+6. Vnote command line tool				*vnote-cli*
+
+An external program also named "vnote" is provided, which default install in
+"~/bin/vnote". It is a simple command line tool, when with no argument or
+"-?", an usage information will display to describe the valid options.
+
+For example, to rebuild tagfiles: >
+	$ vnote -d ~/notebook -tQ
+<
+The old tagfiles in "~/notebook/t" will not be deleted, but overwrittened.
+
+========================================================+=====================
+7. FAQ							*vnote-faq*
+
+(todo ...)
+
+========================================================+=====================
+8. Credit						*vnote-credit*
+
+https://github.com/tanakh/cmdline
+A very light-weigth command line parser for C++.
+
+https://github.com/Shougo/unite.vim
+The famous vim plugin, a uinted frame to display and search information from
+any source.
+
+========================================================+=====================
+vim:tw=78:ts=8:ft=help:norl:

@@ -2,6 +2,8 @@
 " Author: lymslive
 " Date: 2017-02-24
 
+:PLUGINLOCAL
+
 " edit the next/prev number note of the same day
 nmap <buffer> g<C-a> <Plug>(VNOTE_edit_next_note)
 nmap <buffer> g<C-x> <Plug>(VNOTE_edit_prev_note)
@@ -20,3 +22,5 @@ augroup VNOTE_EDIT
     autocmd! * <buffer>
     autocmd BufWritePost <buffer> call note#OnSaveNote()
 augroup end
+
+:PLUGINAFTER

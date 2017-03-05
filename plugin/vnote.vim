@@ -2,6 +2,8 @@
 " Author: lymslive
 " Date: 2017-02-24
 
+:PLUGINLOCAL
+
 " NoteBook:
 " no argument, show the current notebook
 " with one argument, switch to set that directory as current notebook
