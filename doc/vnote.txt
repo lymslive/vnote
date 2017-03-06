@@ -1,4 +1,4 @@
-*vnote.txt*		For Vim version 7.4		Last change:2017-03-03
+*vnote.txt*		Note Manager in Vim		Last change:2017-03-06
 
 version 0.51
 Author: lymslive <403708621@qq.com>
@@ -99,7 +99,7 @@ The "$" symbol denotes as shell command, and ":" denotes as vim's ex command,
 usually in your vimrc file. If you perfer to some plugin manage tool, just do
 that way to install |vnote| and |vimloo|.
 
-*vnote-cli* is an external C++ program that run in shell command line interface.
+|vnote-cli| is an external C++ program that run in shell command line interface.
 It is build onup a simple makefile:>
 	$ cd right/path/to/vnote
 	$ cd src
@@ -485,7 +485,22 @@ The old tagfiles in "~/notebook/t" will not be deleted, but overwrittened.
 ========================================================+=====================
 7. FAQ							*vnote-faq*
 
-(todo ...)
+Q: Why markdown? Must learn markdown?
+A: Well, markdown is a good choise. There is no need to create a new filetype
+   and file extention. But there is no need to understand markdown to use write
+   note. vnote only care the first line as title, and the `` quoted words as
+   tags in the first few head lines.
+
+Q: When note in date path yyyy/mm/dd, still name note file as yyyymmdd_*.md?
+A: To make most other things simple, make filename itself have the full 
+   information, denotes as a note ID in a notebook.
+
+Q: What is private diary, any difference from note?
+A: There is no much difference in substance, only suggestion mark label 
+   concerning the content. Note is something can be shared, while diary is 
+   other things don't share. Private is for away from secret or security, you
+   may record the birthday of your girl friend in a diary, but do not record
+   bank account with password.
 
 ========================================================+=====================
 8. Credit						*vnote-credit*

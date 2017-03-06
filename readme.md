@@ -12,7 +12,7 @@ A __chinese version__ readme is also availabe
 
 ## Install
 
-### Requirment:
+### Minimum Requirment:
 * OS: linux (windows not test now)
 * vim version: 7.4
 * gcc version: 4.4.7 (optional)
@@ -38,6 +38,13 @@ The "set rtp+=" command is suggested put in vimrc.
 `right/path/to/vnote` is the directory where clone down this plugin,
 maybe `~/.vim/bundle/vnote` is a good choice.
 
+### Install by plugin manage tools
+
+Refer to the plugin manage tool used.
+Install "vimloo" before "vnote".
+
+### Compile External Tool (Optional)
+
 ```
 $ cd right/path/to/vnote
 $ cd src
@@ -45,10 +52,7 @@ $ make
 $ make install
 ```
 
-### Install by plugin manage tools
-
-Refer to the plugin manage tool used.
-Install "vimloo" before "vnote".
+Default install to `~/bin/vnote`
 
 ## Fast Usage
 
@@ -56,5 +60,6 @@ Install "vimloo" before "vnote".
 * `:NoteNew -` create a new diary
 * `:w` save note file as normal
 * `:NoteList` browse note in notebook
+* `:Unite notelist` is available if unite.vim installed
 * default notebook is `~/notebook`
 * `:help vnote` for detail and online document

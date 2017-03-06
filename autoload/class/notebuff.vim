@@ -65,7 +65,7 @@ function! s:class.UpdateTagFile() dict abort "{{{
     let l:iEnd = len(l:lsTag)
 
     while l:iCount < l:config.note_file_max_tags && l:iCount < l:iEnd
-        let l:iRet = self.UpdateOneTag(l:sTag)
+        let l:iRet = self.UpdateOneTag(l:lsTag[l:iCount])
         if l:iRet != 0
             return l:iRet
         endif

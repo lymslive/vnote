@@ -9,7 +9,7 @@ let s:jNoteBook = vnote#GetNoteBook()
 function! s:GetNoteObject() abort "{{{
     if !exists('b:jNoteBuff')
         if !s:NoteInBook()
-            :ELOG 'this file not is current notebook, refuse to create note object'
+            :DLOG 'this file not is current notebook, refuse to create note object'
             return {}
         endif
         let b:jNoteBuff = class#notebuff#new(s:jNoteBook)

@@ -4,7 +4,7 @@
 " Create: 2017-02-27
 " Modify: 2017-03-05
 
-:PlUGINLOCAL
+:PLUGINLOCAL
 
 " abbreviate <buffer> todo: - [todo]
 abbreviate <buffer> <expr> todo: edit#markdown#hTodo_i()
