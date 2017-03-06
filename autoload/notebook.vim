@@ -87,11 +87,11 @@ function! notebook#hNoteNew(...) "{{{
     " generate tags
     let l:sTagLine = ''
     if l:bPrivate
-        if s:config.auto_add_minus_tag
+        if s:dConfig.auto_add_minus_tag
             let l:sTagLine .= '`-`'
         endif
     else
-        if s:config.auto_add_plus_tag
+        if s:dConfig.auto_add_plus_tag
             let l:sTagLine .= '`+`'
         endif
     endif
