@@ -200,6 +200,36 @@ function! s:class.FindTags_(sLine) dict abort "{{{
     return l:lsTag
 endfunction "}}}
 
+" LocateTagLine_: 
+" > return a list of dict {'line_no':?, 'line_str':?}
+function! s:class.LocateTagLine_() dict abort "{{{
+    let l:lsLine = self.GetHeadLine(get(s:config, 'note_file_head_line', s:HEADLINE))
+    let l:lsTagLine = []
+
+    let l:bTagOn = v:false
+    let l:iLine = 0
+    for l:sLine in l:lsLine
+        let l:iLine += 1
+
+        if strlen(l:sLine) < 3
+            continue
+        endif
+
+        if l:sLine[0] == '`' && l:sLine[1] != '`'
+            if !l:bTagOn
+                let l:bTagOn = v:true
+            endif
+            let l:dEntry = {'line_no': l:iLine, 'line_str': l:sLine}
+            call add(l:lsTagLine, l:dEntry)
+        else
+            if l:bTagOn
+                break
+            endif
+        endif
+    endfor
+
+    return l:lsTagLine
+endfunction "}}}
 " LOAD:
 let s:load = 1
 :DLOG 'class#note is loading ...'
