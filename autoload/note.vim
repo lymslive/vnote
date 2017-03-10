@@ -155,6 +155,12 @@ function! note#hNoteTag(...) abort "{{{
     endif
 endfunction "}}}
 
+" GetContext: get the first word of current line
+function! note#GetContext() abort "{{{
+    let l:sLine = getline('.')
+    return split(l:sLine, '\s\+')[0]
+endfunction "}}}
+
 " Test: 
 function! note#Test() abort "{{{
     " echo s:DetectTag()

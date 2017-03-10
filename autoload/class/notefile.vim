@@ -2,7 +2,7 @@
 " Author: lymslive
 " Description: a note file with RW support, not load in buffer
 " Create: 2017-03-08
-" Modify: 2017-03-08
+" Modify: 2017-03-11
 
 "LOAD:
 if exists('s:load') && !exists('g:DEBUG')
@@ -10,7 +10,7 @@ if exists('s:load') && !exists('g:DEBUG')
 endif
 
 " CLASS:
-let s:class = note#old()
+let s:class = class#note#old()
 let s:class._name_ = 'class#notefile'
 let s:class._version_ = 1
 
@@ -33,12 +33,7 @@ function! class#notefile#ctor(this, argv) abort "{{{
     let l:Suctor = s:class._suctor_()
     call l:Suctor(a:this, a:argv)
 
-    if filereadable(a:this.path)
-        let a:this.content = readfile(a:this.path)
-    else
-        let a:this.content = 0
-        :ELOG 'cannot read in note file: ' . a:this.path
-    endif
+    call a:this.LoadFile()
 endfunction "}}}
 
 " ISOBJECT:
@@ -51,7 +46,7 @@ function! s:class.GetHeadLine(iMaxLine) dict abort "{{{
     if empty(self.content)
         return []
     else
-        return self.content[1 : a:iMaxLine]
+        return self.content[0 : a:iMaxLine-1]
     endif
 endfunction "}}}
 
@@ -114,7 +109,7 @@ function! s:class.DeleteTag(sTag) dict abort "{{{
     " ?? dose l:dEntry still existed here
     let l:iLine = l:dEntry['line_no']
     let l:sLine = l:dEntry['line_str']
-    let l:sLine = substitute(l:sLine, 'l:sTag' . '\c', '', '')
+    let l:sLine = substitute(l:sLine, l:sTag . '\c', '', '')
     let self.content[l:iLine] = l:sLine
 
     return self.SaveFile()
@@ -147,7 +142,7 @@ function! s:class.RenameTag(sTag, sNew) dict abort "{{{
     " ?? dose l:dEntry still existed here
     let l:iLine = l:dEntry['line_no']
     let l:sLine = l:dEntry['line_str']
-    let l:sLine = substitute(l:sLine, 'l:sTag' . '\c', l:sNew, '')
+    let l:sLine = substitute(l:sLine, l:sTag . '\c', l:sNew, '')
     let self.content[l:iLine] = l:sLine
 
     return self.SaveFile()
@@ -156,6 +151,17 @@ endfunction "}}}
 " SaveFile: 
 function! s:class.SaveFile() dict abort "{{{
     return writefile(self.content, self.path)
+endfunction "}}}
+
+" LoadFile: 
+function! s:class.LoadFile() dict abort "{{{
+    if filereadable(self.path)
+        let self.content = readfile(self.path)
+    else
+        let self.content = []
+        :ELOG 'cannot read in note file: ' . self.path
+    endif
+    return len(self.content)
 endfunction "}}}
 
 " LOAD:
@@ -171,5 +177,11 @@ endfunction "}}}
 
 " TEST:
 function! class#notefile#test(...) abort "{{{
-    return 0
+    let l:jNoteEntry = class#notename#new('20170226_1')
+    let l:pFileName = l:jNoteEntry.GetFullPath(vnote#GetNoteBook())
+    let l:jNoteFile = class#notefile#new(l:pFileName)
+    call l:jNoteFile.DeleteTag('add')
+    echo join(l:jNoteFile.content, "\n")
+
+    return l:jNoteFile
 endfunction "}}}

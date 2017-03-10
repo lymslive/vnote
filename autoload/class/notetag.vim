@@ -2,7 +2,7 @@
 " Author: lymslive
 " Description: denotes a tagfile of notebook
 " Create: 2017-03-08
-" Modify: 2017-03-08
+" Modify: 2017-03-10
 
 "LOAD:
 if exists('s:load') && !exists('g:DEBUG')
@@ -39,13 +39,13 @@ endfunction "}}}
 function! class#notetag#ctor(this, argv) abort "{{{
     let l:argc = len(a:argv)
 
-    if l:agrc < 1
+    if l:argc < 1
         :ELOG 'expect a tagname'
         return -1
     endif
     let a:this.tag = a:argv[0]
 
-    if l:agrc < 2
+    if l:argc < 2
         let a:this.notebook = s:NOTEBOOK
     else
         let a:this.notebook = a:argv[1]
@@ -62,7 +62,7 @@ endfunction "}}}
 " string: as the full path of tagfile
 function! s:class.string() dict abort "{{{
     let l:rtp = module#less#rtp#import()
-    return self.notebook.Tagdir() . l:rpt.separator . self.tag . s:EXTENTION
+    return self.notebook.Tagdir() . l:rtp.separator . self.tag . s:EXTENTION
 endfunction "}}}
 
 " number: as the count of note having this tag
@@ -74,7 +74,7 @@ function! s:class.number() dict abort "{{{
     endif
 
     if executable('wc') == 1
-        return 0 + system('wc -l' . l:pTagFile)
+        return 0 + system('wc -l ' . l:pTagFile)
     else
         let l:lsContent = readfile(l:pTagFile)
         return len(l:lsContent)
@@ -83,6 +83,7 @@ endfunction "}}}
 
 " list: the list of content lines
 function! s:class.list() dict abort "{{{
+    let l:pTagFile = self.string()
     if !filereadable(l:pTagFile)
         return []
     else
@@ -169,5 +170,12 @@ endfunction "}}}
 
 " TEST:
 function! class#notetag#test(...) abort "{{{
+    let l:jTag = class#notetag#new('vnote')
+    echo l:jTag.string()
+    echo l:jTag.number()
+    let l:lsContent = l:jTag.list()
+    for l:sLine in l:lsContent
+        echo l:sLine
+    endfor
     return 0
 endfunction "}}}

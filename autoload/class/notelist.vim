@@ -2,7 +2,7 @@
 " Author: lymslive
 " Description: notelist manager
 " Create: 2017-02-16
-" Modify: 2017-02-16
+" Modify: 2017-03-11
 
 "LOAD:
 if exists('s:load') && !exists('g:DEBUG')
@@ -299,7 +299,8 @@ function! s:class.BackList() dict abort "{{{
     call remove(l:lsPath, -1)
 
     let l:lsArgv = [toupper(self.argv[0]), join(l:lsPath, '/')]
-    return self.RefreshList(l:lsArgv)
+    call self.RefreshList(l:lsArgv)
+    call search('^' . l:sArg)
 endfunction "}}}
 
 " LOAD:

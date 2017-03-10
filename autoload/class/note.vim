@@ -2,7 +2,7 @@
 " Author: lymslive
 " Description: a class that represent a note file
 " Create: 2017-02-17
-" Modify: 2017-03-04
+" Modify: 2017-03-11
 
 "LOAD:
 if exists('s:load') && !exists('g:DEBUG')
@@ -202,12 +202,13 @@ endfunction "}}}
 
 " LocateTagLine_: 
 " > return a list of dict {'line_no':?, 'line_str':?}
+" > line_no is zero based, as list
 function! s:class.LocateTagLine_() dict abort "{{{
     let l:lsLine = self.GetHeadLine(get(s:config, 'note_file_head_line', s:HEADLINE))
     let l:lsTagLine = []
 
     let l:bTagOn = v:false
-    let l:iLine = 0
+    let l:iLine = -1
     for l:sLine in l:lsLine
         let l:iLine += 1
 
@@ -230,6 +231,7 @@ function! s:class.LocateTagLine_() dict abort "{{{
 
     return l:lsTagLine
 endfunction "}}}
+
 " LOAD:
 let s:load = 1
 :DLOG 'class#note is loading ...'

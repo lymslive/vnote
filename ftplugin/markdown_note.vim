@@ -14,6 +14,8 @@ nmap <buffer> <C-]> <Plug>(VNOTE_edit_open_list)
 
 nmap <buffer> <Tab> <Plug>(VNOTE_edit_smart_tab)
 
+" :NoteTag tag (add tag to buffer)
+" :NoteTag -d tag (delete tag)
 command! -buffer -nargs=* -complete=customlist,vnote#complete#NoteTag
         \ NoteTag call note#hNoteTag(<f-args>)
 

@@ -293,6 +293,45 @@ function! notelist#hPasteTag() abort "{{{
     return 0
 endfunction "}}}
 
+" ManageTag: handle for NoteTag
+" > -d deleted-tag
+" > -r old-tag new-tag
+" > -m master-tag slave-tag
+function! notelist#hManageTag(...) abort "{{{
+    if a:0 < 2
+        :WLOG 'NoteTag {-d|r|m} {args}'
+        return -1
+    endif
+
+    if a:1 ==? '-d'
+        let l:sTag = a:2
+        let l:jTag = class#notetag#new(l:sTag)
+        return l:jTag.Delete()
+
+    elseif a:1 ==? '-r'
+        let l:sTag = a:2
+        if a:0 < 3
+            :WLOG 'NoteTag -r old-tag new-tag'
+            return -1
+        endif
+        let l:jTag = class#notetag#new(l:sTag)
+        let l:sNewTag = a:3
+        return l:jTag.Rename(l:sNewTag)
+
+    elseif a:1 ==? '-m'
+        let l:sTag = a:2
+        if a:0 < 3
+            :WLOG 'NoteTag -m master-tag slave-tag'
+            return -1
+        endif
+
+        let l:jTag = class#notetag#new(l:sTag)
+        let l:sTagSlave = a:3
+        let l:jTagSlave = class#notetag#new(l:sTagSlave)
+        return l:jTag.Merge(l:jTagSlave)
+    endif
+endfunction "}}}
+
 " Load: call this function to triggle load this script
 function! notelist#Load() "{{{
     return 1
