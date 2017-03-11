@@ -2,7 +2,7 @@
 " Author: lymslive
 " Description: plugin mappings
 " Create: 2017-02-24
-" Modify: 2017-02-24
+" Modify: 2017-03-11
 
 " to use thes mappings, use nmap not nnoremap
 nnoremap <Plug>(VNOTE_book_new_note) :call notebook#hNoteNew()
@@ -23,6 +23,8 @@ nnoremap <Plug>(VNOTE_list_browse_tag) :call notelist#hNoteList('-T')<CR>
 nnoremap <Plug>(VNOTE_list_browse_date) :call notelist#hNoteList('-D')<CR>
 nnoremap <Plug>(VNOTE_list_pick_tag) :call notelist#hPasteTag()<CR>
 nnoremap <Plug>(VNOTE_list_switch_unite) :Unite notelist<CR>
+nnoremap <Plug>(VNOTE_list_delete_entry) :call notelist#hDelete()<CR>
+nnoremap <Plug>(VNOTE_list_rename_entry) :call notelist#hRename()<CR>
 
 " recommend local in note buffer (markdown)
 nnoremap <Plug>(VNOTE_edit_next_note) :call note#EditNext(1)<CR>

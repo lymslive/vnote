@@ -138,6 +138,16 @@ function! s:class.RedrawContent(lsContent) dict abort "{{{
 
     " put cursor
     normal! 4G
+    let l:dConfig = vnote#GetConfig()
+    let l:iPos = get(l:dConfig, 'list_default_cursor', 1)
+    if l:iPos ==# '$'
+        normal! G
+    else
+        let l:iDown = 0 + l:iPos - 1
+        if l:iDown > 0
+            execute 'normal! ' . l:iDown . 'j'
+        endif
+    endif
 
     " set type for new buffer
     if &filetype !=# 'notelist'
@@ -300,7 +310,7 @@ function! s:class.BackList() dict abort "{{{
 
     let l:lsArgv = [toupper(self.argv[0]), join(l:lsPath, '/')]
     call self.RefreshList(l:lsArgv)
-    call search('^' . l:sArg)
+    call search('^' . l:sArg, 'w')
 endfunction "}}}
 
 " LOAD:

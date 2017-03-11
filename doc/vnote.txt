@@ -395,6 +395,15 @@ auto_add_plus_tag = v:true
 	When new note is created by |NoteNew|, whether to insert `-` or `+`
 	tag automatically. `-` is for private diary, `+` is for public note.
 
+auto_save_minus_tag = v:false
+auto_save_plus_tag = v:false
+	When note file is saved, whether save the "-" tag to "-.tag" file,
+	whether save the "+" tag to "+.tag" file
+
+list_default_cursor = 1
+	When open notelist buffer, put the cursor the first entry by default.
+	Other valid value is number, or "$", to the last entry.
+
 
 5.2 Local remap schema					*vnote-remap*
 

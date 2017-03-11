@@ -2,7 +2,7 @@
 " Author: lymslive
 " Description: current buffer as note file
 " Create: 2017-02-17
-" Modify: 2017-02-17
+" Modify: 2017-03-11
 
 "LOAD:
 if exists('s:load') && !exists('g:DEBUG')
@@ -65,7 +65,18 @@ function! s:class.UpdateTagFile() dict abort "{{{
     let l:iEnd = len(l:lsTag)
 
     while l:iCount < l:config.note_file_max_tags && l:iCount < l:iEnd
-        let l:iRet = self.UpdateOneTag(l:lsTag[l:iCount])
+        let l:sTag = l:lsTag[l:iCount]
+        if l:sTag ==# '-'
+            if !l:config.auto_add_minus_tag
+                continue
+            endif
+        elseif l:sTag ==# '+'
+            if !l:config.auto_add_plus_tag
+                continue
+            endif
+        endif
+
+        let l:iRet = self.UpdateOneTag(l:sTag)
         if l:iRet != 0
             return l:iRet
         endif

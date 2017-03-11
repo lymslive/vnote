@@ -2,7 +2,7 @@
 " Author: lymslive
 " Description: manage the overall vnote plugin
 " Create: 2017-02-17
-" Modify: 2017-02-24
+" Modify: 2017-03-11
 
 let s:default_notebook = "~/notebook"
 if exists('g:vnote_default_notebook')
@@ -14,9 +14,15 @@ let s:default_notebook = expand(s:default_notebook)
 let s:dConfig = {}
 let s:dConfig.note_file_head_line = 10
 let s:dConfig.note_file_max_tags = 5
+
+" for public and private tag label
 let s:dConfig.auto_add_minus_tag = v:true
 let s:dConfig.auto_add_plus_tag = v:true
-" let s:dConfig.rename_by_tag = v:false
+let s:dConfig.auto_save_minus_tag = v:false
+let s:dConfig.auto_save_plus_tag = v:false
+
+" put cursor in which entry default: 1, 2, .. '$'
+let s:dConfig.list_default_cursor = 1
 
 " GetNoteBook: 
 let s:jNoteBook = {}
@@ -39,17 +45,17 @@ function! vnote#GetConfig(...) abort "{{{
 endfunction "}}}
 
 " SetConfig: 
-function! vnote#SetConfig(...) abort "{{{
-    if a:0 == 0
-        :ELOG '[vnote] SetConfig need argument paris'
+function! vnote#SetConfig(lsArgv) abort "{{{
+    if empty(a:lsArgv)
+        :ELOG '[vnote] SetConfig need argument in a list'
         return -1
-    elseif a:0 % 2 != 0
-        :ELOG '[vnote] SetConfig need argument paris'
+    elseif len(a:lsArgv) % 2 != 0
+        :ELOG '[vnote] SetConfig need list of argument with paris'
         return -1
     endif
 
     let l:dict = module#less#dict#import()
-    let l:dArg = l:dict.FromList(a:000)
+    let l:dArg = l:dict.FromList(a:lsArgv)
 
     let l:math = module#less#math#import() 
     if has_key(l:dArg, 'note_file_head_line')
@@ -69,12 +75,12 @@ function! vnote#hNoteConfig(...) abort "{{{
     if a:0 == 0
         :LOG '[vnote] current config:'
         let l:dict = module#less#dict#import()
-        echo l:dict.Display(s:dConfig)
+        echo l:dict.Display(s:dConfig, '  ', 1)
         return 0
     endif
 
     let l:sArg = join(a:000, "\t")
-    let l:lsArgv = split(l:sArg, '[\s,=;:]\+')
+    let l:lsArgv = split(l:sArg, '[\t ,=;:]\+')
     return vnote#SetConfig(l:lsArgv)
 endfunction "}}}
 

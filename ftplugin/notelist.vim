@@ -47,12 +47,17 @@ nmap <buffer> u <Plug>(VNOTE_list_switch_unite)
 " goto the command line and copy the argments
 nnoremap <buffer> <expr> C notelist#hRefineArg()
 
-" manage tags over notebook, delete, rename, merge
+" manage tags over notebook: delete, rename, merge
 " :NoteTag {-d|r|m} {args}
 command! -buffer -nargs=* -complete=customlist,vnote#complete#NoteTag
             \ NoteTag call notelist#hManageTag(<f-args>)
 
 " copy the context under cursor to cmdline
-cnoremap <buffer> <C-x> <C-R>=note#GetContext()<CR>
+cnoremap <buffer> <C-x>t <C-R>=note#GetContext()<CR>
+
+" work on NoteList -T mode, feed current tag to :NoteTag
+" waiting <CR> confirm to execute
+nnoremap <buffer> dd :NoteTag -d <C-R>=note#GetContext()<CR>
+nnoremap <buffer> R  :NoteTag -r <C-R>=note#GetContext()<CR>
 
 :PLUGINAFTER

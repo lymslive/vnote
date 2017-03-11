@@ -332,6 +332,16 @@ function! notelist#hManageTag(...) abort "{{{
     endif
 endfunction "}}}
 
+" Delete: handle of delete map
+function! notelist#hDelete(...) abort "{{{
+    " code
+endfunction "}}}
+
+" Rename: handle of rename map
+function! notelist#hRename(...) abort "{{{
+    " code
+endfunction "}}}
+
 " Load: call this function to triggle load this script
 function! notelist#Load() "{{{
     return 1
