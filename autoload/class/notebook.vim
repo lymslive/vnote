@@ -2,7 +2,7 @@
 " Author: lymslive
 " Description: notebook manager
 " Create: 2017-02-16
-" Modify: 2017-02-16
+" Modify: 2017-03-13
 
 "LOAD:
 if exists('s:load') && !exists('g:DEBUG')
@@ -208,6 +208,19 @@ endfunction "}}}
 " CreateLister: 
 function! s:class.CreateLister() dict abort "{{{
     return class#notelist#new(self)
+endfunction "}}}
+
+" SaveCache: 
+function! s:class.SaveCache(sEntry) dict abort "{{{
+    if a:sEntry !~# self.pattern.noteFile
+        :ELOG 'invalid cache entry to save'
+        return -1
+    endif
+
+    if !has_key(self, 'cache_')
+        let self.cache_ = class#notecache#day#new(self.Cachedir())
+    endif
+    return self.cache_.PullEntry([sEntry])
 endfunction "}}}
 
 " LOAD:
