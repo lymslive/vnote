@@ -220,7 +220,19 @@ function! s:class.SaveCache(sEntry) dict abort "{{{
     if !has_key(self, 'cache_')
         let self.cache_ = class#notecache#day#new(self.Cachedir())
     endif
-    return self.cache_.PullEntry([sEntry])
+    return self.cache_.PullEntry([a:sEntry])
+endfunction "}}}
+
+" RebuildCache: 
+function! s:class.RebuildCache(lsOption) dict abort "{{{
+    let l:lsNote = self.GlobNote('')
+    if empty(l:lsNote)
+        :WLOG 'no note in the notebook now?'
+        return -1
+    endif
+
+    let l:cache = class#notecache#hist#new(self.Cachedir())
+    return l:cache.Rebuild(l:lsNote, a:lsOption)
 endfunction "}}}
 
 " LOAD:

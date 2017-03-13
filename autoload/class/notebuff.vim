@@ -2,7 +2,7 @@
 " Author: lymslive
 " Description: current buffer as note file
 " Create: 2017-02-17
-" Modify: 2017-03-11
+" Modify: 2017-03-13
 
 "LOAD:
 if exists('s:load') && !exists('g:DEBUG')
@@ -17,8 +17,10 @@ let s:class._version_ = 1
 " buffer number of the note, 0 is current buffer
 " let s:class.bufnr = 0
 
-" saved tag cache
+" marked saved tag
 let s:class.tagsave = {}
+" mark saved cache
+let s:class.chesave = v:false
 
 function! class#notebuff#class() abort "{{{
     return s:class
@@ -41,6 +43,7 @@ function! class#notebuff#ctor(this, argv) abort "{{{
         call l:Suctor(a:this, [l:pFileName])
     endif
     let a:this.tagsave = {}
+    let a:this.chesave = v:false
 endfunction "}}}
 
 " ISOBJECT:
@@ -51,6 +54,33 @@ endfunction "}}}
 " GetHeadLine:  overide base class
 function! s:class.GetHeadLine(iMaxLine) dict abort "{{{
     return getline(1, a:iMaxLine)
+endfunction "}}}
+
+" SaveNote: auto save cache and tag file
+" > a:1 force save
+function! s:class.SaveNote(...) dict abort "{{{
+    if a:0 > 0 && !empty(a:1)
+        let a:this.tagsave = {}
+        let a:this.chesave = v:false
+    endif
+
+    let l:iErr = self.UpdateCache()
+    let l:iErr += self.UpdateTagFile()
+    return l:iErr
+endfunction "}}}
+
+" UpdateCache: 
+function! s:class.UpdateCache() dict abort "{{{
+    if self.chesave
+        return 0
+    endif
+
+    let l:sNoteEntry = self.GetNoteEntry()
+    let l:iErr = self.notebook.SaveCache(l:sNoteEntry)
+    if 0 == l:iErr
+        let self.chesave = v:true
+    endif
+    return l:iErr
 endfunction "}}}
 
 " UpdateTagFile: 
@@ -67,11 +97,11 @@ function! s:class.UpdateTagFile() dict abort "{{{
     while l:iCount < l:config.note_file_max_tags && l:iCount < l:iEnd
         let l:sTag = l:lsTag[l:iCount]
         if l:sTag ==# '-'
-            if !l:config.auto_add_minus_tag
+            if !l:config.auto_save_minus_tag
                 continue
             endif
         elseif l:sTag ==# '+'
-            if !l:config.auto_add_plus_tag
+            if !l:config.auto_save_plus_tag
                 continue
             endif
         endif
@@ -116,31 +146,28 @@ function! s:class.UpdateOneTag(sTag) dict abort "{{{
     endif
 
     let l:iFound = match(l:lsNote, '^' . l:sNoteName)
-    let l:bFound = l:iFound != -1
-
-    let l:iRet = 0
-    if l:bFound == v:false
+    if l:iFound == -1
         call add(l:lsNote, l:sNoteEntry)
+    else
+        let l:lsNote[l:iFound] = l:sNoteEntry
+    endif
 
-        " complex tag, treat as path
-        if match(l:sTag, '/') != -1
-            let l:pTagDir = fnamemodify(l:pTagFile, ':p:h')
-            if !isdirectory(l:pTagDir)
-                call mkdir(l:pTagDir, 'p')
-            endif
-        endif
-
-        let l:iRet = writefile(l:lsNote, l:pTagFile)
-        if l:iRet == 0
-            :LOG 'update tag file: ' . l:sTag
-        else
-            :LOG 'fail to update tag file: ' . l:sTag
+    " complex tag, treat as path
+    if match(l:sTag, '/') != -1
+        let l:pTagDir = fnamemodify(l:pTagFile, ':p:h')
+        if !isdirectory(l:pTagDir)
+            call mkdir(l:pTagDir, 'p')
         endif
     endif
 
+    let l:iRet = writefile(l:lsNote, l:pTagFile)
     if l:iRet == 0
+        :LOG 'update tag file: ' . l:sTag
         let self.tagsave[l:sTag] = v:true
+    else
+        :LOG 'fail to update tag file: ' . l:sTag
     endif
+
     return l:iRet
 endfunction "}}}
 

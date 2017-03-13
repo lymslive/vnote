@@ -2,7 +2,7 @@
 " Author: lymslive
 " Description: a class that represent a note file
 " Create: 2017-02-17
-" Modify: 2017-03-11
+" Modify: 2017-03-13
 
 "LOAD:
 if exists('s:load') && !exists('g:DEBUG')
@@ -100,6 +100,11 @@ function! s:class.GetNoteTitle() dict abort "{{{
     let l:sTitle = substitute(l:sFirst, '^\s*#\s*', '', '')
 
     return l:sTitle
+endfunction "}}}
+
+" GetNoteEntry: 
+function! s:class.GetNoteEntry(...) dict abort "{{{
+    return self.GetNoteName() . "\t" . self.GetNoteTitle()
 endfunction "}}}
 
 " GetTagLine: 

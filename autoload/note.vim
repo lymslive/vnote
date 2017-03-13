@@ -1,6 +1,6 @@
 " note tools -- edit markdown note file
 " Author: lymslive
-" Date: 2017/01/23
+" Modify: 2017-03-13
 
 " import s:jNoteBook from vnote
 let s:jNoteBook = vnote#GetNoteBook()
@@ -20,6 +20,10 @@ endfunction "}}}
 " NoteInBook: true if current buffer is in current notebook
 function! s:NoteInBook() abort "{{{
     return expand('%:p') =~ '^' . s:jNoteBook.Datedir()
+endfunction "}}}
+" IsInBook: 
+function! note#IsInBook() abort "{{{
+    return s:NoteInBook()
 endfunction "}}}
 
 " EditNext: edit next note of the same day
@@ -122,14 +126,15 @@ function! note#DetectTag(bol) abort "{{{
     endif
 endfunction "}}}
 
-" UpdateNote: triggle by some write event
-function! note#OnSaveNote() abort "{{{
+" OnSaveNote: triggle by some write event
+function! note#OnSaveNote(...) abort "{{{
     let l:jNoteBuff = s:GetNoteObject()
     if empty(l:jNoteBuff)
         return 0
     endif
 
-    return l:jNoteBuff.UpdateTagFile()
+    let l:bForce = get(a:000, 0, v:false)
+    return l:jNoteBuff.SaveNote(l:bForce)
 endfunction "}}}
 
 " NoteTag: 

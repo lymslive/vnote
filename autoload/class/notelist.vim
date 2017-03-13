@@ -2,7 +2,7 @@
 " Author: lymslive
 " Description: notelist manager
 " Create: 2017-02-16
-" Modify: 2017-03-11
+" Modify: 2017-03-13
 
 "LOAD:
 if exists('s:load') && !exists('g:DEBUG')
@@ -186,9 +186,7 @@ endfunction "}}}
 " ConvertEntry: return a note entry string from note file full path
 function! s:class.ConvertEntry(pNoteFile) dict abort "{{{
     let l:jNote = class#note#new(a:pNoteFile)
-    let l:sNoteName = l:jNote.GetNoteName()
-    let l:sNoteTitle = l:jNote.GetNoteTitle()
-    return l:sNoteName . "\t" . l:sNoteTitle
+    return l:jNote.GetNoteEntry()
 endfunction "}}}
 
 " ListByDate: note-list -d {yyyy[/mm/dd]}

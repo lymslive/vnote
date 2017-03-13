@@ -162,13 +162,27 @@ function! s:class.Write(lsEntry, ...) dict abort "{{{
     else
         let l:flag = a:1
     endif
+
+    if !isdirectory(self.path)
+        call mkdir(self.path, 'p')
+    endif
+
     let l:pFileName = self.CacheFile()
-    return writefile(a:lsEntry, l:pFileName, l:flag)
+    let l:iErr = writefile(a:lsEntry, l:pFileName, l:flag)
+    :DLOG 'save cache file: ' . self.cname . ' E' . l:iErr
+    return l:iErr
 endfunction "}}}
 
 " ISOBJECT:
 function! class#notecache#isobject(that) abort "{{{
     return s:class._isobject_(a:that)
+endfunction "}}}
+
+" OLD:
+function! class#notecache#old() abort "{{{
+    let l:class = copy(s:class)
+    call l:class._old_()
+    return l:class
 endfunction "}}}
 
 " LOAD:

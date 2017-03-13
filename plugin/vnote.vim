@@ -31,7 +31,11 @@ command! -nargs=* NoteEdit call notebook#hNoteEdit(<f-args>)
 command! -nargs=* -complete=customlist,vnote#complete#NoteList
         \ NoteList call notelist#hNoteList(<f-args>)
 
+" see and set config
 command! -nargs=* -complete=customlist,vnote#complete#NoteConfig
         \ NoteConfig call vnote#hNoteConfig(<f-args>)
+
+" build cache index for notebook
+command! -nargs=* NoteIndex call notebook#hNoteIndex(<f-args>)
 
 :PLUGINAFTER

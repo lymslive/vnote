@@ -1,6 +1,10 @@
 " note filetype(base on markdown) tools
 " Author: lymslive
-" Date: 2017-02-24
+" Modify: 2017-03-13
+
+if !note#IsInBook()
+    finish
+endif
 
 :PLUGINLOCAL
 
@@ -23,6 +27,10 @@ command! -buffer -nargs=* -complete=customlist,vnote#complete#NoteTag
 augroup VNOTE_EDIT
     autocmd! * <buffer>
     autocmd BufWritePost <buffer> call note#OnSaveNote()
-augroup end
+augroup END
+
+" :NoteSave 1
+" with argument to force save
+command! -buffer -nargs=? NoteSave call note#OnSaveNote(<f-args>)
 
 :PLUGINAFTER

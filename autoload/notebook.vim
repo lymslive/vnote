@@ -2,7 +2,7 @@
 " Author: lymslive
 " Description: manage notebook
 " Create: 2017-02-24
-" Modify: 2017-02-24
+" Modify: 2017-03-13
 
 " import s:jNoteBook from vnote
 let s:jNoteBook = vnote#GetNoteBook()
@@ -130,4 +130,11 @@ function! notebook#hNoteEdit(...) "{{{
         call vnote#GotoNoteWindow()
         execute 'edit ' . l:pNoteFile
     endif
+endfunction "}}}
+
+" NoteIndex: build cache index for notebook
+function! notebook#hNoteIndex(...) abort "{{{
+    let l:iErr = s:jNoteBook.RebuildCache(a:000)
+    :LOG 'NoteIndex done: E' . l:iErr
+    return l:iErr
 endfunction "}}}

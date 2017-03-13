@@ -2,7 +2,7 @@
 " Author: lymslive
 " Description: VimL class frame
 " Create: 2017-03-11
-" Modify: 2017-03-12
+" Modify: 2017-03-13
 
 "LOAD:
 if exists('s:load') && !exists('g:DEBUG')
@@ -39,6 +39,46 @@ endfunction "}}}
 " ISOBJECT:
 function! class#notecache#day#isobject(that) abort "{{{
     return s:class._isobject_(a:that)
+endfunction "}}}
+
+" Write: day.che need check repeated entry
+" > a:1, flag to writefile(), 'a' is append
+function! s:class.Write(lsEntry, ...) dict abort "{{{
+    if a:0 == 0
+        let l:flag = ''
+    else
+        let l:flag = a:1
+    endif
+
+    if !isdirectory(self.path)
+        call mkdir(self.path, 'p')
+    endif
+
+    if !has_key(self, 'cache_')
+        let self.cache_ = self.Read()
+    endif
+
+    let l:pFileName = self.CacheFile()
+    if l:flag =~? 'a'
+        let l:lsCache = self.cache_
+        for l:sEntry in a:lsEntry
+            let l:sNoteName = split(l:sEntry, "\t")[0]
+            let l:iFound = match(l:lsCache, '^' . l:sNoteName)
+            if l:iFound == -1
+                call add(l:lsCache, l:sEntry)
+            else
+                let l:lsCache[l:iFound] = l:sEntry
+            endif
+        endfor
+        let l:iErr = writefile(l:lsCache, l:pFileName)
+    else
+        let l:lsCache = a:lsEntry
+        let self.cache_ = l:lsCache
+    endif
+
+    let l:iErr = writefile(l:lsCache, l:pFileName)
+    :DLOG 'save cache file: ' . self.cname . ' E' . l:iErr
+    return l:iErr
 endfunction "}}}
 
 " LOAD:
