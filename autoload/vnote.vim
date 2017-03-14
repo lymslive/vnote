@@ -2,7 +2,7 @@
 " Author: lymslive
 " Description: manage the overall vnote plugin
 " Create: 2017-02-17
-" Modify: 2017-03-11
+" Modify: 2017-03-14
 
 let s:default_notebook = "~/notebook"
 if exists('g:vnote_default_notebook')
@@ -23,6 +23,8 @@ let s:dConfig.auto_save_plus_tag = v:false
 
 " put cursor in which entry default: 1, 2, .. '$'
 let s:dConfig.list_default_cursor = 1
+
+let s:dConfig.max_mru_note_list = 10
 
 " GetNoteBook: 
 let s:jNoteBook = {}
@@ -64,8 +66,14 @@ function! vnote#SetConfig(lsArgv) abort "{{{
     if has_key(l:dArg, 'note_file_max_tags')
         let l:dArg['note_file_max_tags'] = l:math.LimitBetween(l:dArg['note_file_max_tags'], 2, 10)
     endif
+    if has_key(l:dArg, 'max_mru_note_list')
+        let l:dArg['max_mru_note_list'] = l:math.LimitBetween(l:dArg['max_mru_note_list'], 3, 50)
+    endif
 
     call l:dict.Absorb(s:dConfig, l:dArg)
+
+    let l:jNoteBook = vnote#GetNoteBook()
+    call l:jNoteBook.OnConfigChange(l:dArg)
 
     return 0
 endfunction "}}}
@@ -110,3 +118,8 @@ function! vnote#GotoNoteWindow() abort "{{{
     return l:window.GotoWindow('markdown')
 endfunction "}}}
 
+" OnVimLeave: 
+function! vnote#OnVimLeave() abort "{{{
+    let l:jNoteBook = vnote#GetNoteBook()
+    call l:jNoteBook.SaveMru()
+endfunction "}}}

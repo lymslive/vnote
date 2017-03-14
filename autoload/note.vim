@@ -1,6 +1,6 @@
 " note tools -- edit markdown note file
 " Author: lymslive
-" Modify: 2017-03-13
+" Modify: 2017-03-14
 
 " import s:jNoteBook from vnote
 let s:jNoteBook = vnote#GetNoteBook()
@@ -133,8 +133,16 @@ function! note#OnSaveNote(...) abort "{{{
         return 0
     endif
 
-    let l:bForce = get(a:000, 0, v:false)
-    return l:jNoteBuff.SaveNote(l:bForce)
+    let l:sForce = get(a:000, 0, '')
+    return l:jNoteBuff.SaveNote(l:sForce)
+endfunction "}}}
+" OnBufRead: 
+function! note#OnBufRead() abort "{{{
+    let l:jNoteBuff = s:GetNoteObject()
+    if empty(l:jNoteBuff)
+        return 0
+    endif
+    return l:jNoteBuff.PushMru()
 endfunction "}}}
 
 " NoteTag: 

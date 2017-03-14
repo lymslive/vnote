@@ -2,7 +2,7 @@
 " Author: lymslive
 " Description: VimL class frame
 " Create: 2017-03-11
-" Modify: 2017-03-13
+" Modify: 2017-03-14
 
 "LOAD:
 if exists('s:load') && !exists('g:DEBUG')
@@ -102,8 +102,8 @@ function! s:class.NeedPush(sIncome, sCache) dict abort "{{{
         return v:false
     endif
 
-    let l:sIncome = a:sIncome[self.leadkey]
-    let l:sCache = a:sCache[self.leadkey]
+    let l:sIncome = strpart(a:sIncome, 0, self.leadkey)
+    let l:sCache = strpart(a:sCache, 0, self.leadkey)
 
     if l:sIncome ==# l:sCache
         return v:false

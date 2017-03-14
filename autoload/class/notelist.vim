@@ -2,7 +2,7 @@
 " Author: lymslive
 " Description: notelist manager
 " Create: 2017-02-16
-" Modify: 2017-03-13
+" Modify: 2017-03-14
 
 "LOAD:
 if exists('s:load') && !exists('g:DEBUG')
@@ -190,14 +190,20 @@ function! s:class.ConvertEntry(pNoteFile) dict abort "{{{
 endfunction "}}}
 
 " ListByDate: note-list -d {yyyy[/mm/dd]}
-" empty argument will glob all notes in notebook
+" empty argument will glob all notes in notebook(try cache first)
 function! s:class.ListByDate(sDatePath, ...) dict abort "{{{
-    let l:lpNoteFile = self.notebook.GlobNote(a:sDatePath)
-    call map(l:lpNoteFile, 'self.ConvertEntry(v:val)')
     if empty(a:sDatePath)
         let self.argv = ['-a']
+        let l:lpNoteFile = self.notebook.ReadCache()
+        if empty(l:lpNoteFile)
+            :DLOG 'cache empty, use glob to fetch all notes'
+            let l:lpNoteFile = self.notebook.GlobNote(a:sDatePath)
+            call map(l:lpNoteFile, 'self.ConvertEntry(v:val)')
+        endif
     else
         let self.argv = ['-d', a:sDatePath]
+        let l:lpNoteFile = self.notebook.GlobNote(a:sDatePath)
+        call map(l:lpNoteFile, 'self.ConvertEntry(v:val)')
     endif
     return l:lpNoteFile
 endfunction "}}}

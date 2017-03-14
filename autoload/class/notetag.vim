@@ -2,7 +2,7 @@
 " Author: lymslive
 " Description: denotes a tagfile of notebook
 " Create: 2017-03-08
-" Modify: 2017-03-10
+" Modify: 2017-03-14
 
 "LOAD:
 if exists('s:load') && !exists('g:DEBUG')
@@ -59,10 +59,21 @@ function! class#notetag#isobject(that) abort "{{{
     return s:class._isobject_(a:that)
 endfunction "}}}
 
-" string: as the full path of tagfile
-function! s:class.string() dict abort "{{{
+" OLD:
+function! class#notetag#old() abort "{{{
+    let l:class = copy(s:class)
+    call l:class._old_()
+    return l:class
+endfunction "}}}
+
+" GetTagFile: 
+function! s:class.GetTagFile() dict abort "{{{
     let l:rtp = module#less#rtp#import()
     return self.notebook.Tagdir() . l:rtp.separator . self.tag . s:EXTENTION
+endfunction "}}}
+" string: as the full path of tagfile
+function! s:class.string() dict abort "{{{
+    return self.GetTagFile()
 endfunction "}}}
 
 " number: as the count of note having this tag

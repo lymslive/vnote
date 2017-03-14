@@ -2,7 +2,7 @@
 " Author: lymslive
 " Description: notebook manager
 " Create: 2017-02-16
-" Modify: 2017-03-13
+" Modify: 2017-03-14
 
 "LOAD:
 if exists('s:load') && !exists('g:DEBUG')
@@ -11,8 +11,9 @@ endif
 
 " note-list buffer name
 let s:BUFFER_NAME = '_NLS_'
+let s:rtp = module#less#rtp#import()
 
-" CLASS:
+" CLASS Define: {{{1
 let s:class = class#old()
 let s:class._name_ = 'class#notebook'
 let s:class._version_ = 1
@@ -34,6 +35,7 @@ let s:class.pattern.dateInt = '^\d\{8\}'
 " yyyymmdd_n- \1=NoteDate, \2=NoteNumber, \3=Private
 let s:class.pattern.noteFile = '^\(\d\{8\}\)_\(\d\+\)\(-\?\)'
 
+" Class Basic: {{{1
 function! class#notebook#class() abort "{{{
     return s:class
 endfunction "}}}
@@ -57,6 +59,7 @@ function! class#notebook#isobject(that) abort "{{{
     return s:class._isobject_(a:that)
 endfunction "}}}
 
+" Directory Struct: {{{1
 " SetBasedir: set the directory of notebook, return 0 on success
 function! s:class.SetBasedir(pBasedir) dict abort "{{{
     if empty(a:pBasedir)
@@ -70,22 +73,37 @@ function! s:class.SetBasedir(pBasedir) dict abort "{{{
     endif
 
     let self.basedir = a:pBasedir
+
+    if has_key(self, 'cache_')
+        unlet! self['cache_']
+    endif
+
+    if has_key(self, 'mru_')
+        call self.SaveMru()
+        unlet! self['mru_']
+    endif
+
     return 0
 endfunction "}}}
 
 " Datedir: 
 function! s:class.Datedir() dict abort "{{{
-    return self.basedir . '/d'
+    return s:rtp.AddPath(self.basedir, 'd')
 endfunction "}}}
 " Tagdir: 
 function! s:class.Tagdir() dict abort "{{{
-    return self.basedir . '/t'
+    return s:rtp.AddPath(self.basedir, 't')
 endfunction "}}}
 " Cachedir: 
 function! s:class.Cachedir() dict abort "{{{
-    return self.basedir . '/c'
+    return s:rtp.AddPath(self.basedir, 'c')
+endfunction "}}}
+" Markdir: 
+function! s:class.Markdir() dict abort "{{{
+    return s:rtp.AddPath(self.basedir, 'm')
 endfunction "}}}
 
+" NoteFile Manage: {{{1
 " Notedir: full path of day
 " intput: yyyy/mm/dd
 function! s:class.Notedir(sDatePath) dict abort "{{{
@@ -199,6 +217,7 @@ function! s:class.FindNoteByDateNo(sDatePath, iNumber, ...) abort "{{{
     return ''
 endfunction "}}}
 
+" NoteList Manage: {{{1
 " GetListerName: return a file name for note-list buffer
 function! s:class.GetListerName() dict abort "{{{
     let l:pBuffer = self.Cachedir() . '/' . s:BUFFER_NAME
@@ -210,6 +229,7 @@ function! s:class.CreateLister() dict abort "{{{
     return class#notelist#new(self)
 endfunction "}}}
 
+" Cache Manage: {{{1
 " SaveCache: 
 function! s:class.SaveCache(sEntry) dict abort "{{{
     if a:sEntry !~# self.pattern.noteFile
@@ -231,10 +251,62 @@ function! s:class.RebuildCache(lsOption) dict abort "{{{
         return -1
     endif
 
+    if has_key(self, 'cache_')
+        unlet! self['cache_']
+    endif
+
     let l:cache = class#notecache#hist#new(self.Cachedir())
     return l:cache.Rebuild(l:lsNote, a:lsOption)
 endfunction "}}}
 
+" ReadCache: 
+function! s:class.ReadCache() dict abort "{{{
+    if !has_key(self, 'cache_')
+        let self.cache_ = class#notecache#day#new(self.Cachedir())
+    endif
+    return self.cache_.ReadAll()
+endfunction "}}}
+
+" MRU Manage: {{{1
+" GetMruObject: 
+function! s:class.GetMruObject() dict abort "{{{
+    if !has_key(self, 'mru_')
+        let l:dConfig = vnote#GetConfig()
+        let l:iCapacity = get(l:dConfig, 'max_mru_note_list', 10)
+        let self.mru_ = class#notetag#mru#new(l:iCapacity)
+    endif
+    return self.mru_
+endfunction "}}}
+
+" AddMru: 
+function! s:class.AddMru(sNoteEntry) dict abort "{{{
+    let l:jMru = self.GetMruObject()
+    call l:jMru.AddEntry(a:sNoteEntry)
+endfunction "}}}
+
+" GetMruList: 
+function! s:class.GetMruList() dict abort "{{{
+    let l:jMru = self.GetMruObject()
+    call l:jMru.queue.list()
+endfunction "}}}
+
+" SaveMru: 
+function! s:class.SaveMru() dict abort "{{{
+    if has_key(self, 'mru_')
+        return self.mru_.SaveTagFile()
+    endif
+endfunction "}}}
+
+" OnConfigChange: 
+function! s:class.OnConfigChange(dArg) dict abort "{{{
+    if has_key(l:dArg, 'max_mru_note_list')
+        if has_key(self, 'mru_')
+            call self.mru_.Resize(a:dArg['max_mru_note_list'])
+        endif
+    endif
+endfunction "}}}
+
+" Foot: {{{1
 " LOAD:
 let s:load = 1
 :DLOG 'class#notebook is loading ...'

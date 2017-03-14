@@ -38,4 +38,10 @@ command! -nargs=* -complete=customlist,vnote#complete#NoteConfig
 " build cache index for notebook
 command! -nargs=* NoteIndex call notebook#hNoteIndex(<f-args>)
 
+augroup VNOTE
+    autocmd!
+    autocmd VimLeavePre * call vnote#OnVimLeave()
+    autocmd BufReadPost *.md,*.MD call note#OnBufRead()
+augroup END
+
 :PLUGINAFTER

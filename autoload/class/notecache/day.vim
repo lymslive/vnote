@@ -2,7 +2,7 @@
 " Author: lymslive
 " Description: VimL class frame
 " Create: 2017-03-11
-" Modify: 2017-03-13
+" Modify: 2017-03-14
 
 "LOAD:
 if exists('s:load') && !exists('g:DEBUG')
@@ -79,6 +79,22 @@ function! s:class.Write(lsEntry, ...) dict abort "{{{
     let l:iErr = writefile(l:lsCache, l:pFileName)
     :DLOG 'save cache file: ' . self.cname . ' E' . l:iErr
     return l:iErr
+endfunction "}}}
+
+" ReadAll: merge all cache file and return as list
+function! s:class.ReadAll() dict abort "{{{
+    let l:rtp = module#less#rtp#import()
+    let l:lsAll = []
+
+    let l:lsName = ['hist', 'year', 'month', 'day']
+    for l:sName in l:lsName
+        let l:pCacheName = self.path . l:rtp.separator . l:sName . self.EXTENTION
+        if filereadable(l:pCacheName)
+            call extend(l:lsAll, readfile(l:pCacheName))
+        endif
+    endfor
+
+    return l:lsAll
 endfunction "}}}
 
 " LOAD:

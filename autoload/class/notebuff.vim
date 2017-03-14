@@ -2,7 +2,7 @@
 " Author: lymslive
 " Description: current buffer as note file
 " Create: 2017-02-17
-" Modify: 2017-03-13
+" Modify: 2017-03-14
 
 "LOAD:
 if exists('s:load') && !exists('g:DEBUG')
@@ -21,6 +21,7 @@ let s:class._version_ = 1
 let s:class.tagsave = {}
 " mark saved cache
 let s:class.chesave = v:false
+let s:class.forcesave = ''
 
 function! class#notebuff#class() abort "{{{
     return s:class
@@ -44,6 +45,7 @@ function! class#notebuff#ctor(this, argv) abort "{{{
     endif
     let a:this.tagsave = {}
     let a:this.chesave = v:false
+    let a:this.forcesave = ''
 endfunction "}}}
 
 " ISOBJECT:
@@ -60,18 +62,35 @@ endfunction "}}}
 " > a:1 force save
 function! s:class.SaveNote(...) dict abort "{{{
     if a:0 > 0 && !empty(a:1)
-        let a:this.tagsave = {}
-        let a:this.chesave = v:false
+        let self.tagsave = {}
+        let self.chesave = v:false
+        let self.forcesave = a:1
     endif
 
     let l:iErr = self.UpdateCache()
     let l:iErr += self.UpdateTagFile()
+    let l:iErr += self.PushMru()
+    let self.forcesave = ''
+
     return l:iErr
+endfunction "}}}
+
+" PushMru: 
+function! s:class.PushMru() dict abort "{{{
+    let l:sNoteEntry = self.GetNoteEntry()
+    call self.notebook.AddMru(l:sNoteEntry)
+    return 0
 endfunction "}}}
 
 " UpdateCache: 
 function! s:class.UpdateCache() dict abort "{{{
-    if self.chesave
+    if self.chesave && empty(self.forcesave)
+        return 0
+    endif
+
+    " may have zero time bug
+    " use :NoteSave y
+    if !self.IsTodayNote() && self.forcesave !~? '^y'
         return 0
     endif
 
@@ -81,6 +100,17 @@ function! s:class.UpdateCache() dict abort "{{{
         let self.chesave = v:true
     endif
     return l:iErr
+endfunction "}}}
+
+" IsTodayNote: 
+function! s:class.IsTodayNote() dict abort "{{{
+    let l:sNoteName = self.GetNoteName()
+    let l:sToday = strftime('%Y%m%d')
+    if l:sNoteName =~# '^' . l:sToday
+        return v:true
+    else
+        return v:false
+    endif
 endfunction "}}}
 
 " UpdateTagFile: 
@@ -94,8 +124,7 @@ function! s:class.UpdateTagFile() dict abort "{{{
     let l:iCount = 0
     let l:iEnd = len(l:lsTag)
 
-    while l:iCount < l:config.note_file_max_tags && l:iCount < l:iEnd
-        let l:sTag = l:lsTag[l:iCount]
+    for l:sTag in l:lsTag
         if l:sTag ==# '-'
             if !l:config.auto_save_minus_tag
                 continue
@@ -112,9 +141,12 @@ function! s:class.UpdateTagFile() dict abort "{{{
         endif
 
         let l:iCount += 1
-    endwhile
+        if l:iCount >= l:config.note_file_max_tags
+            break
+        endif
+    endfor
 
-    if l:iCount < l:iEnd
+    if l:sTag !=# l:lsTag[-1]
         :WLOG 'too many tags, the last few tags donot save'
     endif
     return 0
@@ -149,6 +181,10 @@ function! s:class.UpdateOneTag(sTag) dict abort "{{{
     if l:iFound == -1
         call add(l:lsNote, l:sNoteEntry)
     else
+        " already in tag file
+        if empty(self.forcesave)
+            return 0
+        endif
         let l:lsNote[l:iFound] = l:sNoteEntry
     endif
 
