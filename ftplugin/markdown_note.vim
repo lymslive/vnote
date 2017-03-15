@@ -1,6 +1,6 @@
 " note filetype(base on markdown) tools
 " Author: lymslive
-" Modify: 2017-03-13
+" Modify: 2017-03-15
 
 if !note#IsInBook()
     finish
@@ -22,6 +22,10 @@ nmap <buffer> <Tab> <Plug>(VNOTE_edit_smart_tab)
 " :NoteTag -d tag (delete tag)
 command! -buffer -nargs=* -complete=customlist,vnote#complete#NoteTag
         \ NoteTag call note#hNoteTag(<f-args>)
+
+" :NoteMark tag (add this note to bookmark {tag})
+command! -buffer -nargs=* -complete=customlist,vnote#complete#NoteTag
+        \ NoteMark call note#hNoteMark(<f-args>)
 
 " AutoSave:
 augroup VNOTE_EDIT

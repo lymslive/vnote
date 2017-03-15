@@ -34,6 +34,7 @@ nmap <buffer> <Up> <Plug>(VNOTE_list_prev_month)
 " switch NoteList with -D or -T argument
 nmap <buffer> T <Plug>(VNOTE_list_browse_tag)
 nmap <buffer> D <Plug>(VNOTE_list_browse_date)
+nmap <buffer> M <Plug>(VNOTE_list_browse_mark)
 
 " if cursor on date, NoteList by that data
 " if cursor on a tag(when open tag line), NoteList by that tag

@@ -2,7 +2,7 @@
 " Author: lymslive
 " Description: a struct for parts of note filename
 " Create: 2017-02-17
-" Modify: 2017-02-17
+" Modify: 2017-03-15
 
 "LOAD:
 if exists('s:load') && !exists('g:DEBUG')
@@ -89,13 +89,17 @@ endfunction "}}}
 
 " GetFullPath: 
 function! s:class.GetFullPath(jNoteBook) dict abort "{{{
+    if empty(self.string())
+        return ''
+    endif
+
     let l:pNoteFile = self.GetDatePath() . '/' . self.string()
     if class#notebook#isobject(a:jNoteBook)
         let l:pDirectory = a:jNoteBook.Datedir()
         let l:sExtention = a:jNoteBook.suffix
         return l:pDirectory . '/' . l:pNoteFile . l:sExtention
     else
-        let l:pNoteFile
+        return l:pNoteFile
     endif
 endfunction "}}}
 
@@ -107,6 +111,11 @@ endfunction "}}}
 " note number
 function! s:class.number() dict abort "{{{
     return self.noteNo
+endfunction "}}}
+
+" IsValid: 
+function! s:class.IsValid() dict abort "{{{
+    return !empty(self.filename)
 endfunction "}}}
 
 " ISOBJECT:

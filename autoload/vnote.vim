@@ -2,7 +2,7 @@
 " Author: lymslive
 " Description: manage the overall vnote plugin
 " Create: 2017-02-17
-" Modify: 2017-03-14
+" Modify: 2017-03-15
 
 let s:default_notebook = "~/notebook"
 if exists('g:vnote_default_notebook')
@@ -22,7 +22,7 @@ let s:dConfig.auto_save_minus_tag = v:false
 let s:dConfig.auto_save_plus_tag = v:false
 
 " put cursor in which entry default: 1, 2, .. '$'
-let s:dConfig.list_default_cursor = 1
+let s:dConfig.list_default_cursor = '$'
 
 let s:dConfig.max_mru_note_list = 10
 
@@ -122,4 +122,5 @@ endfunction "}}}
 function! vnote#OnVimLeave() abort "{{{
     let l:jNoteBook = vnote#GetNoteBook()
     call l:jNoteBook.SaveMru()
+    call garbagecollect()
 endfunction "}}}

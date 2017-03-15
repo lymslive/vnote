@@ -2,7 +2,7 @@
 " Author: lymslive
 " Description: a class that represent a note file
 " Create: 2017-02-17
-" Modify: 2017-03-13
+" Modify: 2017-03-15
 
 "LOAD:
 if exists('s:load') && !exists('g:DEBUG')
@@ -235,6 +235,14 @@ function! s:class.LocateTagLine_() dict abort "{{{
     endfor
 
     return l:lsTagLine
+endfunction "}}}
+
+" AddBookMark: add this note to a bookmark
+function! s:class.AddBookMark(sTag) dict abort "{{{
+    let l:sNoteEntry = self.GetNoteEntry()
+    let l:sTag = tolower(a:sTag)
+    let l:jNoteTag = class#notetag#mark#new(l:sTag)
+    return l:jNoteTag.UpdateEntry(l:sNoteEntry, 1)
 endfunction "}}}
 
 " LOAD:

@@ -17,10 +17,10 @@ command! -nargs=* -complete=customlist,vnote#complete#NoteTag
         \ NoteNew call notebook#hNoteNew(<f-args>)
 
 " NoteEdit:
-" accept an optional argument: NoteEdit day_path(yyyy/mm/dd)
-" day_path default to today path
-" edit the last note of that day
-command! -nargs=* NoteEdit call notebook#hNoteEdit(<f-args>)
+" edit mru :NoteList -1
+" edit last note in a day: NoteEdit day_path(yyyy/mm/dd)
+command! -nargs=*  -complete=customlist,vnote#complete#NoteDate
+        \ NoteEdit call notebook#hNoteEdit(<f-args>)
 
 " NoteList:
 " list note support tow or four mode:

@@ -2,7 +2,7 @@
 " Author: lymslive
 " Description: manage notebook
 " Create: 2017-02-24
-" Modify: 2017-03-13
+" Modify: 2017-03-15
 
 " import s:jNoteBook from vnote
 let s:jNoteBook = vnote#GetNoteBook()
@@ -112,23 +112,33 @@ endfunction "}}}
 " EditNote: edit old note
 function! notebook#hNoteEdit(...) "{{{
     if a:0 >= 1
-        let l:sDatePath = a:1
+        let l:sArg = a:1
     else
-        let l:sDatePath = strftime("%Y/%m/%d")
+        " let l:sDatePath = strftime("%Y/%m/%d")
+        let l:sArg = -1
     endif
 
-    let l:pDirectory = s:jNoteBook.Notedir(l:sDatePath)
-    if empty(l:pDirectory)
-        return 0
-    endif
+    let l:pNoteFile = ''
 
-    let l:pNoteFile = s:jNoteBook.GetLastNote(l:sDatePath)
-    if !empty(l:pNoteFile)
-        if !isdirectory(l:pDirectory)
-            call mkdir(l:pDirectory, 'p')
+    " simple number, treat as mru index
+    if l:sArg =~# '^-\?\d\+$' && len(l:sArg) < 4
+        let l:lsMru = s:jNoteBook.GetMruList()
+        let l:sNoteEntry = get(l:lsMru, 0+l:sArg, '')
+        let l:jNoteEntry = class#notename#new(l:sNoteEntry)
+        let l:pNoteFile = l:jNoteEntry.GetFullPath(s:jNoteBook)
+    else
+        let l:sDatePath = l:sArg
+        let l:pDirectory = s:jNoteBook.Notedir(l:sDatePath)
+        if !empty(l:pDirectory)
+            let l:pNoteFile = s:jNoteBook.GetLastNote(l:sDatePath)
         endif
+    endif
+
+    if !empty(l:pNoteFile)
         call vnote#GotoNoteWindow()
         execute 'edit ' . l:pNoteFile
+    else
+        :WLOG 'note non-existed'
     endif
 endfunction "}}}
 

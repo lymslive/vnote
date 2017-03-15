@@ -2,7 +2,7 @@
 " Author: yourname
 " Description: complete for vnote custome command
 " Create: 2017-02-25
-" Modify: 2017-02-25
+" Modify: 2017-03-15
 
 " NoteList: 
 function! vnote#complete#NoteList(ArgLead, CmdLine, CursorPos) abort "{{{
@@ -19,6 +19,29 @@ endfunction "}}}
 function! vnote#complete#NoteTag(ArgLead, CmdLine, CursorPos) abort "{{{
     let l:jNoteBook = vnote#GetNoteBook()
     let l:tag_dir = l:jNoteBook.Tagdir()
+    let l:head = len(l:tag_dir) + 1
+    let l:tag_list = glob(l:tag_dir . '/' . a:ArgLead . '*', 0, 1)
+
+    let l:ret_list = []
+    for l:tag in l:tag_list
+        let l:tag = strpart(l:tag, l:head)
+        if l:tag =~ '^[+-]\+$'
+            continue
+        elseif l:tag =~ '\.tag$'
+            let l:tag = substitute(l:tag, '\.tag$', '', '')
+        else
+            let l:tag = l:tag . '/'
+        endif
+        call add(l:ret_list, l:tag)
+    endfor
+
+    return l:ret_list
+endfunction "}}}
+
+" NoteMark: 
+function! vnote#complete#NoteMark(ArgLead, CmdLine, CursorPos) abort "{{{
+    let l:jNoteBook = vnote#GetNoteBook()
+    let l:tag_dir = l:jNoteBook.Markdir()
     let l:head = len(l:tag_dir) + 1
     let l:tag_list = glob(l:tag_dir . '/' . a:ArgLead . '*', 0, 1)
 

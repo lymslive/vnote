@@ -2,7 +2,7 @@
 " Author: lymslive
 " Description: notebook manager
 " Create: 2017-02-16
-" Modify: 2017-03-14
+" Modify: 2017-03-15
 
 "LOAD:
 if exists('s:load') && !exists('g:DEBUG')
@@ -187,7 +187,7 @@ function! s:class.GetLastNote(sDatePath) dict abort "{{{
     if l:iCount <= 0
         let l:iCount = 1
     endif
-    return self.FindNoteByDateNo(a:sDatePath, l:iCount, 1)
+    return self.FindNoteByDateNo(a:sDatePath, l:iCount, 0)
 endfunction "}}}
 
 " FindNoteByDateNo: 
@@ -227,6 +227,48 @@ endfunction "}}}
 " CreateLister: 
 function! s:class.CreateLister() dict abort "{{{
     return class#notelist#new(self)
+endfunction "}}}
+
+" GetPublicNote: 
+function! s:class.GetPublicNote() dict abort "{{{
+    let l:lpNoteFile = self.ReadCache()
+    if empty(l:lpNoteFile)
+        return []
+    endif
+
+    let l:lpFilter = []
+    for l:pNoteFile in l:lpNoteFile
+        let l:jNoteEntry = class#notename#new(l:pNoteFile)
+        if empty(l:jNoteEntry.string())
+            continue
+        endif
+        if !l:jNoteEntry.IsPrivate()
+            call add(l:lpFilter, l:pNoteFile)
+        endif
+    endfor
+
+    return l:lpFilter
+endfunction "}}}
+
+" GetPrivateNote: 
+function! s:class.GetPrivateNote() dict abort "{{{
+    let l:lpNoteFile = self.ReadCache()
+    if empty(l:lpNoteFile)
+        return []
+    endif
+
+    let l:lpFilter = []
+    for l:pNoteFile in l:lpNoteFile
+        let l:jNoteEntry = class#notename#new(l:pNoteFile)
+        if empty(l:jNoteEntry.string())
+            continue
+        endif
+        if l:jNoteEntry.IsPrivate()
+            call add(l:lpFilter, l:pNoteFile)
+        endif
+    endfor
+
+    return l:lpFilter
 endfunction "}}}
 
 " Cache Manage: {{{1
@@ -287,7 +329,7 @@ endfunction "}}}
 " GetMruList: 
 function! s:class.GetMruList() dict abort "{{{
     let l:jMru = self.GetMruObject()
-    call l:jMru.queue.list()
+    return l:jMru.list()
 endfunction "}}}
 
 " SaveMru: 

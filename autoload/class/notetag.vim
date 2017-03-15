@@ -2,7 +2,7 @@
 " Author: lymslive
 " Description: denotes a tagfile of notebook
 " Create: 2017-03-08
-" Modify: 2017-03-14
+" Modify: 2017-03-15
 
 "LOAD:
 if exists('s:load') && !exists('g:DEBUG')
@@ -11,7 +11,6 @@ endif
 
 " constant
 let s:NOTEBOOK = vnote#GetNoteBook()
-let s:EXTENTION = '.tag'
 
 " CLASS:
 let s:class = class#old()
@@ -69,7 +68,7 @@ endfunction "}}}
 " GetTagFile: 
 function! s:class.GetTagFile() dict abort "{{{
     let l:rtp = module#less#rtp#import()
-    return self.notebook.Tagdir() . l:rtp.separator . self.tag . s:EXTENTION
+    return self.notebook.Tagdir() . l:rtp.separator . self.tag . '.tag'
 endfunction "}}}
 " string: as the full path of tagfile
 function! s:class.string() dict abort "{{{
@@ -166,6 +165,60 @@ function! s:class.Merge(jAnother) dict abort "{{{
 
     call extend(l:lsContent, l:lsThat)
     return writefile(l:lsContent, l:pTagFile)
+endfunction "}}}
+
+" UpdateEntry: add a note entry to this tag file
+" > a:1, bForceSave, replace the old entry with the same note name
+function! s:class.UpdateEntry(sNoteEntry, ...) dict abort "{{{
+    let l:lsPart = split(a:sNoteEntry, "\t")
+    if len(l:lsPart) < 2
+        :ELOG 'It seems not valid note entry: ' . sNoteEntry
+        return -1
+    endif
+
+    let l:sNoteName = l:lsPart[0]
+    let l:bForceSave = get(a:000, 0, v:false)
+
+    let l:lsNote = self.list()
+    let l:iFound = match(l:lsNote, '^' . l:sNoteName)
+    if l:iFound == -1
+        call add(l:lsNote, a:sNoteEntry)
+    else
+        " already in tag file
+        if empty(l:bForceSave)
+            return 0
+        endif
+        let l:lsNote[l:iFound] = l:sNoteEntry
+    endif
+
+    return self.Write(l:lsNote)
+endfunction "}}}
+
+" RemoveEntry: remove a entry from this tag
+" > a:sNoteEntry, can be only the leading sNoteName
+function! s:class.RemoveEntry(sNoteEntry) dict abort "{{{
+    let l:lsPart = split(a:sNoteEntry, "\t")
+    let l:sNoteName = l:lsPart[0]
+
+    let l:lsNote = self.list()
+    let l:iFound = match(l:lsNote, '^' . l:sNoteName)
+    if l:iFound == -1
+        return 0
+    endif
+
+    call remove(l:lsNote, l:iFound)
+    return self.Write(l:lsNote)
+endfunction "}}}
+
+" Write: 
+function! s:class.Write(lsNote) dict abort "{{{
+    let l:pTagFile = self.GetTagFile()
+    let l:pTagDir = fnamemodify(l:pTagFile, ':p:h')
+    if !isdirectory(l:pTagDir)
+        call mkdir(l:pTagDir, 'p')
+    endif
+
+    return writefile(a:lsNote, l:pTagFile)
 endfunction "}}}
 
 " LOAD:

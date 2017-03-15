@@ -96,7 +96,7 @@ function! notelist#hEnterNote() "{{{
     endif
 
     " browse mode
-    if b:jNoteList.argv[0] ==# '-D' || b:jNoteList.argv[0] ==# '-T'
+    if b:jNoteList.argv[0] =~# '-[DTM]'
         let l:select = getline('.')
         return notelist#hNoteList(b:jNoteList.argv[0], l:select)
     endif

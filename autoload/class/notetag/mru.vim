@@ -2,7 +2,7 @@
 " Author: lymslive
 " Description: VimL class frame
 " Create: 2017-03-14
-" Modify: 2017-03-14
+" Modify: 2017-03-15
 
 "LOAD:
 if exists('s:load') && !exists('g:DEBUG')
@@ -27,7 +27,7 @@ function! class#notetag#mru#new(...) abort "{{{
     return l:obj
 endfunction "}}}
 
-" CTOR: argv = [capacity]
+" CTOR: argv = [capacity] auto load mru.tag if readable
 function! class#notetag#mru#ctor(this, argv) abort "{{{
     let l:Suctor = s:class._suctor_()
     call l:Suctor(a:this, ['mru'])
@@ -37,7 +37,7 @@ function! class#notetag#mru#ctor(this, argv) abort "{{{
 
     let l:pTagFile = a:this.GetTagFile()
     if filereadable(l:pTagFile)
-        call a:this.queue.Fill(readfile(l:pTagFile))
+        call a:this.queue.Fill(readfile(l:pTagFile), 1)
     endif
 endfunction "}}}
 
@@ -54,13 +54,7 @@ endfunction "}}}
 
 " SaveTagFile: 
 function! s:class.SaveTagFile() dict abort "{{{
-    let l:pTagFile = self.GetTagFile()
-    let l:pTagDir = fnamemodify(l:pTagFile, ':p:h')
-    if !isdirectory(l:pTagDir)
-        call mkdir(l:pTagDir, 'p')
-    endif
-
-    return writefile(self.queue.list(), l:pTagFile)
+    return self.Write(self.list())
 endfunction "}}}
 
 " Resize: 
@@ -71,6 +65,11 @@ endfunction "}}}
 " AddEntry: 
 function! s:class.AddEntry(sNoteEntry) dict abort "{{{
     return self.queue.Add(a:sNoteEntry)
+endfunction "}}}
+
+" list: 
+function! s:class.list() dict abort "{{{
+    return self.queue.list()
 endfunction "}}}
 
 " LOAD:

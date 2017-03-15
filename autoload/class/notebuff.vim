@@ -2,7 +2,7 @@
 " Author: lymslive
 " Description: current buffer as note file
 " Create: 2017-02-17
-" Modify: 2017-03-14
+" Modify: 2017-03-15
 
 "LOAD:
 if exists('s:load') && !exists('g:DEBUG')
@@ -160,48 +160,15 @@ function! s:class.UpdateOneTag(sTag) dict abort "{{{
     endif
 
     " note entry of current note
-    let l:sNoteName = self.GetNoteName()
-    let l:sTitle = self.GetNoteTitle()
-    let l:sNoteEntry = l:sNoteName . "\t" . l:sTitle
+    let l:sNoteEntry = self.GetNoteEntry()
+    let l:jNoteTag = class#notetag#new(l:sTag)
 
-    let l:pTagDir = self.notebook.Tagdir()
-    if !isdirectory(l:pTagDir)
-        call mkdir(l:pTagDir, 'p')
-    endif
-
-    " read in old notelist of that tag
-    let l:pTagFile = l:pTagDir . '/' . l:sTag . '.tag'
-    if filereadable(l:pTagFile)
-        let l:lsNote = readfile(l:pTagFile)
-    else
-        let l:lsNote = []
-    endif
-
-    let l:iFound = match(l:lsNote, '^' . l:sNoteName)
-    if l:iFound == -1
-        call add(l:lsNote, l:sNoteEntry)
-    else
-        " already in tag file
-        if empty(self.forcesave)
-            return 0
-        endif
-        let l:lsNote[l:iFound] = l:sNoteEntry
-    endif
-
-    " complex tag, treat as path
-    if match(l:sTag, '/') != -1
-        let l:pTagDir = fnamemodify(l:pTagFile, ':p:h')
-        if !isdirectory(l:pTagDir)
-            call mkdir(l:pTagDir, 'p')
-        endif
-    endif
-
-    let l:iRet = writefile(l:lsNote, l:pTagFile)
+    let l:iRet = l:jNoteTag.UpdateEntry(l:sNoteEntry, self.forcesave)
     if l:iRet == 0
-        :LOG 'update tag file: ' . l:sTag
+        :DLOG 'update tag file: ' . l:sTag
         let self.tagsave[l:sTag] = v:true
     else
-        :LOG 'fail to update tag file: ' . l:sTag
+        :DLOG 'fail to update tag file: ' . l:sTag
     endif
 
     return l:iRet
@@ -210,23 +177,11 @@ endfunction "}}}
 " RemoveUpdateTag:
 function! s:class.RemoveUpdateTag(sTag) dict abort "{{{
     let l:sTag = tolower(a:sTag)
+    " let l:sNoteEntry = self.GetNoteEntry()
     let l:sNoteName = self.GetNoteName()
 
-    let l:pTagDir = self.notebook.Tagdir()
-    let l:pTagFile = l:pTagDir . '/' . l:sTag . '.tag'
-    if !filereadable(l:pTagFile)
-        return 0
-    endif
-
-    let l:lsNote = readfile(l:pTagFile)
-    let l:iFound = match(l:lsNote, '^' . l:sNoteName)
-    if l:iFound == -1
-        return 0
-    endif
-
-    call remove(l:lsNote, l:iFound)
-    :LOG 'remove tag: ' . a:sTag
-    let l:iRet = writefile(l:lsNote, l:pTagFile)
+    let l:jNoteTag = class#notetag#new(l:sTag)
+    let l:iRet = l:jNoteTag.RemoveEntry(l:sNoteName)
     if l:iRet == 0 && has_key(self.tagsave, l:sTag)
         remove(self.tagsave, l:sTag)
     endif

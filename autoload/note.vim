@@ -1,6 +1,6 @@
 " note tools -- edit markdown note file
 " Author: lymslive
-" Modify: 2017-03-14
+" Modify: 2017-03-15
 
 " import s:jNoteBook from vnote
 let s:jNoteBook = vnote#GetNoteBook()
@@ -156,7 +156,7 @@ function! note#hNoteTag(...) abort "{{{
     if a:0 == 0
         return l:jNoteBuff.UpdateTagFile()
     elseif a:1 == 1
-        return l:jNOteBuff.AddTag(a:1)
+        return l:jNoteBuff.AddTag(a:1)
     else
         if a:1 ==# '-d'
             let l:lsTag = a:000[1:]
@@ -165,6 +165,25 @@ function! note#hNoteTag(...) abort "{{{
             let l:lsTag = a:000
             return l:jNoteBuff.AddTag(l:lsTag)
         endif
+    endif
+endfunction "}}}
+
+" NoteMark: 
+function! note#hNoteMark(...) abort "{{{
+    if !s:NoteInBook()
+        return 0
+    endif
+
+    let l:jNoteBuff = s:GetNoteObject()
+
+    if a:0 == 0
+        return l:jNoteBuff.AddBookMark('default')
+    elseif a:1 == 1
+        return l:jNoteBuff.AddBookMark(a:1)
+    else
+        for l:sTag in a:000
+            call l:jNoteBuff.AddBookMark(l:sTag)
+        endfor
     endif
 endfunction "}}}
 
