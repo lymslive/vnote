@@ -148,3 +148,28 @@ function! notebook#hNoteIndex(...) abort "{{{
     :LOG 'NoteIndex done: E' . l:iErr
     return l:iErr
 endfunction "}}}
+
+" NoteImport: copy import a file into notebook
+function! notebook#hNoteImport() abort "{{{
+    if note#IsInBook()
+        :ELOG 'this file is already in current notebook'
+        return 0
+    endif
+
+    let l:extention = expand('%:p:t:e')
+    if l:extention !~? 'md\|txt'
+        let l:reply = input('the file seems not text file, really import as a note?\n[yes|no] ', 'n')
+        if l:reply !~? '^y'
+            return 0
+        endif
+    endif
+
+    let l:sDatePath = strftime("%Y/%m/%d")
+    let l:pNoteFile = s:jNoteBook.AllocNewNote(l:sDatePath, l:bPrivate)
+    let l:pDirectory = s:jNoteBook.Notedir(l:sDatePath)
+    if !isdirectory(l:pDirectory)
+        call mkdir(l:pDirectory, 'p')
+    endif
+
+    execute 'saveas ' . l:pNoteFile
+endfunction "}}}

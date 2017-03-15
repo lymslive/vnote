@@ -38,6 +38,9 @@ command! -nargs=* -complete=customlist,vnote#complete#NoteConfig
 " build cache index for notebook
 command! -nargs=* NoteIndex call notebook#hNoteIndex(<f-args>)
 
+" copy import a file into notebook
+command! -nargs=* NoteImport call notebook#hNoteImport(<f-args>)
+
 augroup VNOTE
     autocmd!
     autocmd VimLeavePre * call vnote#OnVimLeave()
