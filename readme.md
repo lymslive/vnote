@@ -15,7 +15,6 @@ A __chinese version__ readme is also availabe
 ### Minimum Requirment:
 * OS: linux (windows not test now)
 * vim version: 7.4
-* gcc version: 4.4.7 (optional)
 * Unite.vim plugin: (optional)
 
 ### Dependent:
@@ -42,17 +41,6 @@ maybe `~/.vim/bundle/vnote` is a good choice.
 
 Refer to the plugin manage tool used.
 Install "vimloo" before "vnote".
-
-### Compile External Tool (Optional)
-
-```
-$ cd right/path/to/vnote
-$ cd src
-$ make
-$ make install
-```
-
-Default install to `~/bin/vnote`
 
 ## Fast Usage
 

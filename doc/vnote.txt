@@ -12,8 +12,8 @@ CONTENTS						*vnote*
 3. Usage						|vnote-usage|
 4. Interface						|vnote-interface|
   4.1 Global Commands					|vnote-command|
-  4.2 Mappings in notelist				|vnote-notelist|
-  4.3 Mappings in notebuff				|vnote-notebuff|
+  4.2 Operate on notelist				|vnote-notelist|
+  4.3 Operate on notebuff				|vnote-notebuff|
       markdown for note					|markdown-note|
       markdown for text					|markdown-edit|
 5. Custom						|vnote-custom|
@@ -76,6 +76,23 @@ corresponding to "t/topic/sub-topic.tag" index file, and the `topic` tag is
 to "t/topic.tag" index file. When generate tagfiles, perform as 
 case insensitive.
 
+*vnote-bookmark* Manually created tagfile is also supported, saved in "m/"
+subdirectory. It may some like bookmark. The note file itself donnot need to
+contain this tag quoted in ``. A special bookmark tagfile named "mru" is
+automatically creatd though, it save the "most recent used" note.
+
+*vnote-cache* The overall index file is cacheed in "c/" subdirectory. It is
+automatically and increasementally saved, in four cache levels:
+day-month-year-hist, which the last level is short for "history". These cache
+files have ".che" extention, but the format is actuallly the save as tagfile.
+
+A custom command |:NoteIndex| is available to manually rebuild cache file, it
+creates all note index in "hist.che" and delete the other cache files.  Then
+from that moment, any new note index is added in "day.che", and push up to
+"month.che", "year.che" at appropriate time. This rebuild command may
+time-consuming for large notebook, however at most time, it can rely on the
+auto-cache schema.
+
 ========================================================+=====================
 2. Install						*vnote-install*
 
@@ -98,25 +115,6 @@ to install these two plugin maybe something like: >
 The "$" symbol denotes as shell command, and ":" denotes as vim's ex command,
 usually in your vimrc file. If you perfer to some plugin manage tool, just do
 that way to install |vnote| and |vimloo|.
-
-|vnote-cli| is an external C++ program that run in shell command line interface.
-It is build onup a simple makefile:>
-	$ cd right/path/to/vnote
-	$ cd src
-	$ make
-	$ make install
-<
-
-There is no need sudo permission to build it, and an executable "vnote" will 
-be installed in "~/bin". It is assumed that the "~/bin" directory is 
-already existed, and is contained in $PATH environment variable. If is not so,
-mkdir it before make.
-
-This C++ program is not necessary for basic use, but maybe useful when the 
-notebook become large enough to slow down the pure VimL script. In current 
-version, it's main purpose maybe to rebuild index files for a whole notebook.
-In next version, it is planed to run as a background process to manage the
-notebook or some hard work when necessary(not implemented yet).
 
 ========================================================+=====================
 3. Usage						*vnote-usage*
@@ -227,7 +225,7 @@ are defined in script "plugin/mappings.vim".
 <
 
 --------------------------------------------------------+---------------------
-4.2 Mappings in notelist				*vnote-notelist*
+4.2 Operate on notelist					*vnote-notelist*
 
 The special notelist buffer is mainly created by command |NoteList|.
 There are three head lines:
@@ -305,7 +303,7 @@ C			nnoremap <buffer> <expr> C notelist#hRefineArg()
 	This map should use the special |:map-<expr>| argument.
 
 --------------------------------------------------------+---------------------
-4.2 Mappings in notebuff				*vnote-notebuff*
+4.2 Operate on notebuff					*vnote-notebuff*
 
 The note buffer has set 'filetype' "markdown", so the local mappings are 
 deified in script "ftplugin/markdow*.vim". They can be divined into two groups
@@ -482,9 +480,27 @@ keep simple.
 ========================================================+=====================
 6. Vnote command line tool				*vnote-cli*
 
-An external program also named "vnote" is provided, which default install in
-"~/bin/vnote". It is a simple command line tool, when with no argument or
-"-?", an usage information will display to describe the valid options.
+|vnote-cli| is an external C++ program that run in shell command line interface.
+It is build onup a simple makefile:>
+	$ cd right/path/to/vnote
+	$ cd src
+	$ make
+	$ make install
+<
+
+There is no need sudo permission to build it, and an executable "vnote" will 
+be installed in "~/bin". It is assumed that the "~/bin" directory is 
+already existed, and is contained in $PATH environment variable. If is not so,
+mkdir it before make.
+
+This C++ program is not necessary for basic use, but maybe useful when the 
+notebook become large enough to slow down the pure VimL script. In current 
+version, it's main purpose maybe to rebuild index files for a whole notebook.
+In next version, it is planed to run as a background process to manage the
+notebook or some hard work when necessary(not implemented yet).
+
+It is a simple command line tool, when with no argument or "-?", an usage
+information will display to describe the valid options.
 
 For example, to rebuild tagfiles: >
 	$ vnote -d ~/notebook -tQ
