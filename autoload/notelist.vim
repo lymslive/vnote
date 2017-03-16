@@ -342,6 +342,21 @@ function! notelist#hRename(...) abort "{{{
     " code
 endfunction "}}}
 
+" GotoFirstEntry: 
+function! notelist#hGotoFirstEntry() abort "{{{
+    if !s:CheckBuffer()
+        normal! gg
+        return 0
+    endif
+
+    let l:iFirst = s:HEADLINE + 1
+    if line('.') > l:iFirst
+        execute 'normal! ' . l:iFirst . 'G'
+    else
+        normal! gg
+    endif
+endfunction "}}}
+
 " Load: call this function to triggle load this script
 function! notelist#Load() "{{{
     return 1

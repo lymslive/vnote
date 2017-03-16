@@ -2,7 +2,7 @@
 " Author: lymslive
 " Description: notebook manager
 " Create: 2017-02-16
-" Modify: 2017-03-15
+" Modify: 2017-03-16
 
 "LOAD:
 if exists('s:load') && !exists('g:DEBUG')
@@ -231,44 +231,16 @@ endfunction "}}}
 
 " GetPublicNote: 
 function! s:class.GetPublicNote() dict abort "{{{
-    let l:lpNoteFile = self.ReadCache()
-    if empty(l:lpNoteFile)
-        return []
-    endif
-
-    let l:lpFilter = []
-    for l:pNoteFile in l:lpNoteFile
-        let l:jNoteEntry = class#notename#new(l:pNoteFile)
-        if empty(l:jNoteEntry.string())
-            continue
-        endif
-        if !l:jNoteEntry.IsPrivate()
-            call add(l:lpFilter, l:pNoteFile)
-        endif
-    endfor
-
-    return l:lpFilter
+    let l:lsCache = self.ReadCache()
+    let l:jFilter = class#notefilter#public#new(self)
+    return l:jFilter.Filter(l:lsCache)
 endfunction "}}}
 
 " GetPrivateNote: 
 function! s:class.GetPrivateNote() dict abort "{{{
-    let l:lpNoteFile = self.ReadCache()
-    if empty(l:lpNoteFile)
-        return []
-    endif
-
-    let l:lpFilter = []
-    for l:pNoteFile in l:lpNoteFile
-        let l:jNoteEntry = class#notename#new(l:pNoteFile)
-        if empty(l:jNoteEntry.string())
-            continue
-        endif
-        if l:jNoteEntry.IsPrivate()
-            call add(l:lpFilter, l:pNoteFile)
-        endif
-    endfor
-
-    return l:lpFilter
+    let l:lsCache = self.ReadCache()
+    let l:jFilter = class#notefilter#private#new(self)
+    return l:jFilter.Filter(l:lsCache)
 endfunction "}}}
 
 " Cache Manage: {{{1

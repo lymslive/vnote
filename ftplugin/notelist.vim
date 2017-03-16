@@ -45,6 +45,8 @@ nmap <buffer> p <Plug>(VNOTE_list_pick_tag)
 " switch to unite
 nmap <buffer> u <Plug>(VNOTE_list_switch_unite)
 
+nmap <buffer> gg <Plug>(VNOTE_list_goto_first)
+
 " goto the command line and copy the argments
 nnoremap <buffer> <expr> C notelist#hRefineArg()
 

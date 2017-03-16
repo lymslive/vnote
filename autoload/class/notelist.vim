@@ -2,7 +2,7 @@
 " Author: lymslive
 " Description: notelist manager
 " Create: 2017-02-16
-" Modify: 2017-03-15
+" Modify: 2017-03-16
 
 "LOAD:
 if exists('s:load') && !exists('g:DEBUG')
@@ -64,68 +64,94 @@ endfunction "}}}
 
 " GatherContent: parse argv and then configue out list content
 function! s:class.GatherContent(argv) dict abort "{{{
-    " set option schema
-    let l:jOption = class#cmdline#new('NoteList')
-    call l:jOption.AddSingle('a', 'all', 'glob all notes')
-    call l:jOption.AddSingle('d', 'date', 'note in this date')
-    call l:jOption.AddSingle('t', 'tag', 'note has this tag')
-    call l:jOption.AddSingle('D', 'Date-Tree', 'browse by date')
-    call l:jOption.AddSingle('T', 'Tag-Tree', 'browse by tag')
-    call l:jOption.AddSingle('m', 'mark', 'note in this mark default mru')
-    call l:jOption.AddSingle('M', 'Mark-Tree', 'browse by mark or mru')
-    " call l:jOption.AddDash('sepecial private tag -')
-
-    " parser a:argv
-    let l:iErr = l:jOption.ParseCheck(a:argv)
-    if l:iErr != 0
+    if empty(a:argv) || type(a:argv) !=# type([])
         return []
     endif
 
-    " let self.argv = a:argv
-    let l:lsPostArgv = l:jOption.GetPost()
-
-    " get the first argument
-    let l:sArg = ''
-    let l:iPostArgc = len(l:lsPostArgv)
-
-    if l:iPostArgc > 0
-        let l:sArg = l:lsPostArgv[0]
-    endif
-
-    " dispatch note-list mode
     let l:lsContent = []
 
-    if l:jOption.Has('all')
-        let l:lsContent = self.ListByDate('')
-    elseif l:jOption.Has('Date-Tree')
-        let l:lsContent = self.BrowseDate(l:sArg)
-    elseif l:jOption.Has('Tag-Tree')
-        let l:lsContent = self.BrowseTag(l:sArg)
-    elseif l:jOption.Has('Mark-Tree')
-        let l:lsContent = self.BrowseMark(l:sArg)
-    elseif l:jOption.Has('date')
+    let l:cMode = get(a:argv, 0, '')
+    let l:sArg = get(a:argv, 1, '')
+
+    if l:cMode !~# '^-'
+        if empty(a:argv[0])
+            let l:cMode = '-d'
+            let l:sArg = ''
+        elseif a:argv[0] =~ self.notebook.pattern.dateYear
+            let l:cMode = '-d'
+            let l:sArg = a:argv[0]
+        else
+            let l:cMode = '-t'
+            let l:sArg = a:argv[0]
+        endif
+    endif
+
+    if l:cMode =~# '-a'
+        let l:sArg = ''
+        let l:jScope = class#notescope#new(self.notebook)
+        let l:lsContent = l:jScope.list()
+
+    elseif l:cMode =~# '-d'
         if empty(l:sArg)
             let l:sArg = strftime("%Y/%m/%d")
         endif
-        let l:lsContent = self.ListByDate(l:sArg)
-    elseif l:jOption.Has('tag')
-        let l:lsContent = self.ListByTag(l:sArg)
-    elseif l:jOption.Has('mark')
+        let l:jScope = class#notescope#date#new(self.notebook, l:sArg)
+        let l:lsContent = l:jScope.list()
+
+    elseif l:cMode =~# '-t'
         if empty(l:sArg)
-            let l:lsContent = self.ListByMark('mru')
-        else
-            let l:lsContent = self.ListByMark(l:sArg)
+            :ELOG 'NoteList -t expect a tagname'
+            return []
         endif
+        let l:pTagDir = self.notebook.Tagdir()
+        let l:jScope = class#notescope#tag#new(self.notebook, l:pTagDir, l:sArg)
+        let l:lsContent = l:jScope.list()
+
+    elseif l:cMode =~# '-m'
+        if empty(l:sArg)
+            let l:sArg = 'mru'
+        endif
+        let l:pTagDir = self.notebook.Markdir()
+        let l:jScope = class#notescope#tag#new(self.notebook, l:pTagDir, l:sArg)
+        let l:lsContent = l:jScope.list()
+
+    elseif l:cMode =~# '-D'
+        let l:jBrowse = class#notebrowse#date#new(self.notebook, l:sArg)
+        if l:jBrowse.TransferScope()
+            let l:cMode = '-d'
+            let l:jScope = class#notescope#date#new(self.notebook, l:sArg)
+            let l:lsContent = l:jScope.list()
+        else
+            let l:lsContent = l:jBrowse.list()
+        endif
+
+    elseif l:cMode =~# '-T'
+        let l:pTagDir = self.notebook.Tagdir()
+        let l:jBrowse = class#notebrowse#tag#new(self.notebook, l:pTagDir, l:sArg)
+        if l:jBrowse.TransferScope()
+            let l:cMode = '-t'
+            let l:jScope = class#notescope#tag#new(self.notebook, l:pTagDir, l:sArg)
+            let l:lsContent = l:jScope.list()
+        else
+            let l:lsContent = l:jBrowse.list()
+        endif
+
+    elseif l:cMode =~# '-M'
+        let l:pTagDir = self.notebook.Markdir()
+        let l:jBrowse = class#notebrowse#tag#new(self.notebook, l:pTagDir, l:sArg)
+        if l:jBrowse.TransferScope()
+            let l:cMode = '-m'
+            let l:jScope = class#notescope#tag#new(self.notebook, l:pTagDir, l:sArg)
+            let l:lsContent = l:jScope.list()
+        else
+            let l:lsContent = l:jBrowse.list()
+        endif
+
     else
-        if empty(l:sArg)
-            let l:lsContent = self.ListByDate(strftime("%Y/%m/%d"))
-        elseif l:sArg =~ self.notebook.pattern.dateYear
-            let l:lsContent = self.ListByDate(l:sArg)
-        else
-            let l:lsContent = self.ListByTag(l:sArg)
-        endif
+        :ELOG 'unknow NoteList mode, accept [aDTMdtm]'
     endif
 
+    let self.argv = [l:cMode, l:sArg]
     return l:lsContent
 endfunction "}}}
 
@@ -193,174 +219,11 @@ function! s:class.AjustSeparateLine() dict abort "{{{
     return 0
 endfunction "}}}
 
-" ConvertEntry: return a note entry string from note file full path
-function! s:class.ConvertEntry(pNoteFile) dict abort "{{{
-    let l:jNote = class#note#new(a:pNoteFile)
-    return l:jNote.GetNoteEntry()
-endfunction "}}}
-
-" ListByDate: note-list -d {yyyy[/mm/dd]}
-" empty argument will glob all notes in notebook(try cache first)
-function! s:class.ListByDate(sDatePath, ...) dict abort "{{{
-    if empty(a:sDatePath)
-        let self.argv = ['-a']
-        let l:lpNoteFile = self.notebook.ReadCache()
-        if empty(l:lpNoteFile)
-            :DLOG 'cache empty, use glob to fetch all notes'
-            let l:lpNoteFile = self.notebook.GlobNote(a:sDatePath)
-            call map(l:lpNoteFile, 'self.ConvertEntry(v:val)')
-        endif
-    else
-        let self.argv = ['-d', a:sDatePath]
-        let l:lpNoteFile = self.notebook.GlobNote(a:sDatePath)
-        call map(l:lpNoteFile, 'self.ConvertEntry(v:val)')
-    endif
-    return l:lpNoteFile
-endfunction "}}}
-
-" ListByTag: note-list -t {tag-name}
-function! s:class.ListByTag(sTag, ...) dict abort "{{{
-    let l:sTag = tolower(a:sTag)
-    let self.argv = ['-t', l:sTag]
-
-    let l:pDiretory = self.notebook.Tagdir()
-    let l:pTagFile = l:pDiretory . '/' . l:sTag . '.tag'
-    if filereadable(l:pTagFile)
-        return readfile(l:pTagFile)
-    else
-        if l:sTag ==# '-'
-            return self.notebook.GetPrivateNote()
-        elseif l:sTag ==# '+'
-            return self.notebook.GetPublicNote()
-        else
-            echo 'the notebook has no tag: ' . l:sTag
-            return []
-        endif
-    endif
-endfunction "}}}
-
-" BrowseDate: note-list -D [yyyy/mm]
-function! s:class.BrowseDate(ArgLead) dict abort "{{{
-    " full yyyy/mm/dd date path
-    if match(a:ArgLead, self.notebook.pattern.datePath) != -1
-        return self.ListByDate(a:ArgLead)
-    endif
-
-    " partial yyyy/mm path
-    let l:pDiretory = self.notebook.Datedir()
-    if !empty(a:ArgLead) && a:ArgLead[-1] != '/'
-        let l:ArgLead = a:ArgLead . '/'
-    else
-        let l:ArgLead = a:ArgLead
-    endif
-
-    let l:lpDate = glob(l:pDiretory . '/' . l:ArgLead . '*', 0, 1)
-    let l:iHead = len(l:pDiretory) + 1
-    call map(l:lpDate, 'strpart(v:val, l:iHead)')
-
-    let self.argv = ['-D', a:ArgLead]
-    return l:lpDate
-endfunction "}}}
-
-" BrowseTag: 
-function! s:class.BrowseTag(ArgLead) dict abort "{{{
-    let l:pDirectory = self.notebook.Tagdir()
-    let l:ArgLead = tolower(a:ArgLead)
-
-    " check browse a specific tag-file
-    if !empty(l:ArgLead) && l:ArgLead[-1] != '/'
-        let l:pTagFile = l:pDirectory . '/' . l:ArgLead . '.tag'
-        if filereadable(l:pTagFile)
-            return self.ListByTag(l:ArgLead)
-        endif
-    endif
-
-    let self.argv = ['-T', l:ArgLead]
-    return self.GlobTag_(l:pDirectory, l:ArgLead)
-endfunction "}}}
-
-" BrowseMark: 
-function! s:class.BrowseMark(ArgLead) dict abort "{{{
-    let l:pDirectory = self.notebook.Markdir()
-    let l:ArgLead = tolower(a:ArgLead)
-
-    " check browse a specific tag-file
-    if !empty(l:ArgLead) && l:ArgLead[-1] != '/'
-        let l:pTagFile = l:pDirectory . '/' . l:ArgLead . '.tag'
-        if filereadable(l:pTagFile)
-            return self.ListByMark(l:ArgLead)
-        endif
-    endif
-
-    let self.argv = ['-M', l:ArgLead]
-    return self.GlobTag_(l:pDirectory, l:ArgLead)
-endfunction "}}}
-
-" GlobTag: 
-function! s:class.GlobTag_(pDirectory, ArgLead) dict abort "{{{
-    let l:pDirectory = a:pDirectory
-    let l:ArgLead = a:ArgLead
-
-    let l:iHead = len(l:pDirectory) + 1
-    let l:lpTag = glob(l:pDirectory . '/' . l:ArgLead . '*', 0, 1)
-    call map(l:lpTag, 'strpart(v:val, l:iHead)')
-
-    let l:lsRet = []
-    let l:lsPath = []
-    let l:lsLeaf = []
-    for l:sTag in l:lpTag
-        if l:sTag =~ '\.tag$'
-            let l:sTag = substitute(l:sTag, '\.tag$', '', '')
-            if l:sTag == '+'
-                call add(l:lsRet, l:sTag)
-            elseif l:sTag == '-'
-                call add(l:lsRet, l:sTag)
-            else
-                call add(l:lsLeaf, l:sTag)
-            endif
-        else
-            let l:sTag = l:sTag . '/'
-            call add(l:lsPath, l:sTag)
-        endif
-    endfor
-
-    if !empty(l:lsPath)
-        call sort(l:lsPath)
-        call extend(l:lsRet, l:lsPath)
-    endif
-    if !empty(l:lsLeaf)
-        call sort(l:lsLeaf)
-        call extend(l:lsRet, l:lsLeaf)
-    endif
-
-    return l:lsRet
-endfunction "}}}
-
-" ListByMark: bookmark and mru
-function! s:class.ListByMark(sTag) dict abort "{{{
-    let l:sTag = tolower(a:sTag)
-    let self.argv = ['-m', l:sTag]
-
-    let l:pDiretory = self.notebook.Markdir()
-    let l:pTagFile = l:pDiretory . '/' . l:sTag . '.tag'
-    if filereadable(l:pTagFile)
-        if l:sTag ==# 'mru'
-            let l:lpNoteFile = self.notebook.GetMruList()
-            return l:lpNoteFile
-        else
-            return readfile(l:pTagFile)
-        endif
-    else
-        return []
-    endif
-
-endfunction "}}}
-
 " BackList: 
 function! s:class.BackList() dict abort "{{{
-    let l:cType = self.argv[0]
-    let l:cType = substitute(l:cType, '^-', '', '')
-    if stridx('TDMtdm', l:cType) < 0
+    let l:cMode = self.argv[0]
+    let l:cMode = substitute(l:cMode, '^-', '', '')
+    if stridx('TDMtdm', l:cMode) < 0
         :LOG '[notelist] can only back in -DTdt modes'
         return -1
     endif
@@ -371,10 +234,8 @@ function! s:class.BackList() dict abort "{{{
         return 0
     endif
 
-    let l:lsPath = split(l:sArg, '/')
-    call remove(l:lsPath, -1)
-
-    let l:lsArgv = [toupper(self.argv[0]), join(l:lsPath, '/')]
+    let l:sNewArg = substitute(l:sArg, '[^/]*/\?$', '', '')
+    let l:lsArgv = [toupper(self.argv[0]), l:sNewArg]
     call self.RefreshList(l:lsArgv)
     call search('^' . l:sArg, 'w')
 endfunction "}}}
