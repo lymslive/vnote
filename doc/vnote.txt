@@ -16,10 +16,12 @@ CONTENTS						*vnote*
   4.3 Operate on notebuff				|vnote-notebuff|
       markdown for note					|markdown-note|
       markdown for text					|markdown-edit|
+  4.4 Global Sharp Function				|vnote-function|
+  4.5 Class Remark					|vnote-class|
 5. Custom						|vnote-custom|
   5.1 Config variable					|vnote-config|
   5.2 Local remap schema				|vnote-remap|
-6. Vnote command line tool				|vnote-cli|
+6. Vnote command line tool				|vnote-tool|
 7. FAQ							|vnote-faq|
 8. Credit						|vnote-credit|
 
@@ -31,7 +33,7 @@ markdown as the base 'filetype' of note file. A notebook is a directory that
 organize bundle of note files in some pretty way.
 
 This |vnote| plugin is aimed to manage note files in vim environment, as long
-as the fairy editing ability. It will gather some information from note file,
+as the fairy edit ability. It will gather some information from note file,
 and so require a few format assumptions:
 
 *vnote-title* is the first line of note file, but the leading "#" symbol is
@@ -44,7 +46,7 @@ from the second line next to title, but not necessary so.
 
 |vnote| by default only search the first ten line to parse note tags. Complex
 tags with path such as `topic/sub-topic` is also handled. The tag should be
-meaningful word, not containing special characters.
+meaningful word, not containing strange characters.
 
 *vnote-notebook* is a directory that all note files are stored in it's "d/"
 subdirectory, and further organized by date "yyyy/mm/dd". 
@@ -79,7 +81,7 @@ case insensitive.
 *vnote-bookmark* Manually created tagfile is also supported, saved in "m/"
 subdirectory. It may some like bookmark. The note file itself donnot need to
 contain this tag quoted in ``. A special bookmark tagfile named "mru" is
-automatically creatd though, it save the "most recent used" note.
+automatically creatd though, it save the "most recent used" notes.
 
 *vnote-cache* The overall index file is cacheed in "c/" subdirectory. It is
 automatically and increasementally saved, in four cache levels:
@@ -100,7 +102,6 @@ Requirement:
 
 Minimum Vim Verion: 7.4
 Operating System: linux (not test in windows by now)
-(optional) Minimum gcc version: 4.4.7
 (optional) Unite.vim plugin
 
 |vnote| depends on |vimloo|, another common utility plugin for writing VimL
@@ -146,8 +147,11 @@ better to exclude. All this rule can be meet by editing the ".gitignore" file,
 example as following: >
 	t/
 	c/
+	m/
 	*-.md
 <
+The sub-directory "t/, d/, m/" may NOT exclued if using pure |vnote| VimL
+plugin, as rebuild index may be time-consuming, when notebook grows large.
 
 ========================================================+=====================
 4. Interface						*vnote-interface*
@@ -165,11 +169,11 @@ are defined in script "plugin/mappings.vim".
 --------------------------------------------------------+---------------------
 4.1 Global Commands					*vnote-command*
 
-:NoteBook [{directory}]					*NoteBook*
+:NoteBook [{directory}]					*:NoteBook*
 	Change the current notebook to the one in {directory}. If omits the
 	argument, show the current notebook directory.
 
-:NoteNew [-] [-t {tag} ...] [-T {title}]		*NoteNew*
+:NoteNew [-] [-t {tag} ...] [-T {title}]		*:NoteNew*
 	Create a new note, within today's subdirectory, and increase the note
 	number by one. The directory will be make automatically if necessary.
 	If provides a dash "-" as argument, add dash to the note file name,
@@ -187,12 +191,14 @@ are defined in script "plugin/mappings.vim".
 	If the "-t" and "-T" option are both provided, and still have any
 	words before the option, then these arguments are just ignored.
 
-:NoteEidt [{date}]					*NoteEdit*
-	Edit the last note of {date}, default today.
-	{date} argument is in path format "yyyy/mm/dd".
-	The last note is the one with largest note number.
+:NoteEidt [{date}|{number}]				*:NoteEdit*
+	Edit the last note of {date}, {date} argument is in path format
+	"yyyy/mm/dd".  The last note is the one with largest note number.
+	If the argument is a nunber, it denotes the index of "mru" list, in
+	which "-1" is the last accessed note.
+	If no argument, "-1" by default.
 
-:NoteList [-r] [-svn] [-adtDT] [{args}]			*NoteList*
+:NoteList [-r] [-svn] [-adtmDTM] [{args}]		*:NoteList*
 	The default :NoteList command with no arguments open a notelist buffer
 	to list all the note of today.
 	The allowed arguments can be understand by three groups.
@@ -205,14 +211,16 @@ are defined in script "plugin/mappings.vim".
 		-n: tabnew, open a new tabpage for notelist.
 	NOTE: if there is a notelist window existed already, the "-svn" option
 	is ignored, always reuse the notelist window.
-	"-dtDTa" option denote as four different list mode.
+	"-adtmDTM" option denote the list mode.
+		-a list all the note in current notebook
 		-d [{date}] list note of that day, default today
 		-t {tag} list note of that tag
+		-m {tag} list note of that bookmark, default "mru"
 		-D [{date}] browse date subdirectory, list date has any note
 		-T [{tag}] browse tag subdirectory, list tags instead of note
-		-a list all the note in current notebook
+		-M [{tag}] browse bookmark subdirectory.
 
-:NoteConfig [{key} {val}]				*NoteConfig*
+:NoteConfig [{key} {val}]				*:NoteConfig*
 	When no argument, display the current config directory. otherwise,
 	pairs of arguments must be provided, the first is key, and the second
 	is value to be set. The vaild config key can be queried by this command
@@ -220,19 +228,46 @@ are defined in script "plugin/mappings.vim".
 	For example, to show all the current config value: >
 		:NoteConfig
 <
-	to change the value of 'note_file_max_tags' :>
+	to change the value of 'note_file_max_tags': >
 		:NoteConfig note_file_max_tags 7
 <
+:NoteIndex [-t]						*:NoteIndex*
+	Rebuild index for overall notebook, save the result in "c/hist.che",
+	delete the minor level cache files "day.che, month.che, year.che".
+	If "-t" option is on, also rebuild all tagfiles in "t/" sub-
+	directory, the already existed tagfiles is overwritten but not 
+	deleted.
+	There is seldom need to use this command if you only hand write note
+	locally, since when new note saved, update the cache files and 
+	tag files automatically.
+
+:NoteImport						*:NoteImport*
+	When edit a text file that is not in current notebook, this command
+	will |:saveas| current buffer to the notebook, automatically named as
+	|:NoteNew|. If the extention of current buffer is not ".md" or ".txt"
+	a |input()| promt to confirm import.
+
+:Unite notelist:{-dtm}:{arg}
+	The |:Unite| source "notelist" is available, the argument is the same
+	as the |:NoteList| command. But the default behavior with no argument
+	is as "-a" argument, that gather all notes.
+	The argument to unite source is separated by ":".
 
 --------------------------------------------------------+---------------------
 4.2 Operate on notelist					*vnote-notelist*
 
-The special notelist buffer is mainly created by command |NoteList|.
+The special notelist buffer is mainly created by command |:NoteList|.
 There are three head lines:
 	First line is ": NoteBook {notebook full directory}"
 	Second line is ": NoteList {arguments to notelist}"
 	Third line is a dummy separator line
 	The left lines is the actual list content, and maybe empty.
+
+There are tow main groups of modes for notelist. The "lower-case" option
+(-amtd) denotes list mode, and the "upper-case" option(-MTD) denotes browse
+mode. In the normal list mode, each entry line has the format as in tag file:
+	{note-name} <Tab> {note-title}
+>
 
 The notelist buffer in non-modifiable, many keys in normal mode has been 
 remaped to do some smart things. In the following key map list, the left is
@@ -280,6 +315,8 @@ T 					*<Plug>(VNOTE_list_browse_tag)*
 	Switch to ":NoteList -T" list mode.
 D 					*<Plug>(VNOTE_list_browse_date)*
 	Switch to ":NoteList -D" list mode.
+M 					*<Plug>(VNOTE_list_browse_mark)*
+	Switch to ":NoteList -M" list mode.
 
 t 					*<Plug>(VNOTE_list_smart_jump)*
 	Switch to list by another tag, if the tagline is show and cursor
@@ -295,15 +332,22 @@ u 					*<Plug>(VNOTE_list_switch_unite)*
 	Switch to unite search mode, gather the candidate from current
 	notelist buffer content. Only can be used when |:Unite| command
 	is available.
-	Switch
+gg 					*<Plug>(VNOTE_list_goto_first)*
+	Goto the first entry line, or if already in the first entry line,
+	goto the first headline.
 
 C			nnoremap <buffer> <expr> C notelist#hRefineArg()
 	Copy the |:NoteList| arguments to command line, and let user to modify
 	the arguments and rerun.
 	This map should use the special |:map-<expr>| argument.
 
+
+<C-x>t			cnoremap <buffer> <C-x>t <C-R>=note#GetContext()<CR>
+	Key map when edit command line, copy the tag name or note name under
+	current cursor to command line.
+
 --------------------------------------------------------+---------------------
-4.2 Operate on notebuff					*vnote-notebuff*
+4.3 Operate on notebuff					*vnote-notebuff*
 
 The note buffer has set 'filetype' "markdown", so the local mappings are 
 deified in script "ftplugin/markdow*.vim". They can be divined into two groups
@@ -334,6 +378,20 @@ g<C-x>					*<Plug>(VNOTE_edit_prev_note)*
 	complete tag in command line.
 	Use ":NoteTag -d" to remove tag has advantage to update tagfile, while
 	directly delete tag text in buffer, will not update tagfile.
+:NoteTag {-drm} {tag} [another-tag]
+	|:NoteTag| is buffer localed command, it has different definiation
+	on notebuff and notelist context. When executed at notelist window,
+	it manage the tag over the notebook:
+	{-d} delete a tag file
+	{-r} rename a tag file, requres a new tag name
+	{-m} merge tow tag file, the second tag file is delete
+	When this command executes, each notefile that originally contains the
+	modified tag are also updated.
+
+:NoteMark [{tag}]					*:NoteTag*
+	Add current notefile to bookmark. If no argument provided, add to the
+	default bookmark named in "m/defualt.tag".
+	The "mru" bookmark name is reserved, and should not use.
 
 markdown mappings for text~				*markdown-edit*
 
@@ -369,6 +427,162 @@ i_<CR>		inoremap <buffer> <expr> <CR> edit#markdown#hEnterExpr_i()
 	When in a line with ordered list, add a new list, and make order +1.
 	Otherwise, perform as normal <CR>
 
+--------------------------------------------------------+---------------------
+4.4 Global Sharp Function				*vnote-function*
+
+In this section, briefly list the global sharp function that can be called
+directlly from command line or from other script, to custom map or/and command
+for example.
+
+vnote#GetNoteBook()
+	Get the notebook class object, denotes the current notebook.
+
+vnote#GetConfig(...)
+	Get the current config dictionay. If has argument, it excepts key, and
+	return the value of that key.
+
+vnote#hNoteConfig(...)
+	Handle of command |:NoteConfig|.
+
+notebook#OpenNoteBook(...)
+	Open another notebook, or show current notebook if no arugent.
+	see also |:NoteBook|
+
+notebook#hNoteNew(...)
+notebook#hNoteEdit(...)
+notebook#hNoteIndex(...)
+notebook#hNoteImport()
+	Handle of the relative command. See also |vnote-command|.
+
+notelist#hNoteList(...)
+	Handle of command |:NoteList|, the entrance function for that command.
+notelist#hBackList()
+	Goto the parent level at browse notelist mode.
+notelist#hEnterNote()
+	Handle the <CR> key map at notelist windown.
+notelist#ToggleTagLine()
+	Toggle the taglie when at normal notelist mode.
+notelist#hSmartTab()
+	Handle the <Tab> key map at notelist windown.
+notelist#NextDay(shift)
+notelist#NextMonth(shift)
+	List the notes of next day or next month, the {a:shift} argument can
+	be negative number, that is previous day or month.
+notelist#hSmartJump()
+	Swith to notelist with other argument, with context under cursor.
+notelist#hRefineArg()
+	Copy the |:NoteList| argument to command line.
+notelist#hPasteTag()
+	Paste the tag under cursor to the notebuff opened in another window.
+	If no notebuff is opened, yank the tag name.
+notelist#hManageTag(...)
+	Handle function to manage tag over notebook, that buffer command
+	|:NoteTag| works.
+notelist#hGotoFirstEntry()
+	Goto the first entry line, or the first head line.
+
+note#IsInBook()
+	Check if currnet notebuff is in current notebook.
+note#EditNext(shift)
+	Open the next/prev note of the same day, argument can be negative.
+note#OpenNoteList()
+	Opeon notelist by the tag argument under cursor or the date.
+note#hSmartTab()
+	Handle the <Tab> key map, switch window or open ontelist windown.
+note#DetectTag(bol)
+	Check if the cursor on a quoted tag, return the tag if so.
+	Argument {bol} says if the tag must appear in the beginning of line.
+note#OnSaveNote(...)
+	Handle the buffer write event.
+note#OnBufRead()
+	Handle the buffer read event.
+note#hNoteTag(...)
+	Handle the command |:NoteTag|, add or delete tag from current notebuff.
+note#hNoteMark(...)
+	Handle the command |:NoteMark|, add current notebuff to bookmark.
+note#GetContext()
+	Get the first word of current line.
+
+--------------------------------------------------------+---------------------
+4.5 Class Remark					*vnote-class*
+
+The implement of this plugin follow the OOP style of |vimloo|. This section
+decribes the basic class design remark, for further devoloping not for common
+user.
+
+class#notebook
+	Denotes a notebook object. The most common thing is to save the
+	directory of notebook in the {basedir} member key.
+	The complex member key {cache_} and {mru_} is only created when really
+	need, or the first time used.
+	The current notebook object can be accessed by vnote#GetNoteBook().
+
+class#note
+class#notefile
+class#notebuff
+	They denote note object. The class#note is base class, with the other
+	two sub-classes. class#notebull is a note that loaded in a vim buffer,
+	while class#notefile may not.
+	There is a variable {b:jNoteBuff} of class#notebuff for each 
+	opened note.
+
+class#notename
+	The name of a note file contains many information, in the form of
+	"yyyymmdd_n" or "yyyymmdd_n-". So create a class to deal with such
+	file name.
+
+class#notelist
+	Manage the notelist buffer. Parse the argument passed to command
+	|:NoteList|, gather the list content and fresh the buffer content.
+	The objcet variable {b:jNoteList} is saved with notelist buffer.
+
+class#notescope
+class#notescope#date
+class#notescope#daterange
+class#notescope#tag
+	class#notescop is for a subset of notes in the notebook, and there
+	are several sub-classes for different subset.
+	class#notescope#date is for ":NoteList -d"
+	class#notescope#tag is for ":NoteList -t" and ":NoteList -m"
+	class#notescope#daterange if for notes between two dates.
+
+class#notebrowse
+class#notebrowse#date
+class#notebrowse#tag
+	These class is for browse mode of notelist. As usually, the longer
+	named class is the sub-class of the shortor one.
+	class#notebrowse#date is or ":NoteList -D"
+	class#notebrowse#tag is or ":NoteList -T" and ":NoteList -M"
+
+class#notefilter
+class#notefilter#private
+class#notefilter#public
+class#notefilter#daterange
+	class#notefilter is some like class#notescope, it is mainly used for
+	further filter the notes subset. "notefilter" may extend more flexible
+	than "notescope", as it is relative to abstract condition.
+
+class#notetag
+class#notetag#mark
+class#notetag#mru
+	class#notetag denotes a tag file in "t/" sub-directory.
+	class#notetag#mark denotes a bookmark tagfile in "m/" sub-directory.
+	class#notetag#mru denotes the special "mur" list, which is also saved
+	at "m/mur.tag".
+
+class#notecache
+class#notecache#day
+class#notecache#month
+class#notecache#year
+class#notecache#hist
+	Implement the four level cache schema.
+	The new note index entry is added to "day.che", when a day is past,
+	the content in "day.che" is append to "month.che", when a month is
+	past, the content in "month.che" is append to "year.che".
+	The "hist.che" is the top level cache. The command |:NoteIndex|
+	directlly write to "hist.che", and delete the other three minor cache
+	files to avoid duplicated index entry.
+
 ========================================================+=====================
 5. Custom						*vnote-custom*
 
@@ -398,11 +612,14 @@ auto_save_plus_tag = v:false
 	When note file is saved, whether save the "-" tag to "-.tag" file,
 	whether save the "+" tag to "+.tag" file
 
-list_default_cursor = 1
-	When open notelist buffer, put the cursor the first entry by default.
-	Other valid value is number, or "$", to the last entry.
+list_default_cursor = "$"
+	When open notelist buffer, put the cursor to the last entry by default.
+	The valid value is number, 1, 2, ... or "$", to the last entry.
 
+max_mru_note_list = 10
+	How many "mru" notes are saved.
 
+--------------------------------------------------------+---------------------
 5.2 Local remap schema					*vnote-remap*
 
 It it hoped that the default settings and mappings is acceptable. However, for
@@ -478,20 +695,27 @@ feel that trouble, ":set ft=vim" temporary. After all, the local script should
 keep simple.
 
 ========================================================+=====================
-6. Vnote command line tool				*vnote-cli*
+6. Vnote command line tool				*vnote-tool*
 
-|vnote-cli| is an external C++ program that run in shell command line interface.
-It is build onup a simple makefile:>
-	$ cd right/path/to/vnote
+|vnote-tool| is an external C++ program that run in shell command line interface.
+It has migrated to a separated repository, that install as following: >
+	$ git clone https://github.com/lymslive/vnote-tool
+	$ cd right/path/to/vnote-tool
 	$ cd src
 	$ make
 	$ make install
 <
-
 There is no need sudo permission to build it, and an executable "vnote" will 
 be installed in "~/bin". It is assumed that the "~/bin" directory is 
 already existed, and is contained in $PATH environment variable. If is not so,
 mkdir it before make.
+
+It is a simple command line tool, when with no argument or "-?", an usage
+information will display to describe the valid options.  For example, 
+to rebuild tagfiles: >
+	$ vnote -d ~/notebook -ctQ
+<
+The old tagfiles in "~/notebook/t" will not be deleted, but overwrittened.
 
 This C++ program is not necessary for basic use, but maybe useful when the 
 notebook become large enough to slow down the pure VimL script. In current 
@@ -499,13 +723,15 @@ version, it's main purpose maybe to rebuild index files for a whole notebook.
 In next version, it is planed to run as a background process to manage the
 notebook or some hard work when necessary(not implemented yet).
 
-It is a simple command line tool, when with no argument or "-?", an usage
-information will display to describe the valid options.
-
-For example, to rebuild tagfiles: >
-	$ vnote -d ~/notebook -tQ
+As an example, in |vnote-tool| repository, a perl script is provided to
+generate test notebook: >
+	$ cd right/path/to/vnote-tool
+	$ cd gen
+	$ ./genbox.pl ~/notebook-test
 <
-The old tagfiles in "~/notebook/t" will not be deleted, but overwrittened.
+It will generate notebook from 2000 to 2010 years, each day 10 notes, about
+40180 notes overall. With the command |:NoteIndex|, it spends more than half
+a minus, and using complied |vnote-tool|, spends several seconds.
 
 ========================================================+=====================
 7. FAQ							*vnote-faq*

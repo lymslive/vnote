@@ -36,6 +36,7 @@ command! -nargs=* -complete=customlist,vnote#complete#NoteConfig
         \ NoteConfig call vnote#hNoteConfig(<f-args>)
 
 " build cache index for notebook
+" -t option also rebuild all tagfiles
 command! -nargs=* NoteIndex call notebook#hNoteIndex(<f-args>)
 
 " copy import a file into notebook

@@ -122,8 +122,8 @@ endfunction "}}}
 function! notelist#ToggleTagLine() "{{{
     if !s:CheckBuffer() || !s:CheckEntry()
         return -1
-    elseif b:jNoteList.argv[0] != '-t' && b:jNoteList.argv[0] != '-d'
-        :WLOG 'this map can only be used in -t or -d mode'
+    elseif b:jNoteList.argv[0] !~# '-[tmda]'
+        :WLOG 'this map can only be used in normal list mode'
         return -1
     endif
 
