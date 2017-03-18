@@ -7,3 +7,5 @@ tags
 core.*
 Session*.vim
 _box/
+*.tar.gz
+*.tgz
