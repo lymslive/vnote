@@ -49,5 +49,5 @@ Install "vimloo" before "vnote".
 * `:w` save note file as normal
 * `:NoteList` browse note in notebook
 * `:Unite notelist` is available if unite.vim installed
-* default notebook is `~/notebook`
+* default notebook is `~/notebook`, it's better to create it first
 * `:help vnote` for detail and online document

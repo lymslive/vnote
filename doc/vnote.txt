@@ -388,7 +388,7 @@ g<C-x>					*<Plug>(VNOTE_edit_prev_note)*
 	When this command executes, each notefile that originally contains the
 	modified tag are also updated.
 
-:NoteMark [{tag}]					*:NoteTag*
+:NoteMark [{tag}]					*:NoteMark*
 	Add current notefile to bookmark. If no argument provided, add to the
 	default bookmark named in "m/defualt.tag".
 	The "mru" bookmark name is reserved, and should not use.

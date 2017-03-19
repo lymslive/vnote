@@ -2,7 +2,7 @@
 " Author: lymslive
 " Description: notebook manager
 " Create: 2017-02-16
-" Modify: 2017-03-16
+" Modify: 2017-03-19
 
 "LOAD:
 if exists('s:load') && !exists('g:DEBUG')
@@ -68,8 +68,7 @@ function! s:class.SetBasedir(pBasedir) dict abort "{{{
     endif
 
     if !isdirectory(a:pBasedir)
-        echoerr 'cannot set notebook to directory that not exists: ' . a:pBasedir
-        return 2
+        :DLOG '? set notebook to directory that not exists: ' . a:pBasedir
     endif
 
     let self.basedir = a:pBasedir
