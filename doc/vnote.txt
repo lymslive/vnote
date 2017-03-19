@@ -586,6 +586,13 @@ class#notecache#hist
 ========================================================+=====================
 5. Custom						*vnote-custom*
 
+g:vnote_default_notebook = '~/notebook'
+	This variable should set in vimrc, before |vnote| plugin loading, or
+	at latest before the first time to use this plugin.
+	In windows, it's required to manually set this variable.
+	It's also better to mkdir the default notebook first, may avoid some
+	noising message.
+
 5.1 Config variable					*vnote-config*
 
 Most configurable variable is saved in a dictionay, that can be query and set
