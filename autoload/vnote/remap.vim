@@ -1,8 +1,8 @@
-" File: mapping
+" File: remap.vim
 " Author: lymslive
-" Description: plugin mappings
-" Create: 2017-02-24
-" Modify: 2017-03-16
+" Description: plug remap of vnote
+" Create: 2017-03-20
+" Modify: 2017-03-20
 
 " to use thes mappings, use nmap not nnoremap
 nnoremap <Plug>(VNOTE_book_new_note) :call notebook#hNoteNew()
@@ -33,4 +33,9 @@ nnoremap <Plug>(VNOTE_edit_next_note) :call note#EditNext(1)<CR>
 nnoremap <Plug>(VNOTE_edit_prev_note) :call note#EditNext(-1)<CR>
 nnoremap <Plug>(VNOTE_edit_open_list) :call note#OpenNoteList()<CR>
 nnoremap <Plug>(VNOTE_edit_smart_tab) :call note#hSmartTab()<CR>
+
+:DLOG '-1 vnote#remap is loading ...'
+function! vnote#remap#load(...) abort "{{{
+    return 1
+endfunction "}}}
 

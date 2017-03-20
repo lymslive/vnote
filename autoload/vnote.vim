@@ -2,7 +2,7 @@
 " Author: lymslive
 " Description: manage the overall vnote plugin
 " Create: 2017-02-17
-" Modify: 2017-03-15
+" Modify: 2017-03-20
 
 let s:default_notebook = "~/notebook"
 if exists('g:vnote_default_notebook')
@@ -91,6 +91,9 @@ function! vnote#hNoteConfig(...) abort "{{{
     let l:lsArgv = split(l:sArg, '[\t ,=;:]\+')
     return vnote#SetConfig(l:lsArgv)
 endfunction "}}}
+
+" load remaps
+call vnote#remap#load()
 
 " statistics infor
 let s:dStatis = {}

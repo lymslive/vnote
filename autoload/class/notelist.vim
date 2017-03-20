@@ -2,7 +2,7 @@
 " Author: lymslive
 " Description: notelist manager
 " Create: 2017-02-16
-" Modify: 2017-03-16
+" Modify: 2017-03-20
 
 "LOAD:
 if exists('s:load') && !exists('g:DEBUG')
@@ -187,10 +187,11 @@ function! s:class.RedrawContent(lsContent) dict abort "{{{
 
     " set type for new buffer
     if &filetype !=# 'notelist'
-        set filetype=notelist
-        set buftype=nofile
+        setlocal filetype=notelist
+        setlocal buftype=nofile
         setlocal bufhidden=hide
         setlocal noswapfile
+        setlocal nobuflisted
     endif
 
     setlocal nomodifiable

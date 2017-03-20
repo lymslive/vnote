@@ -1,4 +1,4 @@
-*vnote.txt*		Note Manager in Vim		Last change:2017-03-06
+*vnote.txt*		Notes and Diary Manager in Vim
 
 version 0.51
 Author: lymslive <403708621@qq.com>
@@ -164,7 +164,7 @@ these, several global command are provided that can trigger from any time.
 Most implement script is in "autoload/" subdirectory. The global commands is
 defined in script in "plugin/" subdirectory, buffer local mappings or commands
 is defined in scrip in "ftplugin/" subdirectory. The virtual <Plug> mappings
-are defined in script "plugin/mappings.vim".
+are defined in script "autoload/vnote/remap.vim".
 
 --------------------------------------------------------+---------------------
 4.1 Global Commands					*vnote-command*
