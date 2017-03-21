@@ -2,7 +2,7 @@
 " Author: lymslive
 " Description: manage notebook
 " Create: 2017-02-24
-" Modify: 2017-03-15
+" Modify: 2017-03-22
 
 " import s:jNoteBook from vnote
 let s:jNoteBook = vnote#GetNoteBook()
@@ -149,8 +149,12 @@ function! notebook#hNoteIndex(...) abort "{{{
     return l:iErr
 endfunction "}}}
 
-" NoteImport: copy import a file into notebook
-function! notebook#hNoteImport() abort "{{{
+" NoteImport: import current buffer file into notebook
+" [-p] copy import, also default when no arg
+" [-s] soft link, yyyymmdd_n.md is a link to {%:p}
+" [-S] soft note, title as # !/full/path/to/current/file
+" auto add bookmark in: copyin linkin softin
+function! notebook#hNoteImport(...) abort "{{{
     if note#IsInBook()
         :ELOG 'this file is already in current notebook'
         return 0
@@ -171,5 +175,21 @@ function! notebook#hNoteImport() abort "{{{
         call mkdir(l:pDirectory, 'p')
     endif
 
-    execute 'saveas ' . l:pNoteFile
+    update
+    if a:0 == 0 || empty(a:1) || a:1 =~# '^-\?p'
+        execute 'saveas ' . l:pNoteFile
+        call note#hNoteMark('copyin')
+    elseif a:1 =~# '^-\?s'
+        if executable('ln')
+            call system('ln -s ' . expand('%:p') . ' ' . l:pNoteFile)
+            edit l:pNoteFile
+            call note#hNoteMark('linkin')
+        else
+            :ELOG 'can not make soft link, use copy import: -p'
+        endif
+    elseif a:1 =~# '^-\?S'
+        let l:sTitle = expand('%:p')
+        call notebook#hNoteNew('-T', '!' . l:sTitle)
+        call note#hNoteMark('softin')
+    endif
 endfunction "}}}
