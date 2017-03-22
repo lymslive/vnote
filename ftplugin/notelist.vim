@@ -61,7 +61,9 @@ cnoremap <buffer> <C-x>t <C-R>=note#GetContext()<CR>
 
 " work on NoteList -T mode, feed current tag to :NoteTag
 " waiting <CR> confirm to execute
-nnoremap <buffer> dd :NoteTag -d <C-R>=note#GetContext()<CR>
+" nnoremap <buffer> dd :NoteTag -d <C-R>=note#GetContext()<CR>
 nnoremap <buffer> R  :NoteTag -r <C-R>=note#GetContext()<CR>
+" common delete map
+nmap <buffer> dd <Plug>(VNOTE_list_delete_this)
 
 :PLUGINAFTER

@@ -361,6 +361,30 @@ C			nnoremap <buffer> <expr> C notelist#hRefineArg()
 	Key map when edit command line, copy the tag name or note name under
 	current cursor to command line.
 
+dd 					*<Plug>(VNOTE_list_delete_this)*
+	Delete the note or tag under cursor, behaves differently by list mode:
+	-d: delete one note file, prompt to confirm.
+	-D: delete all notes under the date directory, prompt to confirm.
+	    Only delete note file(s), cannot update tag file and cache, may
+	    leave some invalid entry then.
+	-t: delete one entry from the tag file, silently.
+	    Mainly use to delete invalid entry.
+	-T: Completely delete a tag file, and update the note file(s) having
+	    this tag before. Prompt to confirm.
+	-m: Delete one entry from the bookmark tag file, silently.
+	-M: Delete a bookmark tag file, prompt to confirm.
+	    There is no need to update note file when delete bookmark.
+	 When the delete operation success, refresh the notelist window.
+
+<C-x>R				:NoteTag -r <C-R>=note#GetContext()<CR>
+	Rename a tag file. Only used in "-T" browse mode. All the notes that
+	have the old tag is also update.
+	This map actuallly input |:NoteTag| command with "-r" option, copy the
+	tag name under cursor to command line, wait user input new tag name
+	and <CR> to confirm.
+	Rename, as delete and other operaton on bookmark is relative simple,
+	just use shell command in "{notebook}/m" sub-directory is OK.
+
 --------------------------------------------------------+---------------------
 4.3 Operate on notebuff					*vnote-notebuff*
 

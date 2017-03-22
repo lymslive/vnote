@@ -303,13 +303,17 @@ function! notelist#hManageTag(...) abort "{{{
         return -1
     endif
 
+    let l:sTag = tolower(a:2)
+    if l:sTag =~# '/$'
+        :ELOG 'cannot operate on tag sub-directory'
+        return -1
+    endif
+
     if a:1 ==? '-d'
-        let l:sTag = a:2
         let l:jTag = class#notetag#new(l:sTag)
         return l:jTag.Delete()
 
     elseif a:1 ==? '-r'
-        let l:sTag = a:2
         if a:0 < 3
             :WLOG 'NoteTag -r old-tag new-tag'
             return -1
@@ -319,7 +323,6 @@ function! notelist#hManageTag(...) abort "{{{
         return l:jTag.Rename(l:sNewTag)
 
     elseif a:1 ==? '-m'
-        let l:sTag = a:2
         if a:0 < 3
             :WLOG 'NoteTag -m master-tag slave-tag'
             return -1
@@ -334,7 +337,75 @@ endfunction "}}}
 
 " Delete: handle of delete map
 function! notelist#hDelete(...) abort "{{{
-    " code
+    if !s:CheckBuffer() || !s:CheckEntry()
+        return -1
+    endif
+
+    let l:iErr = 0
+
+    let l:cMode = b:jNoteList.argv[0]
+    if l:cMode ==# '-d'
+        let l:jNoteEntry = class#notename#new(getline('.'))
+        if empty(l:jNoteEntry.string())
+            :ELOG 'note not existed'
+            return -1
+        endif
+        let l:pFileName = l:jNoteEntry.GetFullPath(b:jNoteList.notebook)
+        let l:reply = input("Confirm to delete note file? [yes|no] ")
+        if l:reply !~? '^y'
+            return 0
+        endif
+        let l:iErr = delete(l:pFileName)
+
+    elseif l:cMode ==# '-D'
+        let l:sDatePath = note#GetContext()
+        let l:pDatePath = b:jNoteList.notebook.Notedir(l:sDatePath)
+        let l:reply = input("Confirm to delete all notes? [yes|no] ")
+        if l:reply !~? '^y'
+            return 0
+        endif
+        let l:iErr = delete(l:pDatePath, 'rf')
+
+    elseif l:cMode ==# '-t'
+        let l:sNoteEntry = getline('.')
+        let l:sTag = b:jNoteList.argv[1]
+        let l:jNoteTag = class#notetag#new(l:sTag, b:jNoteList.notebook)
+        let l:iErr = l:jNoteTag.RemoveEntry(l:sNoteEntry)
+
+    elseif l:cMode ==# '-T'
+        let l:sTag = note#GetContext()
+        let l:reply = input("Confirm to delete this tag completely? [yes|no] ")
+        if l:reply !~? '^y'
+            return 0
+        endif
+        let l:iErr = notelist#hManageTag('-d', l:sTag)
+
+    elseif l:cMode ==# '-m'
+        let l:sNoteEntry = getline('.')
+        let l:sTag = b:jNoteList.argv[1]
+        let l:jNoteTag = class#notetag#mark#new(l:sTag, b:jNoteList.notebook)
+        let l:iErr = l:jNoteTag.RemoveEntry(l:sNoteEntry)
+
+    elseif l:cMode ==# '-M'
+        let l:sTag = note#GetContext()
+        if l:sTag ==# 'mru'
+            :ELOG 'can not delet mru bookmark'
+            return -1
+        endif
+        let l:reply = input("Confirm to delete this bookmark completely? [yes|no] ")
+        if l:reply !~? '^y'
+            return 0
+        endif
+        let l:jNoteTag = class#notetag#mark#new(l:sTag, b:jNoteList.notebook)
+        let l:pTagFile = l:jNoteTag.GetTagFile()
+        let l:iErr = delete(l:pTagFile)
+    endif
+
+    if l:iErr == 0
+        let l:iErr = b:jNoteList.RefreshList(b:jNoteList.argv, v:true)
+    endif
+
+    return l:iErr
 endfunction "}}}
 
 " Rename: handle of rename map

@@ -26,7 +26,7 @@ nnoremap <Plug>(VNOTE_list_browse_mark) :call notelist#hNoteList('-M')<CR>
 nnoremap <Plug>(VNOTE_list_pick_tag) :call notelist#hPasteTag()<CR>
 nnoremap <Plug>(VNOTE_list_switch_unite) :Unite notelist<CR>
 nnoremap <Plug>(VNOTE_list_goto_first) :call notelist#hGotoFirstEntry()<CR>
-nnoremap <Plug>(VNOTE_list_delete_entry) :call notelist#hDelete()<CR>
+nnoremap <Plug>(VNOTE_list_delete_this) :call notelist#hDelete()<CR>
 nnoremap <Plug>(VNOTE_list_rename_entry) :call notelist#hRename()<CR>
 
 " recommend local in note buffer (markdown)

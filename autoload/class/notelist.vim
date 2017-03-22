@@ -2,7 +2,7 @@
 " Author: lymslive
 " Description: notelist manager
 " Create: 2017-02-16
-" Modify: 2017-03-20
+" Modify: 2017-03-22
 
 "LOAD:
 if exists('s:load') && !exists('g:DEBUG')
@@ -53,8 +53,9 @@ function! s:class.SetNoteBook(jNoteBook) dict abort "{{{
 endfunction "}}}
 
 " RefreshList: Interface of NoteList command, fresh the notelist
-function! s:class.RefreshList(argv) dict abort "{{{
-    if a:argv ==# self.argv
+" > a:1, force re-list even if argv is the same as last
+function! s:class.RefreshList(argv, ...) dict abort "{{{
+    if a:argv ==# self.argv && empty(get(a:000, 0, v:false))
         return 0
         :LOG 'directly redraw as same argv'
     endif
