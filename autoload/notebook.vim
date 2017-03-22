@@ -169,7 +169,7 @@ function! notebook#hNoteImport(...) abort "{{{
     endif
 
     let l:sDatePath = strftime("%Y/%m/%d")
-    let l:pNoteFile = s:jNoteBook.AllocNewNote(l:sDatePath, l:bPrivate)
+    let l:pNoteFile = s:jNoteBook.AllocNewNote(l:sDatePath, v:false)
     let l:pDirectory = s:jNoteBook.Notedir(l:sDatePath)
     if !isdirectory(l:pDirectory)
         call mkdir(l:pDirectory, 'p')
@@ -181,9 +181,15 @@ function! notebook#hNoteImport(...) abort "{{{
         call note#hNoteMark('copyin')
     elseif a:1 =~# '^-\?s'
         if executable('ln')
-            call system('ln -s ' . expand('%:p') . ' ' . l:pNoteFile)
-            edit l:pNoteFile
-            call note#hNoteMark('linkin')
+            try
+                call system('ln -s ' . expand('%:p') . ' ' . l:pNoteFile)
+                let l:sName = fnamemodify(l:pNoteFile, ':t:r')
+                let l:sTitle = substitute(getline(1), '^\s*#\s*', '', '')
+                let l:jNoteTag = class#notetag#mark#new('linkin')
+                call l:jNoteTag.UpdateEntry(l:sName . "\t" . l:sTitle, 1)
+            catch 
+                :ELOG 'fail to make soft link, use copy import: -p'
+            endtry
         else
             :ELOG 'can not make soft link, use copy import: -p'
         endif

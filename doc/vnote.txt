@@ -241,11 +241,22 @@ are defined in script "autoload/vnote/remap.vim".
 	locally, since when new note saved, update the cache files and 
 	tag files automatically.
 
-:NoteImport						*:NoteImport*
+:NoteImport [-psS]						*:NoteImport*
 	When edit a text file that is not in current notebook, this command
 	will |:saveas| current buffer to the notebook, automatically named as
 	|:NoteNew|. If the extention of current buffer is not ".md" or ".txt"
 	a |input()| promt to confirm import.
+	Support three options that denotes three import types:
+	-p: the default copy-import
+	    add bookmark to {copyin}
+	-s: make new note symbol link to current file, only in unix
+	    add bookmark {linkin}
+	-S: make soft note, with title line "# !/path/to/current/file"
+	    add bookmark to {softin}
+	Soft note is normal note, only with special title, and when cursor on
+	the title line, can use |gf| to open the origin file.
+	|vnote| cannot track the symbol link or soft note when the origin
+	file has been moved or renamed.
 
 :Unite notelist:{-dtm}:{arg}
 	The |:Unite| source "notelist" is available, the argument is the same
@@ -392,6 +403,18 @@ g<C-x>					*<Plug>(VNOTE_edit_prev_note)*
 	Add current notefile to bookmark. If no argument provided, add to the
 	default bookmark named in "m/defualt.tag".
 	The "mru" bookmark name is reserved, and should not use.
+
+:NoteSave [{force}]					*:NoteSave*
+:NoteSave [-yesterday]
+	Update note cache and tag file with current note buffer. There is no
+	need to use this command normally, since the work is done
+	automatically when |:w|. It is useful in the following cases:
+	1. when note title is changed, the note entry in tag file and cache
+	   cannot update. Manually give {force} arugment, which is non-empty
+	   will force to update the existed note entry.
+	2. When create new note just befor zero time, but save the note first
+	   time after zero time, then the auto-cache may have problem. Give
+	   argument [-yesterday] or [-y] force to update cache.
 
 markdown mappings for text~				*markdown-edit*
 
