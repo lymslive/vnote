@@ -308,11 +308,15 @@ but disable on the headline.
 	"NoteList -D yyyy/mm", and further back to ":NoteList -D yyyy".
 	Something alike when list by "-t" and "-T".
 
-<Space> o 				*<Plug>(VNOTE_list_toggle_tagline)*
-	Can only be use in list by "-d" or "-t" mode, that cursor on a
+<Space> o 				*<Plug>(VNOTE_list_smart_space)*
+	When use in list mode by "-[dmt]" argument, and cursor on a
 	note entry. This map will open a line next to current note entry,
 	and show the tags of that note in the line. If a tagline is already
 	show, this map hide it again.
+	When use in browse mode by "-[MT]" argument, and cursor on a tag
+	entry(not tag path), open the tagfile to edit manually. Be careful the
+	format of tagfile, it will also promt first. It is only suggested to
+	delete some note entry, or change the note title.
 
 <Right> <C-a>				*<Plug>(VNOTE_list_next_day)*
 <Left> <C-x>				*<Plug>(VNOTE_list_prev_day)*

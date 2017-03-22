@@ -357,6 +357,50 @@ function! notelist#hGotoFirstEntry() abort "{{{
     endif
 endfunction "}}}
 
+" SmartSpace: 
+" toggle tag line in note list mode
+" edit tag file in browse mode
+function! notelist#hSmartSpace() abort "{{{
+    if !s:CheckBuffer() || !s:CheckEntry()
+        return -1
+    endif
+
+    let l:cMode = b:jNoteList.argv[0]
+    if l:cMode =~# '-[tmda]'
+        return notelist#ToggleTagLine()
+
+    elseif l:cMode =~# '-[TM]'
+        let l:sTag = note#GetContext()
+        if l:sTag =~# '/$'
+            :WLOG 'use <CR> to entry sub tag'
+            return 0
+        endif
+
+        let l:reply = input("Really edit tag file manually? [yes|no] ")
+        if l:reply !~? '^y'
+            return 0
+        endif
+
+        if l:cMode =~# '-T'
+            let l:jNoteTag = class#notetag#new(l:sTag, b:jNoteList.notebook)
+        elseif l:cMode =~# '-M'
+            let l:jNoteTag = class#notetag#mark#new(l:sTag, b:jNoteList.notebook)
+        endif
+
+        if !empty(l:jNoteTag)
+            let l:pTagFile = l:jNoteTag.GetTagFile()
+            if !empty(l:pTagFile)
+                execute 'edit ' . l:pTagFile
+                :WLOG 'Caution: eidt a tag file'
+            endif
+        endif
+
+        return 0
+    else
+        :ELOG 'can not support <Space> key map in this notelist mode'
+        return -1
+    endif
+endfunction "}}}
 " Load: call this function to triggle load this script
 function! notelist#Load() "{{{
     return 1

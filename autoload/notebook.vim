@@ -162,7 +162,7 @@ function! notebook#hNoteImport(...) abort "{{{
 
     let l:extention = expand('%:p:t:e')
     if l:extention !~? 'md\|txt'
-        let l:reply = input('the file seems not text file, really import as a note?\n[yes|no] ', 'n')
+        let l:reply = input("the file seems not text file, really import as a note?\n[yes|no] ", 'n')
         if l:reply !~? '^y'
             return 0
         endif

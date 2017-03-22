@@ -2,7 +2,7 @@
 " Author: lymslive
 " Description: plug remap of vnote
 " Create: 2017-03-20
-" Modify: 2017-03-20
+" Modify: 2017-03-22
 
 " to use thes mappings, use nmap not nnoremap
 nnoremap <Plug>(VNOTE_book_new_note) :call notebook#hNoteNew()
@@ -18,6 +18,7 @@ nnoremap <Plug>(VNOTE_list_next_month) :call notelist#NextMonth(1)<CR>
 nnoremap <Plug>(VNOTE_list_prev_month) :call notelist#NextMonth(-1)<CR>
 nnoremap <Plug>(VNOTE_list_smart_jump) :call notelist#hSmartJump()<CR>
 nnoremap <Plug>(VNOTE_list_smart_tab) :call notelist#hSmartTab()<CR>
+nnoremap <Plug>(VNOTE_list_smart_space) :call notelist#hSmartSpace()<CR>
 nnoremap <Plug>(VNOTE_list_back_list) :call notelist#hBackList()<CR>
 nnoremap <Plug>(VNOTE_list_browse_tag) :call notelist#hNoteList('-T')<CR>
 nnoremap <Plug>(VNOTE_list_browse_date) :call notelist#hNoteList('-D')<CR>

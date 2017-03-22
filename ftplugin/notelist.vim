@@ -20,8 +20,9 @@ nmap <buffer> a <Plug>(VNOTE_list_back_list)
 " NoteList default list each note entry containing
 " file name without extention and note title(first line)
 " this map open a line to show tags of the note under cursor
-nmap <buffer> <Space> <Plug>(VNOTE_list_toggle_tagline)
-nmap <buffer> o <Plug>(VNOTE_list_toggle_tagline)
+" when browse tag mode, directlly edit the tag file
+nmap <buffer> <Space> <Plug>(VNOTE_list_smart_space)
+nmap <buffer> o <Plug>(VNOTE_list_smart_space)
 
 " these map only used when NoteList by date
 nmap <buffer> <C-a> <Plug>(VNOTE_list_next_day)
