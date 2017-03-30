@@ -4,13 +4,13 @@
 A __chinese version__ readme is also availabe
 ([一份中文的说明文档也是可利用的](readme-zh.md)).
 
-- [Introduction](#Introduction)
-- [Install](#Install)
- - [Minimum Requirment:](#Minimum Requirment:)
- - [Dependent:](#Dependent:)
- - [Manually Install:](#Manually Install:)
- - [Install by plugin manage tools](#Install by plugin manage tools)
-- [Fast Usage](#Fast Usage)
+- [Introduction](#introduction)
+- [Install](#install)
+ - [Minimum Requirment](#minimum-requirment)
+ - [Dependent](#dependent)
+ - [Manually Install](#manually-install)
+ - [Install by plugin manage tools](#install-by-plugin-manage-tools)
+- [Fast Usage](#fast-usage)
 
 ## Introduction
 
@@ -20,15 +20,15 @@ A __chinese version__ readme is also availabe
 
 ## Install
 
-### Minimum Requirment:
+### Minimum Requirment
 * OS: linux (windows not test now)
 * vim version: 7.4
 * Unite.vim plugin: (optional)
 
-### Dependent:
+### Dependent
 * vimloo: https://github.com/lymslive/vimloo
 
-### Manually Install:
+### Manually Install
 
 ```
 $ git clone https://github.com/lymslive/vimloo.git
