@@ -4,6 +4,14 @@
 A __chinese version__ readme is also availabe
 ([一份中文的说明文档也是可利用的](readme-zh.md)).
 
+- [Introduction](#Introduction)
+- [Install](#Install)
+ - [Minimum Requirment:](#Minimum Requirment:)
+ - [Dependent:](#Dependent:)
+ - [Manually Install:](#Manually Install:)
+ - [Install by plugin manage tools](#Install by plugin manage tools)
+- [Fast Usage](#Fast Usage)
+
 ## Introduction
 
 * note is a markdown plain text file. while note public, diary private.
