@@ -2,7 +2,7 @@
 " Author: lymslive
 " Description: VimL class frame
 " Create: 2017-03-11
-" Modify: 2017-03-14
+" Modify: 2017-03-31
 
 "LOAD:
 if exists('s:load') && !exists('g:DEBUG')
@@ -41,17 +41,16 @@ function! class#notecache#new(...) abort "{{{
 endfunction "}}}
 
 " CTOR:
-function! class#notecache#ctor(this, argv) abort "{{{
-    let l:iArgc = len(a:argv)
-    if l:iArgc < 1
+function! class#notecache#ctor(this, ...) abort "{{{
+    if a:0 < 1
         :ELOG 'class#notecache expect a dirctory path'
         return -1
     else
-        let a:this.path = a:argv[0]
+        let a:this.path = a:1
     endif
 
-    if l:iArgc >= 2
-        let a:this.cname = a:argv[1]
+    if a:0 >= 2
+        let a:this.cname = a:2
     endif
 endfunction "}}}
 

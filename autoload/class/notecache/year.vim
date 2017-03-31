@@ -2,7 +2,7 @@
 " Author: lymslive
 " Description: VimL class frame
 " Create: 2017-03-11
-" Modify: 2017-03-12
+" Modify: 2017-03-31
 
 "LOAD:
 if exists('s:load') && !exists('g:DEBUG')
@@ -26,14 +26,16 @@ endfunction "}}}
 " NEW:
 function! class#notecache#year#new(...) abort "{{{
     let l:obj = copy(s:class)
-    call l:obj._new_(a:000)
+    call l:obj._new_(a:000, 1)
     return l:obj
 endfunction "}}}
 
 " CTOR:
-function! class#notecache#year#ctor(this, argv) abort "{{{
+function! class#notecache#year#ctor(this, ...) abort "{{{
     let l:Suctor = s:class._suctor_()
-    call l:Suctor(a:this, a:argv)
+    let l:path = get(a:000, 0, '')
+    let l:cname = get(a:000, 1, s:class.cname)
+    call l:Suctor(a:this, l:path, l:cname)
 endfunction "}}}
 
 " ISOBJECT:
