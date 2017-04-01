@@ -20,7 +20,7 @@ let s:class._version_ = 1
 " marked saved tag
 let s:class.tagsave = {}
 " mark saved cache
-let s:class.chesave = v:false
+let s:class.chesave = class#FALSE
 let s:class.forcesave = ''
 
 function! class#notebuff#class() abort "{{{
@@ -44,7 +44,7 @@ function! class#notebuff#ctor(this, argv) abort "{{{
         call l:Suctor(a:this, [l:pFileName])
     endif
     let a:this.tagsave = {}
-    let a:this.chesave = v:false
+    let a:this.chesave = class#FALSE
     let a:this.forcesave = ''
 endfunction "}}}
 
@@ -63,7 +63,7 @@ endfunction "}}}
 function! s:class.SaveNote(...) dict abort "{{{
     if a:0 > 0 && !empty(a:1)
         let self.tagsave = {}
-        let self.chesave = v:false
+        let self.chesave = class#FALSE
         let self.forcesave = a:1
     endif
 
@@ -97,7 +97,7 @@ function! s:class.UpdateCache() dict abort "{{{
     let l:sNoteEntry = self.GetNoteEntry()
     let l:iErr = self.notebook.SaveCache(l:sNoteEntry)
     if 0 == l:iErr
-        let self.chesave = v:true
+        let self.chesave = class#TRUE
     endif
     return l:iErr
 endfunction "}}}
@@ -107,9 +107,9 @@ function! s:class.IsTodayNote() dict abort "{{{
     let l:sNoteName = self.GetNoteName()
     let l:sToday = strftime('%Y%m%d')
     if l:sNoteName =~# '^' . l:sToday
-        return v:true
+        return class#TRUE
     else
-        return v:false
+        return class#FALSE
     endif
 endfunction "}}}
 
@@ -166,7 +166,7 @@ function! s:class.UpdateOneTag(sTag) dict abort "{{{
     let l:iRet = l:jNoteTag.UpdateEntry(l:sNoteEntry, self.forcesave)
     if l:iRet == 0
         :DLOG 'update tag file: ' . l:sTag
-        let self.tagsave[l:sTag] = v:true
+        let self.tagsave[l:sTag] = class#TRUE
     else
         :DLOG 'fail to update tag file: ' . l:sTag
     endif

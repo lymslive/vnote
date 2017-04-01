@@ -175,7 +175,7 @@ function! s:class.AllocNewNote(sDatePath, ...) dict abort "{{{
     if a:0 > 0
         let l:bPrivate = a:1
     else
-        let l:bPrivate = v:false
+        let l:bPrivate = class#FALSE
     endif
     return self.Notefile(a:sDatePath, l:iCount, l:bPrivate)
 endfunction "}}}

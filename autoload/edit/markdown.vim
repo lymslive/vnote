@@ -52,11 +52,11 @@ function! edit#markdown#hTodo(...) abort "{{{
     endif
 
     if l:sLine =~ s:pattern.empty_ulist
-        let l:bReplace = v:true
+        let l:bReplace = class#TRUE
         call setline('.', l:sInsert)
         normal! $
     else
-        let l:bReplace = v:false
+        let l:bReplace = class#FALSE
         call append('.', l:sInsert)
         normal! j$
     endif

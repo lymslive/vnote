@@ -55,7 +55,7 @@ endfunction "}}}
 " RefreshList: Interface of NoteList command, fresh the notelist
 " > a:1, force re-list even if argv is the same as last
 function! s:class.RefreshList(argv, ...) dict abort "{{{
-    if a:argv ==# self.argv && empty(get(a:000, 0, v:false))
+    if a:argv ==# self.argv && empty(get(a:000, 0, class#FALSE))
         return 0
         :LOG 'directly redraw as same argv'
     endif

@@ -402,7 +402,7 @@ function! notelist#hDelete(...) abort "{{{
     endif
 
     if l:iErr == 0
-        let l:iErr = b:jNoteList.RefreshList(b:jNoteList.argv, v:true)
+        let l:iErr = b:jNoteList.RefreshList(b:jNoteList.argv, 1)
     endif
 
     return l:iErr

@@ -93,21 +93,21 @@ endfunction "}}}
 "   are string, the first entry is ok
 function! s:class.NeedPush(sIncome, sCache) dict abort "{{{
     if empty(a:sCache)
-        return v:false
+        return class#FALSE
     endif
 
     if len(a:sCache) < 8 || len(a:sIncome) < 8
         :ELOG 'seems invalid cache entry?'
-        return v:false
+        return class#FALSE
     endif
 
     let l:sIncome = strpart(a:sIncome, 0, self.leadkey)
     let l:sCache = strpart(a:sCache, 0, self.leadkey)
 
     if l:sIncome ==# l:sCache
-        return v:false
+        return class#FALSE
     else
-        return v:true
+        return class#TRUE
     endif
 endfunction "}}}
 

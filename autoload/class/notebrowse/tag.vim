@@ -93,10 +93,10 @@ function! s:class.TransferScope() dict abort "{{{
         let l:rtp = module#less#rtp#import()
         let l:pTagFile = self.tagdir . l:rtp.separator . self.taglead . '.tag'
         if filereadable(l:pTagFile)
-            return v:true
+            return class#TRUE
         endif
     endif
-    return v:false
+    return class#FALSE
 endfunction "}}}
 
 " LOAD:
