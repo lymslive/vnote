@@ -25,7 +25,7 @@ let s:class._version_ = 1
 let s:class.filename = ''
 let s:class.dateInt = 0
 let s:class.noteNo = 0
-let s:class.private = class#FALSE
+let s:class.private = g:class#FALSE
 
 function! class#notename#class() abort "{{{
     return s:class
@@ -60,9 +60,9 @@ function! s:class.ParseName(filename) dict abort "{{{
     let self.dateInt = l:lsMatch[1]
     let self.noteNo = l:lsMatch[2]
     if empty(l:lsMatch[3])
-        let self.private = class#FALSE
+        let self.private = g:class#FALSE
     else
-        let self.private = class#TRUE
+        let self.private = g:class#TRUE
     endif
 
 endfunction "}}}

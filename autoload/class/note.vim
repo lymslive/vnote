@@ -69,9 +69,9 @@ endfunction "}}}
 function! s:class.IsinBook(...) dict abort "{{{
     let l:jNoteBook = a:0 > 0 ? a:1 : self.notebook
     if match(self.path, '^' . l:jNoteBook.Datedir()) != -1
-        return class#TRUE
+        return g:class#TRUE
     else
-        return class#FALSE
+        return g:class#FALSE
     endif
 endfunction "}}}
 
@@ -118,7 +118,7 @@ endfunction "}}}
 function! s:class.GetTagLine_(lsLine) dict abort "{{{
     let l:lsTagLine = []
 
-    let l:bTagOn = class#FALSE
+    let l:bTagOn = g:class#FALSE
     for l:sLine in a:lsLine
         if strlen(l:sLine) < 3
             continue
@@ -126,7 +126,7 @@ function! s:class.GetTagLine_(lsLine) dict abort "{{{
 
         if l:sLine[0] == '`' && l:sLine[1] != '`'
             if !l:bTagOn
-                let l:bTagOn = class#TRUE
+                let l:bTagOn = g:class#TRUE
             endif
             call add(l:lsTagLine, l:sLine)
         else
@@ -150,11 +150,11 @@ endfunction "}}}
 function! s:class.GetTagList_(lsLine) dict abort "{{{
     let l:lsTag = []
 
-    let l:bTagOn = class#FALSE
+    let l:bTagOn = g:class#FALSE
     for l:sLine in a:lsLine
         if match(l:sLine, '^\s*`') != -1
             if !l:bTagOn
-                let b:TagOn = class#TRUE
+                let b:TagOn = g:class#TRUE
             endif 
             let l:lsTmp = self.FindTags_(l:sLine)
             if !empty(l:lsTmp)
@@ -212,7 +212,7 @@ function! s:class.LocateTagLine_() dict abort "{{{
     let l:lsLine = self.GetHeadLine(get(s:config, 'note_file_head_line', s:HEADLINE))
     let l:lsTagLine = []
 
-    let l:bTagOn = class#FALSE
+    let l:bTagOn = g:class#FALSE
     let l:iLine = -1
     for l:sLine in l:lsLine
         let l:iLine += 1
@@ -223,7 +223,7 @@ function! s:class.LocateTagLine_() dict abort "{{{
 
         if l:sLine[0] == '`' && l:sLine[1] != '`'
             if !l:bTagOn
-                let l:bTagOn = class#TRUE
+                let l:bTagOn = g:class#TRUE
             endif
             let l:dEntry = {'line_no': l:iLine, 'line_str': l:sLine}
             call add(l:lsTagLine, l:dEntry)

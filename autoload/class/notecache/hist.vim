@@ -46,7 +46,7 @@ endfunction "}}}
 
 " never need push up any more in the uppest level
 function! s:class.NeedPush(sIncome, sCache) dict abort "{{{
-    return class#FALSE
+    return g:class#FALSE
 endfunction "}}}
 function! s:class.PushCache() dict abort "{{{
     return 0

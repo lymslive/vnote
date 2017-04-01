@@ -62,9 +62,9 @@ endfunction "}}}
 " TransferScope: 
 function! s:class.TransferScope() dict abort "{{{
     if self.daylead =~# self.notebook.pattern.datePath
-        return class#TRUE
+        return g:class#TRUE
     endif
-    return class#FALSE
+    return g:class#FALSE
 endfunction "}}}
 
 " LOAD:

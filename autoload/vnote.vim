@@ -16,10 +16,10 @@ let s:dConfig.note_file_head_line = 10
 let s:dConfig.note_file_max_tags = 5
 
 " for public and private tag label
-let s:dConfig.auto_add_minus_tag = class#TRUE
-let s:dConfig.auto_add_plus_tag = class#TRUE
-let s:dConfig.auto_save_minus_tag = class#FALSE
-let s:dConfig.auto_save_plus_tag = class#FALSE
+let s:dConfig.auto_add_minus_tag = g:class#TRUE
+let s:dConfig.auto_add_plus_tag = g:class#TRUE
+let s:dConfig.auto_save_minus_tag = g:class#FALSE
+let s:dConfig.auto_save_plus_tag = g:class#FALSE
 
 " put cursor in which entry default: 1, 2, .. '$'
 let s:dConfig.list_default_cursor = '$'
