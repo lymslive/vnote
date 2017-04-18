@@ -66,4 +66,8 @@ nnoremap <buffer> R  :NoteTag -r <C-R>=note#GetContext()<CR>
 " common delete map
 nmap <buffer> dd <Plug>(VNOTE_list_delete_this)
 
+" work on NoteList -t|-T mode
+nmap <buffer> n <Plug>(VNOTE_list_new_note_with_tag)
+nmap <buffer> N <Plug>(VNOTE_list_new_dairy_with_tag)
+
 :PLUGINAFTER

@@ -2,7 +2,7 @@
 " Author: lymslive
 " Description: plug remap of vnote
 " Create: 2017-03-20
-" Modify: 2017-03-22
+" Modify: 2017-04-18
 
 " to use thes mappings, use nmap not nnoremap
 nnoremap <Plug>(VNOTE_book_new_note) :call notebook#hNoteNew()
@@ -28,6 +28,8 @@ nnoremap <Plug>(VNOTE_list_switch_unite) :Unite notelist<CR>
 nnoremap <Plug>(VNOTE_list_goto_first) :call notelist#hGotoFirstEntry()<CR>
 nnoremap <Plug>(VNOTE_list_delete_this) :call notelist#hDelete()<CR>
 nnoremap <Plug>(VNOTE_list_rename_entry) :call notelist#hRename()<CR>
+nnoremap <Plug>(VNOTE_list_new_note_with_tag) :call notelist#NewNoteWithTag()<CR>
+nnoremap <Plug>(VNOTE_list_new_dairy_with_tag) :call notelist#NewNoteWithTag(1)<CR>
 
 " recommend local in note buffer (markdown)
 nnoremap <Plug>(VNOTE_edit_next_note) :call note#EditNext(1)<CR>

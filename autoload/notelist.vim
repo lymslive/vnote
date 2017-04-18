@@ -472,6 +472,42 @@ function! notelist#hSmartSpace() abort "{{{
         return -1
     endif
 endfunction "}}}
+
+" NewNoteWithTag: create a new note with tag under corsor
+" > a:1 > private note or note, default public
+function! notelist#NewNoteWithTag(...) abort "{{{
+    if !s:CheckBuffer()
+        return -1
+    endif
+
+    let l:sTag = ''
+    let l:cMode = b:jNoteList.argv[0]
+    if l:cMode ==# '-t'
+        let l:sTag = b:jNoteList.argv[1]
+    elseif l:cMode ==# '-T'
+        if !s:CheckEntry()
+            return -1
+        endif
+        let l:sTag = note#GetContext()
+    else
+        :WLOG 'can only use in tag list mode -t|-T'
+        return -1
+    endif
+
+    if empty(l:sTag)
+        return -1
+    endif
+
+    let l:bPrivate = get(a:000, 0, 0)
+    if l:bPrivate || !empty(l:bPrivate)
+        call notebook#hNoteNew('-', '-t',  l:sTag)
+    else
+        call notebook#hNoteNew('-t',  l:sTag)
+    endif
+
+    return 0
+endfunction "}}}
+
 " Load: call this function to triggle load this script
 function! notelist#Load() "{{{
     return 1
