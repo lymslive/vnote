@@ -2,7 +2,7 @@
 " Author: lymslive
 " Description: notelist manager
 " Create: 2017-02-16
-" Modify: 2017-03-22
+" Modify: 2017-08-04
 
 "LOAD:
 if exists('s:load') && !exists('g:DEBUG')
@@ -26,15 +26,14 @@ endfunction "}}}
 
 " NEW:
 function! class#notelist#new(...) abort "{{{
-    let l:obj = copy(s:class)
-    call l:obj._new_(a:000)
+    let l:obj = class#new(s:class, a:000)
     return l:obj
 endfunction "}}}
 
 " CTOR:
-function! class#notelist#ctor(this, argv) abort "{{{
-    if len(a:argv) > 0
-        call a:this.SetNoteBook(a:argv[0])
+function! class#notelist#ctor(this, ...) abort "{{{
+    if a:0 > 0
+        call a:this.SetNoteBook(a:1)
     else
         echoerr 'expect a class#notebook to construct a class#notelist object'
     endif

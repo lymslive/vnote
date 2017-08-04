@@ -2,7 +2,7 @@
 " Author: lymslive
 " Description: notebook manager
 " Create: 2017-02-16
-" Modify: 2017-03-19
+" Modify: 2017-08-04
 
 "LOAD:
 if exists('s:load') && !exists('g:DEBUG')
@@ -42,21 +42,20 @@ endfunction "}}}
 
 " NEW:
 function! class#notebook#new(...) abort "{{{
-    let l:obj = copy(s:class)
-    call l:obj._new_(a:000)
+    let l:obj = class#new(s:class, a:000)
     return l:obj
 endfunction "}}}
 
 " CTOR:
-function! class#notebook#ctor(this, argv) abort "{{{
-    if len(a:argv) > 0
-        call a:this.SetBasedir(a:argv[0])
+function! class#notebook#ctor(this, ...) abort "{{{
+    if a:0 > 0
+        call a:this.SetBasedir(a:1)
     endif
 endfunction "}}}
 
 " ISOBJECT:
 function! class#notebook#isobject(that) abort "{{{
-    return s:class._isobject_(a:that)
+    return class#isobject(s:class, a:that)
 endfunction "}}}
 
 " Directory Struct: {{{1

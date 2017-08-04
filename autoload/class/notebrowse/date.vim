@@ -2,7 +2,7 @@
 " Author: lymslive
 " Description: VimL class frame
 " Create: 2017-03-16
-" Modify: 2017-03-16
+" Modify: 2017-08-04
 
 "LOAD:
 if exists('s:load') && !exists('g:DEBUG')
@@ -23,24 +23,23 @@ endfunction "}}}
 
 " NEW: argv = [notebook, daylead]
 function! class#notebrowse#date#new(...) abort "{{{
-    let l:obj = copy(s:class)
-    call l:obj._new_(a:000)
+    let l:obj = class#new(s:class, a:000)
     return l:obj
 endfunction "}}}
 " CTOR:
-function! class#notebrowse#date#ctor(this, argv) abort "{{{
-    if len(a:argv) < 2
+function! class#notebrowse#date#ctor(this, ...) abort "{{{
+    if a:0 < 2
         :ELOG 'class#notebrowse#date#new(notebook, daylead)'
         return -1
     endif
-    let l:Suctor = s:class._suctor_()
-    call l:Suctor(a:this, [a:argv[0]])
-    let a:this.daylead = a:argv[1]
+    let l:Suctor = class#Suctor(s:class)
+    call l:Suctor(a:this, a:1)
+    let a:this.daylead = a:2
 endfunction "}}}
 
 " ISOBJECT:
 function! class#notebrowse#date#isobject(that) abort "{{{
-    return s:class._isobject_(a:that)
+    return class#isobject(s:class, a:that)
 endfunction "}}}
 
 " list: 

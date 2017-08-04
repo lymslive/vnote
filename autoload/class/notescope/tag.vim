@@ -2,7 +2,7 @@
 " Author: lymslive
 " Description: note with a specific tag, directly read tag file
 " Create: 2017-03-16
-" Modify: 2017-03-16
+" Modify: 2017-08-04
 
 "LOAD:
 if exists('s:load') && !exists('g:DEBUG')
@@ -23,28 +23,27 @@ endfunction "}}}
 
 " NEW:
 function! class#notescope#tag#new(...) abort "{{{
-    let l:obj = copy(s:class)
-    call l:obj._new_(a:000)
+    let l:obj = class#new(s:class, a:000)
     return l:obj
 endfunction "}}}
 
 " CTOR:
-function! class#notescope#tag#ctor(this, argv) abort "{{{
-    if len(a:argv) < 3
+function! class#notescope#tag#ctor(this, ...) abort "{{{
+    if a:0 < 3
         :ELOG 'class#notescope#tag expect (notebook, tagdir, tagname)'
         return -1
     endif
 
-    let l:Suctor = s:class._suctor_()
-    call l:Suctor(a:this, [a:argv[0]])
+    let l:Suctor = class#Suctor(s:class)
+    call l:Suctor(a:this, a:1)
 
-    let a:this.tagdir = a:argv[1]
-    let a:this.tagname = a:argv[2]
+    let a:this.tagdir = a:2
+    let a:this.tagname = a:3
 endfunction "}}}
 
 " ISOBJECT:
 function! class#notescope#tag#isobject(that) abort "{{{
-    return s:class._isobject_(a:that)
+    return class#isobject(s:class, a:that)
 endfunction "}}}
 
 " GetTagFile: 

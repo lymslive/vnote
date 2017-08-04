@@ -2,7 +2,7 @@
 " Author: lymslive
 " Description: browse the directory that contains note
 " Create: 2017-03-16
-" Modify: 2017-03-16
+" Modify: 2017-08-04
 
 "LOAD:
 if exists('s:load') && !exists('g:DEBUG')
@@ -21,34 +21,32 @@ endfunction "}}}
 
 " NEW: argv = [notebook]
 function! class#notebrowse#new(...) abort "{{{
-    let l:obj = copy(s:class)
-    call l:obj._new_(a:000)
+    let l:obj = class#new(s:class, a:000)
     return l:obj
 endfunction "}}}
 " CTOR:
-function! class#notebrowse#ctor(this, argv) abort "{{{
-    if len(a:argv) < 1
+function! class#notebrowse#ctor(this, ...) abort "{{{
+    if a:0 < 1
         :ELOG 'class#notebrowse expect a notebook object'
         return -1
-    elseif !class#notebook#isobject(a:argv[0])
+    elseif !class#notebook#isobject(a:1)
         :ELOG 'class#notebrowse expect a notebook object'
         return -1
     else
-        let a:this.notebook = a:argv[0]
+        let a:this.notebook = a:1
         return 0
     endif
 endfunction "}}}
 
 " OLD:
 function! class#notebrowse#old() abort "{{{
-    let l:class = copy(s:class)
-    call l:class._old_()
+    let l:class = class#old(s:class)
     return l:class
 endfunction "}}}
 
 " ISOBJECT:
 function! class#notebrowse#isobject(that) abort "{{{
-    return s:class._isobject_(a:that)
+    return class#isobject(s:class, a:that)
 endfunction "}}}
 
 " list: 

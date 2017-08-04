@@ -2,7 +2,7 @@
 " Author: lymslive
 " Description: a note file with RW support, not load in buffer
 " Create: 2017-03-08
-" Modify: 2017-03-11
+" Modify: 2017-08-04
 
 "LOAD:
 if exists('s:load') && !exists('g:DEBUG')
@@ -23,22 +23,22 @@ endfunction "}}}
 
 " NEW:
 function! class#notefile#new(...) abort "{{{
-    let l:obj = copy(s:class)
-    call l:obj._new_(a:000)
+    let l:obj = class#new(s:class, a:000)
     return l:obj
 endfunction "}}}
 
 " CTOR:
-function! class#notefile#ctor(this, argv) abort "{{{
-    let l:Suctor = s:class._suctor_()
+function! class#notefile#ctor(this, ...) abort "{{{
+    let l:Suctor = class#Suctor(s:class)
     call l:Suctor(a:this, a:argv)
+    call call(l:Suctor, extend([a:this], a:000))
 
     call a:this.LoadFile()
 endfunction "}}}
 
 " ISOBJECT:
 function! class#notefile#isobject(that) abort "{{{
-    return s:class._isobject_(a:that)
+    return class#isobject(s:class, a:that)
 endfunction "}}}
 
 " GetHeadLine: 

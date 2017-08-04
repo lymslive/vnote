@@ -2,7 +2,7 @@
 " Author: lymslive
 " Description: denotes a tagfile of notebook
 " Create: 2017-03-08
-" Modify: 2017-03-15
+" Modify: 2017-08-04
 
 "LOAD:
 if exists('s:load') && !exists('g:DEBUG')
@@ -29,25 +29,22 @@ endfunction "}}}
 
 " NEW:
 function! class#notetag#new(...) abort "{{{
-    let l:obj = copy(s:class)
-    call l:obj._new_(a:000)
+    let l:obj = class#new(s:class, a:000)
     return l:obj
 endfunction "}}}
 
-" CTOR: a:argv = [tag, notebook]
-function! class#notetag#ctor(this, argv) abort "{{{
-    let l:argc = len(a:argv)
-
-    if l:argc < 1
+" CTOR: (tag, notebook)
+function! class#notetag#ctor(this, ...) abort "{{{
+    if a:0 < 1
         :ELOG 'expect a tagname'
         return -1
     endif
-    let a:this.tag = a:argv[0]
+    let a:this.tag = a:1
 
-    if l:argc < 2
+    if a:0 < 2
         let a:this.notebook = s:NOTEBOOK
     else
-        let a:this.notebook = a:argv[1]
+        let a:this.notebook = a:2
     endif
 
     return 0
@@ -55,13 +52,12 @@ endfunction "}}}
 
 " ISOBJECT:
 function! class#notetag#isobject(that) abort "{{{
-    return s:class._isobject_(a:that)
+    return class#isobject(s:class, a:that)
 endfunction "}}}
 
 " OLD:
 function! class#notetag#old() abort "{{{
-    let l:class = copy(s:class)
-    call l:class._old_()
+    let l:class = class#old(s:class)
     return l:class
 endfunction "}}}
 

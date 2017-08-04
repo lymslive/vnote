@@ -2,7 +2,7 @@
 " Author: lymslive
 " Description: a struct for parts of note filename
 " Create: 2017-02-17
-" Modify: 2017-03-15
+" Modify: 2017-08-04
 
 "LOAD:
 if exists('s:load') && !exists('g:DEBUG')
@@ -33,15 +33,14 @@ endfunction "}}}
 
 " NEW:
 function! class#notename#new(...) abort "{{{
-    let l:obj = copy(s:class)
-    call l:obj._new_(a:000)
+    let l:obj = class#new(s:class, a:000)
     return l:obj
 endfunction "}}}
 
 " CTOR:
-function! class#notename#ctor(this, argv) abort "{{{
-    if len(a:argv) > 0 && !empty(a:argv[0])
-        call a:this.ParseName(a:argv[0])
+function! class#notename#ctor(this, ...) abort "{{{
+    if a:0 > 0 && !empty(a:1)
+        call a:this.ParseName(a:1)
     else
         echoerr 'fails to construct class#notename'
     endif
@@ -120,7 +119,7 @@ endfunction "}}}
 
 " ISOBJECT:
 function! class#notename#isobject(that) abort "{{{
-    return s:class._isobject_(a:that)
+    return class#isobject(s:class, a:that)
 endfunction "}}}
 
 " LOAD:

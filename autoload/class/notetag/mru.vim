@@ -2,7 +2,7 @@
 " Author: lymslive
 " Description: VimL class frame
 " Create: 2017-03-14
-" Modify: 2017-03-15
+" Modify: 2017-08-04
 
 "LOAD:
 if exists('s:load') && !exists('g:DEBUG')
@@ -22,17 +22,16 @@ endfunction "}}}
 
 " NEW:
 function! class#notetag#mru#new(...) abort "{{{
-    let l:obj = copy(s:class)
-    call l:obj._new_(a:000)
+    let l:obj = class#new(s:class, a:000)
     return l:obj
 endfunction "}}}
 
 " CTOR: argv = [capacity] auto load mru.tag if readable
-function! class#notetag#mru#ctor(this, argv) abort "{{{
-    let l:Suctor = s:class._suctor_()
-    call l:Suctor(a:this, ['mru'])
+function! class#notetag#mru#ctor(this, ...) abort "{{{
+    let l:Suctor = class#Suctor(s:class)
+    call l:Suctor(a:this, 'mru')
 
-    let l:iCapacity = get(a:argv, 0, 10)
+    let l:iCapacity = get(a:000, 0, 10)
     let a:this.queue = class#requeue#new(l:iCapacity)
 
     let l:pTagFile = a:this.GetTagFile()
@@ -43,7 +42,7 @@ endfunction "}}}
 
 " ISOBJECT:
 function! class#notetag#mru#isobject(that) abort "{{{
-    return s:class._isobject_(a:that)
+    return class#isobject(s:class, a:that)
 endfunction "}}}
 
 " GetTagFile: 

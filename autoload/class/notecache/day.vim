@@ -2,7 +2,7 @@
 " Author: lymslive
 " Description: VimL class frame
 " Create: 2017-03-11
-" Modify: 2017-03-31
+" Modify: 2017-08-04
 
 "LOAD:
 if exists('s:load') && !exists('g:DEBUG')
@@ -25,14 +25,13 @@ endfunction "}}}
 
 " NEW:
 function! class#notecache#day#new(...) abort "{{{
-    let l:obj = copy(s:class)
-    call l:obj._new_(a:000, 1)
+    let l:obj = class#new(s:class, a:000)
     return l:obj
 endfunction "}}}
 
 " CTOR:
 function! class#notecache#day#ctor(this, ...) abort "{{{
-    let l:Suctor = s:class._suctor_()
+    let l:Suctor = class#Suctor(s:class)
     let l:path = get(a:000, 0, '')
     let l:cname = get(a:000, 1, s:class.cname)
     call l:Suctor(a:this, l:path, l:cname)
@@ -40,7 +39,7 @@ endfunction "}}}
 
 " ISOBJECT:
 function! class#notecache#day#isobject(that) abort "{{{
-    return s:class._isobject_(a:that)
+    return class#isobject(s:class, a:that)
 endfunction "}}}
 
 " Write: day.che need check repeated entry

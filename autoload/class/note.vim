@@ -2,7 +2,7 @@
 " Author: lymslive
 " Description: a class that represent a note file
 " Create: 2017-02-17
-" Modify: 2017-03-15
+" Modify: 2017-08-04
 
 "LOAD:
 if exists('s:load') && !exists('g:DEBUG')
@@ -30,21 +30,20 @@ endfunction "}}}
 
 " NEW:
 function! class#note#new(...) abort "{{{
-    let l:obj = copy(s:class)
-    call l:obj._new_(a:000)
+    let l:obj = class#new(s:class, a:000)
     return l:obj
 endfunction "}}}
 
 " CTOR:
-function! class#note#ctor(this, argv) abort "{{{
-    if len(a:argv) > 0 && !empty(a:argv[0])
-        let a:this.path = a:argv[0]
+function! class#note#ctor(this, ...) abort "{{{
+    if a:0 > 0 && !empty(a:1)
+        let a:this.path = a:1
     else
-        echoerr 'class#note expect a note file path to construct objcet'
+        echoerr '[class#note] expect a note file path to construct objcet'
     endif
 
-    if len(a:argv) > 1 && class#notebook#isobject(a:argv[1])
-        let a:this.notebook = a:argv[1]
+    if a:0 > 1 && class#notebook#isobject(a:2)
+        let a:this.notebook = a:2
         if !a:this.IsinBook()
             :ELOG 'this note is not in this notebook?'
         endif
@@ -55,14 +54,13 @@ endfunction "}}}
 
 " OLD:
 function! class#note#old() abort "{{{
-    let l:class = copy(s:class)
-    call l:class._old_()
+    let l:class = class#old(s:class)
     return l:class
 endfunction "}}}
 
 " ISOBJECT:
 function! class#note#isobject(that) abort "{{{
-    return s:class._isobject_(a:that)
+    return class#isobject(s:class, a:that)
 endfunction "}}}
 
 " IsinBook: check if this note file is in a notebook directory
