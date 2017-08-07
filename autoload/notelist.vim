@@ -22,7 +22,7 @@ function! notelist#hNoteList(...) "{{{
         let l:argv = a:000
     endif
 
-    let l:jOption = class#cmdline#new('NoteList')
+    let l:jOption = class#viml#cmdline#new('NoteList')
     call l:jOption.AddSingle('s', 'split', 'split new window')
     call l:jOption.AddSingle('v', 'vertical', 'vsplit new window')
     call l:jOption.AddSingle('n', 'tabnew', 'tab new window')

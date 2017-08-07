@@ -2,7 +2,7 @@
 " Author: lymslive
 " Description: manage notebook
 " Create: 2017-02-24
-" Modify: 2017-03-22
+" Modify: 2017-08-05
 
 " import s:jNoteBook from vnote
 let s:jNoteBook = vnote#GetNoteBook()
@@ -42,7 +42,7 @@ function! notebook#hNoteNew(...) "{{{
         let l:bPrivate = g:class#TRUE
     else
         " complex argument parse
-        let l:jOption = class#cmdline#new('NoteNew')
+        let l:jOption = class#viml#cmdline#new('NoteNew')
         call l:jOption.AddMore('t', 'tag', 'tags of new note', [])
         call l:jOption.AddMore('T', 'title', 'the title of new note', [])
         call l:jOption.AddDash('create private dairy')
