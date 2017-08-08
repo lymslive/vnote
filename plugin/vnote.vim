@@ -2,7 +2,9 @@
 " Author: lymslive
 " Date: 2017-02-24
 
-:PLUGINLOCAL
+if exists(':PLUGINLOCAL')
+    :PLUGINLOCAL
+endif
 
 " NoteBook:
 " no argument, show the current notebook
@@ -48,4 +50,6 @@ augroup VNOTE
     autocmd BufReadPost *.md,*.MD call note#OnBufRead()
 augroup END
 
-:PLUGINAFTER
+if exists(':PLUGINAFTER')
+    :PLUGINAFTER
+endif
