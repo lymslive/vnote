@@ -2,7 +2,7 @@
 " Author: lymslive
 " Description: VimL class frame
 " Create: 2017-03-11
-" Modify: 2017-08-04
+" Modify: 2017-08-12
 
 "LOAD:
 if exists('s:load') && !exists('g:DEBUG')
@@ -82,7 +82,7 @@ endfunction "}}}
 
 " PushCache: push up this cache to the next cache
 function! s:class.PushCache() dict abort "{{{
-    let l:jUpper = class#new(self.upper, self.path, self.uname)
+    let l:jUpper = class#new(self.upper, [self.path, self.uname])
     let l:lsCache = self.Read()
     return l:jUpper.PullEntry(l:lsCache)
 endfunction "}}}
