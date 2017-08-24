@@ -2,7 +2,7 @@
 " Author: lymslive
 " Description: a class that represent a note file
 " Create: 2017-02-17
-" Modify: 2017-08-04
+" Modify: 2017-08-24
 
 "LOAD:
 if exists('s:load') && !exists('g:DEBUG')
@@ -152,7 +152,7 @@ function! s:class.GetTagList_(lsLine) dict abort "{{{
     for l:sLine in a:lsLine
         if match(l:sLine, '^\s*`') != -1
             if !l:bTagOn
-                let b:TagOn = g:class#TRUE
+                let l:bTagOn = g:class#TRUE
             endif 
             let l:lsTmp = self.FindTags_(l:sLine)
             if !empty(l:lsTmp)
