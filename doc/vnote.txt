@@ -241,13 +241,15 @@ are defined in script "autoload/vnote/remap.vim".
 	locally, since when new note saved, update the cache files and 
 	tag files automatically.
 
-:NoteImport [-psS]						*:NoteImport*
+:NoteImport [-pPsS]						*:NoteImport*
 	When edit a text file that is not in current notebook, this command
 	will |:saveas| current buffer to the notebook, automatically named as
 	|:NoteNew|. If the extention of current buffer is not ".md" or ".txt"
 	a |input()| promt to confirm import.
 	Support three options that denotes three import types:
 	-p: the default copy-import
+	    add bookmark to {copyin}
+	-P: move origin file to notedir
 	    add bookmark to {copyin}
 	-s: make new note symbol link to current file, only in unix
 	    add bookmark {linkin}

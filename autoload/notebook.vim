@@ -2,7 +2,7 @@
 " Author: lymslive
 " Description: manage notebook
 " Create: 2017-02-24
-" Modify: 2017-08-05
+" Modify: 2018-04-19
 
 " import s:jNoteBook from vnote
 let s:jNoteBook = vnote#GetNoteBook()
@@ -179,6 +179,14 @@ function! notebook#hNoteImport(...) abort "{{{
     if a:0 == 0 || empty(a:1) || a:1 =~# '^-\?p'
         execute 'saveas ' . l:pNoteFile
         call note#hNoteMark('copyin')
+    elseif a:1 =~# '^-\?P'
+        try
+            call system('mv ' . expand('%:p') . ' ' . l:pNoteFile)
+            execute 'edit ' . l:pNoteFile
+            call note#hNoteMark('copyin')
+        catch 
+            :ELOG 'fail to move file to note, use copy import: -p'
+        endtry
     elseif a:1 =~# '^-\?s'
         if executable('ln')
             try
