@@ -55,11 +55,11 @@ function! s:class.AddTag(sTag) dict abort "{{{
     let l:sTag = printf('`%s`', a:sTag)
 
     let l:lsTagLine = self.LocateTagLine_()
-    let l:bFound = g:class#FALSE
+    let l:bFound = v:false
     for l:dEntry in l:lsTagLine
         let l:sLine = l:dEntry['line_str']
         if l:sLine =~? l:sTag
-            let l:bFound = g:class#TRUE
+            let l:bFound = v:true
             break
         endif
     endfor
@@ -92,11 +92,11 @@ function! s:class.DeleteTag(sTag) dict abort "{{{
         return 0
     endif
 
-    let l:bFound = g:class#FALSE
+    let l:bFound = v:false
     for l:dEntry in l:lsTagLine
         let l:sLine = l:dEntry['line_str']
         if l:sLine =~? l:sTag
-            let l:bFound = g:class#TRUE
+            let l:bFound = v:true
             break
         endif
     endfor
@@ -125,11 +125,11 @@ function! s:class.RenameTag(sTag, sNew) dict abort "{{{
         return 0
     endif
 
-    let l:bFound = g:class#FALSE
+    let l:bFound = v:false
     for l:dEntry in l:lsTagLine
         let l:sLine = l:dEntry['line_str']
         if l:sLine =~? l:sTag
-            let l:bFound = g:class#TRUE
+            let l:bFound = v:true
             break
         endif
     endfor

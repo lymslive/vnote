@@ -34,12 +34,12 @@ endfunction "}}}
 " NewNote: edit new note of today
 function! notebook#hNoteNew(...) "{{{
     let l:sDatePath = strftime("%Y/%m/%d")
-    let l:bPrivate = g:class#FALSE
+    let l:bPrivate = v:false
     let l:lsTag = []
     let l:lsTitle = []
 
     if a:0 == 1 && a:1 ==# '-'
-        let l:bPrivate = g:class#TRUE
+        let l:bPrivate = v:true
     else
         " complex argument parse
         let l:jOption = class#viml#cmdline#new('NoteNew')
@@ -169,7 +169,7 @@ function! notebook#hNoteImport(...) abort "{{{
     endif
 
     let l:sDatePath = strftime("%Y/%m/%d")
-    let l:pNoteFile = s:jNoteBook.AllocNewNote(l:sDatePath, g:class#FALSE)
+    let l:pNoteFile = s:jNoteBook.AllocNewNote(l:sDatePath, v:false)
     let l:pDirectory = s:jNoteBook.Notedir(l:sDatePath)
     if !isdirectory(l:pDirectory)
         call mkdir(l:pDirectory, 'p')

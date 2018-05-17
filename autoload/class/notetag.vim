@@ -173,7 +173,7 @@ function! s:class.UpdateEntry(sNoteEntry, ...) dict abort "{{{
     endif
 
     let l:sNoteName = l:lsPart[0]
-    let l:bForceSave = get(a:000, 0, g:class#FALSE)
+    let l:bForceSave = get(a:000, 0, v:false)
 
     let l:lsNote = self.list()
     let l:iFound = match(l:lsNote, '^' . l:sNoteName)

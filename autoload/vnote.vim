@@ -16,10 +16,10 @@ let s:dConfig.note_file_head_line = 10
 let s:dConfig.note_file_max_tags = 5
 
 " for public and private tag label
-let s:dConfig.auto_add_minus_tag = g:class#TRUE
-let s:dConfig.auto_add_plus_tag = g:class#TRUE
-let s:dConfig.auto_save_minus_tag = g:class#FALSE
-let s:dConfig.auto_save_plus_tag = g:class#FALSE
+let s:dConfig.auto_add_minus_tag = v:true
+let s:dConfig.auto_add_plus_tag = v:true
+let s:dConfig.auto_save_minus_tag = v:false
+let s:dConfig.auto_save_plus_tag = v:false
 
 " put cursor in which entry default: 1, 2, .. '$'
 let s:dConfig.list_default_cursor = '$'
@@ -56,18 +56,18 @@ function! vnote#SetConfig(lsArgv) abort "{{{
         return -1
     endif
 
-    let l:dict = module#less#dict#import()
+    let l:dict = class#less#dict#export()
     let l:dArg = l:dict.FromList(a:lsArgv)
 
-    let l:math = module#less#math#import() 
+    let l:math = class#less#math#export() 
     if has_key(l:dArg, 'note_file_head_line')
-        let l:dArg['note_file_head_line'] = l:math.LimitBetween(l:dArg['note_file_head_line'], 2, 20)
+        let l:dArg['note_file_head_line'] = l:math.CutEnd(l:dArg['note_file_head_line'], 2, 20)
     endif
     if has_key(l:dArg, 'note_file_max_tags')
-        let l:dArg['note_file_max_tags'] = l:math.LimitBetween(l:dArg['note_file_max_tags'], 2, 10)
+        let l:dArg['note_file_max_tags'] = l:math.CutEnd(l:dArg['note_file_max_tags'], 2, 10)
     endif
     if has_key(l:dArg, 'max_mru_note_list')
-        let l:dArg['max_mru_note_list'] = l:math.LimitBetween(l:dArg['max_mru_note_list'], 3, 50)
+        let l:dArg['max_mru_note_list'] = l:math.CutEnd(l:dArg['max_mru_note_list'], 3, 50)
     endif
 
     call l:dict.Absorb(s:dConfig, l:dArg)
@@ -105,19 +105,19 @@ endfunction "}}}
 
 " FindWindow: find and jump between notelist window and note(markdown) window
 function! vnote#FindListWindow() abort "{{{
-    let l:window = module#less#window#import()
+    let l:window = class#less#window#export()
     return l:window.FindWindow('notelist')
 endfunction "}}}
 function! vnote#GotoListWindow() abort "{{{
-    let l:window = module#less#window#import()
+    let l:window = class#less#window#export()
     return l:window.GotoWindow('notelist')
 endfunction "}}}
 function! vnote#FindNoteWindow() abort "{{{
-    let l:window = module#less#window#import()
+    let l:window = class#less#window#export()
     return l:window.FindWindow('markdown')
 endfunction "}}}
 function! vnote#GotoNoteWindow() abort "{{{
-    let l:window = module#less#window#import()
+    let l:window = class#less#window#export()
     return l:window.GotoWindow('markdown')
 endfunction "}}}
 

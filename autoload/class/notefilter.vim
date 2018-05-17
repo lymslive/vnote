@@ -54,14 +54,14 @@ endfunction "}}}
 " ok: 
 function! s:class.ok(val) dict abort "{{{
     if empty(a:val)
-        return g:class#FALSE
+        return v:false
     elseif class#note#isobject(a:val)
         return self.NoteObjectOK(a:val)
     else
         let l:lsPart = split(a:val, "\t")
         if len(l:lsPart) < 2
             :ELOG 'It seems not valid note entry: ' . a:val
-            return g:class#FALSE
+            return v:false
         endif
         let l:sNoteName = l:lsPart[0]
         let l:sNoteTitle = l:lsPart[1]
@@ -71,11 +71,11 @@ endfunction "}}}
 
 " NoteObjectOK: 
 function! s:class.NoteObjectOK(jNote) dict abort "{{{
-    return g:class#TRUE
+    return v:true
 endfunction "}}}
 " NoteEntryOK: 
 function! s:class.NoteEntryOK(sNoteName, sNoteTitle) dict abort "{{{
-    return g:class#TRUE
+    return v:true
 endfunction "}}}
 
 " Filter: filter a:lsInput in-place, default all note entry

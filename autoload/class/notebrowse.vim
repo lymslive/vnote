@@ -56,7 +56,7 @@ endfunction "}}}
 
 " TransferScope: 
 function! s:class.TransferScope() dict abort "{{{
-    return g:class#FALSE
+    return v:false
 endfunction "}}}
 
 " LOAD:
