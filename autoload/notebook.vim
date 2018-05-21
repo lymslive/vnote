@@ -207,3 +207,28 @@ function! notebook#hNoteImport(...) abort "{{{
         call note#hNoteMark('softin')
     endif
 endfunction "}}}
+
+" OpenNoteTab: open new tab for notebook
+" argument:
+"  a:1, '-w' use current tabpage instead, default '-t' as new tabpage
+"  a:2, set the basedir of notebook, see notebook#OpenNoteBook()
+" return:
+"  error code, 0 as success
+function! notebook#OpenNoteTab(...) abort "{{{
+    let l:bNewTab = get(a:000, 0, '-t')
+    let l:sNoteBook = get(a:000, 1, '')
+
+    if !empty(l:sNoteBook)
+        let l:iRet = notebook#OpenNoteBook(l:sNoteBook)
+        if l:iRet != 0
+            return l:iRet
+        endif
+    endif
+
+    let l:jNoteTab = vnote#GetNoteTab()
+    if l:bNewTab =~? '-*w'
+        call l:jNoteTab.Layout()
+    else
+        call l:jNoteTab.Layout(1)
+    endif
+endfunction "}}}

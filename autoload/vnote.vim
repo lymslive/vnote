@@ -35,6 +35,15 @@ function! vnote#GetNoteBook() "{{{
     return s:jNoteBook
 endfunction "}}}
 
+" GetNoteTab: 
+let s:jNoteTab = {}
+function! vnote#GetNoteTab() abort "{{{
+    if empty(s:jNoteTab)
+        let s:jNoteTab = class#notetab#new(vnote#GetNoteBook())
+    endif
+    return s:jNoteTab
+endfunction "}}}
+
 " GetConfig: 
 function! vnote#GetConfig(...) abort "{{{
     if a:0 == 0
