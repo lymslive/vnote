@@ -42,6 +42,23 @@ function! class#notetab#isobject(that) abort "{{{
     return class#isobject(s:class, a:that)
 endfunction "}}}
 
+" InitView: 
+function! s:class.InitView() dict abort "{{{
+    " notebar
+    :1wincmd w
+    let b:jNoteBar = self.notebook.CreateBar()
+    call b:jNoteBar.RefreshBar()
+
+    " notelist
+    :2wincmd w
+    let b:jNoteList = self.notebook.CreateLister()
+    call b:jNoteList.RefreshList('-m')
+
+    " markdown note
+    :3wincmd w
+    call notebook#hNoteEdit(-1)
+endfunction "}}}
+
 " LOAD:
 let s:load = 1
 function! class#notetab#load(...) abort "{{{

@@ -9,9 +9,12 @@ if exists('s:load') && !exists('g:DEBUG')
     finish
 endif
 
-" note-list buffer name
-let s:BUFFER_NAME = '_NLS_'
-let s:rtp = module#less#rtp#import()
+" Constant:
+let s:LIST_BUFFER_NAME = '_NLST_'
+let s:NBAR_BUFFER_NAME = '_NBAR_'
+let s:FILE_NAME_TAGDB = 'tag.db'
+let s:FILE_NAME_DATEDB = 'date.db'
+let s:rtp = class#less#rtp#export()
 
 " CLASS Define: {{{1
 let s:class = class#old()
@@ -218,8 +221,7 @@ endfunction "}}}
 " NoteList Manage: {{{1
 " GetListerName: return a file name for note-list buffer
 function! s:class.GetListerName() dict abort "{{{
-    let l:pBuffer = self.Cachedir() . '/' . s:BUFFER_NAME
-    return l:pBuffer
+    return s:rtp.AddPath(self.Cachedir(), s:LIST_BUFFER_NAME)
 endfunction "}}}
 
 " CreateLister: 
@@ -239,6 +241,22 @@ function! s:class.GetPrivateNote() dict abort "{{{
     let l:lsCache = self.ReadCache()
     let l:jFilter = class#notefilter#private#new(self)
     return l:jFilter.Filter(l:lsCache)
+endfunction "}}}
+
+" NoteBar Manage: {{{1
+" GetBarName: 
+function! s:class.GetBarName() dict abort "{{{
+    return s:rtp.AddPath(self.Cachedir(), s:NBAR_BUFFER_NAME)
+endfunction "}}}
+
+" CreateBar: 
+function! s:class.CreateBar() dict abort "{{{
+    return class#notebar#new(self)
+endfunction "}}}
+
+" GetTagdbFile: 
+function! s:class.GetTagdbFile() dict abort "{{{
+    return s:rtp.AddPath(self.Tagdir(), s:FILE_NAME_TAGDB)
 endfunction "}}}
 
 " Cache Manage: {{{1
