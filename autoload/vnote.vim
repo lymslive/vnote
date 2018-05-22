@@ -4,7 +4,7 @@
 " Create: 2017-02-17
 " Modify: 2017-03-20
 
-let s:default_notebook = "~/notebook"
+let s:default_notebook = "$HOME/notebook"
 if exists('g:vnote_default_notebook')
     let s:default_notebook = g:vnote_default_notebook
 endif
@@ -12,7 +12,7 @@ let s:default_notebook = expand(s:default_notebook)
 
 " global configue for vnote
 let s:dConfig = {}
-let s:dConfig.note_file_head_line = 10
+let s:dConfig.note_file_head_line = 2
 let s:dConfig.note_file_max_tags = 5
 
 " for public and private tag label
@@ -25,6 +25,8 @@ let s:dConfig.auto_save_plus_tag = v:false
 let s:dConfig.list_default_cursor = '$'
 
 let s:dConfig.max_mru_note_list = 10
+
+let s:dConfig.perlx_script_dir = ''
 
 " GetNoteBook: 
 let s:jNoteBook = {}
@@ -101,7 +103,7 @@ function! vnote#hNoteConfig(...) abort "{{{
     return vnote#SetConfig(l:lsArgv)
 endfunction "}}}
 
-" load remaps
+" Remap:
 call vnote#remap#load()
 
 " statistics infor
@@ -129,6 +131,34 @@ function! vnote#GotoNoteWindow() abort "{{{
     let l:window = class#less#window#export()
     return l:window.GotoWindow('markdown')
 endfunction "}}}
+
+" find_perlx: 
+let s:thisplug = fnamemodify(expand("<sfile>"), ":p:h:h")
+function! s:find_perlx() abort "{{{
+    if !executable('perl') || !has('job')
+        return -1
+    endif
+
+    let l:rtp = class#less#rtp#export()
+    let l:script = 'notedb.pl'
+
+    " 1. ~/notebook/x
+    let l:path = l:rtp.AddPath(s:default_notebook, 'x')
+    if filereadable(l:rtp.AddPath(l:path, l:script))
+        let s:dConfig.perlx_script_dir = l:path
+        return
+    endif
+
+    " 2. <plugin>vnote/perlx
+    let l:path = l:rtp.AddPath(s:thisplug, 'perlx')
+    if filereadable(l:rtp.AddPath(l:path, l:script))
+        let s:dConfig.perlx_script_dir = l:path
+        return
+    endif
+
+    return -1
+endfunction "}}}
+call s:find_perlx()
 
 " OnVimLeave: 
 function! vnote#OnVimLeave() abort "{{{

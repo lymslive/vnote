@@ -6,10 +6,16 @@ if exists(':PLUGINLOCAL')
     :PLUGINLOCAL
 endif
 
+" Vnote: [-t|-w] [basedir]
+" open vnote layout, default in new tabpage(-t), or current one(-w)
+" if 2nd argument provided, same as :NoteBook to set it's basedir
+command! -nargs=? -complete=dir 
+            \ Vnote call notebook#OpenNoteTab(<f-args>)
+
 " NoteBook:
 " no argument, show the current notebook
 " with one argument, switch to set that directory as current notebook
-command! -nargs=? -complete=file 
+command! -nargs=? -complete=dir 
         \ NoteBook call notebook#OpenNoteBook(<f-args>)
 
 " NoteNew:
