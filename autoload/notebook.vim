@@ -231,4 +231,6 @@ function! notebook#OpenNoteTab(...) abort "{{{
     else
         call l:jNoteTab.Layout(1)
     endif
+
+    call l:jNoteTab.InitView()
 endfunction "}}}

@@ -60,6 +60,7 @@ function! s:class.RefreshBar() dict abort "{{{
         setlocal bufhidden=hide
         setlocal noswapfile
         setlocal nobuflisted
+        setlocal nowrap
     endif
     setlocal nomodifiable
 endfunction "}}}

@@ -52,7 +52,7 @@ function! s:class.InitView() dict abort "{{{
     " notelist
     :2wincmd w
     let b:jNoteList = self.notebook.CreateLister()
-    call b:jNoteList.RefreshList('-m')
+    call b:jNoteList.RefreshList(['-m'])
 
     " markdown note
     :3wincmd w
