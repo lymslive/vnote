@@ -49,14 +49,34 @@ function! s:class.InitView() dict abort "{{{
     let b:jNoteBar = self.notebook.CreateBar()
     call b:jNoteBar.RefreshBar()
 
+    let l:pTagdb = self.notebook.GetTagdbFile()
+    if !filereadable(l:pTagdb)
+        " default blank notebar document
+        let l:pBlank = vnote#GetBlankBar()
+        let l:lsBlank = readfile(l:pBlank)
+        call append('$', l:lsBlank)
+    endif
+
     " notelist
     :2wincmd w
     let b:jNoteList = self.notebook.CreateLister()
     call b:jNoteList.RefreshList(['-m'])
 
+    let l:pMru = self.notebook.GetMruTag()
+    if !filereadable(l:pMru)
+        let l:pBlank = vnote#GetBlankList()
+        let l:lsBlank = readfile(l:pBlank)
+        call append('$', l:lsBlank)
+    endif
+
     " markdown note
     :3wincmd w
-    call notebook#hNoteEdit(-1)
+    if filereadable(l:pMru)
+        call notebook#hNoteEdit(-1)
+    else
+        let l:pBlank = vnote#GetBlankNote()
+        execute 'edit ' . l:pBlank
+    endif
 endfunction "}}}
 
 " LOAD:

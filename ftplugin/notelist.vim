@@ -70,6 +70,10 @@ nmap <buffer> dd <Plug>(VNOTE_list_delete_this)
 nmap <buffer> n <Plug>(VNOTE_list_new_note_with_tag)
 nmap <buffer> N <Plug>(VNOTE_list_new_dairy_with_tag)
 
+" move cursor in preview mode
+nnoremap <buffer> J    :call notelist#hPreviewDown()<CR>
+nnoremap <buffer> K    :call notelist#hPreviewUp()<CR>
+
 " Simple Syntax:
 " noteid yyyymmdd_n
 syntax match Number /^\d\+_\d\+/
@@ -77,5 +81,6 @@ syntax match Number /^\d\+_\d\+/
 syntax match String /\t[^\t]\+/
 " note tags [tag|tag]
 syntax match Tag /\t\[.*\]/
+syntax match Comment /<!--.*-->/
 
 :PLUGINAFTER

@@ -134,24 +134,24 @@ endfunction "}}}
 
 " find_perlx: 
 let s:thisplug = fnamemodify(expand("<sfile>"), ":p:h:h")
+let s:rtp = class#less#rtp#export()
 function! s:find_perlx() abort "{{{
     if !executable('perl') || !has('job')
         return -1
     endif
 
-    let l:rtp = class#less#rtp#export()
     let l:script = 'notedb.pl'
 
     " 1. ~/notebook/x
-    let l:path = l:rtp.AddPath(s:default_notebook, 'x')
-    if filereadable(l:rtp.AddPath(l:path, l:script))
+    let l:path = s:rtp.AddPath(s:default_notebook, 'x')
+    if filereadable(s:rtp.AddPath(l:path, l:script))
         let s:dConfig.perlx_script_dir = l:path
         return
     endif
 
     " 2. <plugin>vnote/perlx
-    let l:path = l:rtp.AddPath(s:thisplug, 'perlx')
-    if filereadable(l:rtp.AddPath(l:path, l:script))
+    let l:path = s:rtp.AddPath(s:thisplug, 'perlx')
+    if filereadable(s:rtp.AddPath(l:path, l:script))
         let s:dConfig.perlx_script_dir = l:path
         return
     endif
@@ -159,6 +159,19 @@ function! s:find_perlx() abort "{{{
     return -1
 endfunction "}}}
 call s:find_perlx()
+
+" GetBlankBar: 
+function! vnote#GetBlankBar() abort "{{{
+    return s:rtp.AddPath(s:thisplug, 'docs', 'blank.notebar')
+endfunction "}}}
+" GetBlankList: 
+function! vnote#GetBlankList() abort "{{{
+    return s:rtp.AddPath(s:thisplug, 'docs', 'blank.notelist')
+endfunction "}}}
+" GetBlankNote: 
+function! vnote#GetBlankNote() abort "{{{
+    return s:rtp.AddPath(s:thisplug, 'docs', 'blank-note.md')
+endfunction "}}}
 
 " OnVimLeave: 
 function! vnote#OnVimLeave() abort "{{{

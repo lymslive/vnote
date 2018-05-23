@@ -104,6 +104,11 @@ function! s:class.Markdir() dict abort "{{{
     return s:rtp.AddPath(self.basedir, 'm')
 endfunction "}}}
 
+" GetMruTag: 
+function! s:class.GetMruTag() dict abort "{{{
+    return s:rtp.AddPath(self.basedir, 'm', 'mru.tag')
+endfunction "}}}
+
 " NoteFile Manage: {{{1
 " Notedir: full path of day
 " intput: yyyy/mm/dd
