@@ -114,22 +114,16 @@ function! vnote#GetStatis() abort "{{{
     return s:dStatis
 endfunction "}}}
 
-" FindWindow: find and jump between notelist window and note(markdown) window
-function! vnote#FindListWindow() abort "{{{
-    let l:window = class#less#window#export()
-    return l:window.FindWindow('notelist')
-endfunction "}}}
+" FindWindow: find and jump between windows
+let s:window = class#less#window#export()
 function! vnote#GotoListWindow() abort "{{{
-    let l:window = class#less#window#export()
-    return l:window.GotoWindow('notelist')
-endfunction "}}}
-function! vnote#FindNoteWindow() abort "{{{
-    let l:window = class#less#window#export()
-    return l:window.FindWindow('markdown')
+    return s:window.GotoWindow('notelist')
 endfunction "}}}
 function! vnote#GotoNoteWindow() abort "{{{
-    let l:window = class#less#window#export()
-    return l:window.GotoWindow('markdown')
+    return s:window.GotoWindow('markdown')
+endfunction "}}}
+function! vnote#GotoBarWindow() abort "{{{
+    return s:window.GotoWindow('notebar')
 endfunction "}}}
 
 " find_perlx: 

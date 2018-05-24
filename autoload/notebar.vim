@@ -13,8 +13,30 @@ function! notebar#hEnterBar() abort "{{{
 
     let l:sArg = b:jNoteBar.GetCursorArg()
     if type(l:sArg) == type([])
+        let l:iWinnr = vnote#GotoListWindow()
+        if l:iWinnr == 0
+            if winnr('$') > 1
+                :wincmd w
+            else
+                :belowright vsplit
+            endif
+        endif
         call call('notelist#hNoteList', l:sArg)
     endif
+endfunction "}}}
+
+" PreviewDown: 
+function! notebar#hPreviewDown() abort "{{{
+    :normal! j
+    call notebar#hEnterBar()
+    call vnote#GotoBarWindow()
+endfunction "}}}
+
+" PreviewUp:
+function! notebar#hPreviewUp() abort "{{{
+    :normal! k
+    call notebar#hEnterBar()
+    call vnote#GotoBarWindow()
 endfunction "}}}
 
 " SortTag: switch sort type of tag section

@@ -42,10 +42,15 @@ function! class#notetab#isobject(that) abort "{{{
     return class#isobject(s:class, a:that)
 endfunction "}}}
 
-" InitView: 
+" InitView: load 3 init buffer in 3 window
+" must called after layout to split 3 window
 function! s:class.InitView() dict abort "{{{
     " notebar
     :1wincmd w
+    let l:pBarName = self.notebook.GetBarName()
+    if expand('%:p') !=# l:pBarName
+        execute 'edit ' . l:pBarName
+    endif
     let b:jNoteBar = self.notebook.CreateBar()
     call b:jNoteBar.RefreshBar()
 
@@ -61,6 +66,10 @@ function! s:class.InitView() dict abort "{{{
 
     " notelist
     :2wincmd w
+    let l:pListerName = self.notebook.GetListerName()
+    if expand('%:p') !=# l:pListerName
+        execute 'edit ' . l:pListerName
+    endif
     let b:jNoteList = self.notebook.CreateLister()
     call b:jNoteList.RefreshList(['-m'])
 

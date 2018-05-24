@@ -192,6 +192,8 @@ function! s:class.RedrawContent(lsContent) dict abort "{{{
         setlocal bufhidden=hide
         setlocal noswapfile
         setlocal nobuflisted
+        setlocal nowrap
+        setlocal tabstop=8
     endif
 
     setlocal nomodifiable

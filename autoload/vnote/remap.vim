@@ -2,7 +2,7 @@
 " Author: lymslive
 " Description: plug remap of vnote
 " Create: 2017-03-20
-" Modify: 2017-04-18
+" Modify: 2018-05-24
 
 " to use thes mappings, use nmap not nnoremap
 nnoremap <Plug>(VNOTE_book_new_note) :call notebook#hNoteNew()
@@ -37,7 +37,7 @@ nnoremap <Plug>(VNOTE_edit_prev_note) :call note#EditNext(-1)<CR>
 nnoremap <Plug>(VNOTE_edit_open_list) :call note#OpenNoteList()<CR>
 nnoremap <Plug>(VNOTE_edit_smart_tab) :call note#hSmartTab()<CR>
 
-:DLOG '-1 vnote#remap is loading ...'
+" :DLOG '-1 vnote#remap is loading ...'
 function! vnote#remap#load(...) abort "{{{
     return 1
 endfunction "}}}

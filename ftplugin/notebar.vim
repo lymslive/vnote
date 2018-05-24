@@ -14,4 +14,6 @@ nnoremap <buffer> K    :call notebar#hPreviewUp()<CR>
 " Simple Syntax:
 " a section begin with -/+
 syntax match Include /^[-+] \S\+/
+syntax match Tag /^  \S\+/
+syntax match Number /\[\d\+\]$/
 syntax match Comment /<!--.*-->/

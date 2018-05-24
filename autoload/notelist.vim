@@ -112,10 +112,27 @@ function! notelist#hEnterNote() "{{{
     " try goto note window
     let l:iWin = vnote#GotoNoteWindow()
     if l:iWin == 0 && winnr('$') > 1
-        :wincmd p
+        :wincmd w
+        if &filetype ==? 'notebar'
+            :wincmd w
+        endif
     endif
 
     execute 'edit ' . l:pFileName
+endfunction "}}}
+
+" PreviewDown:
+function! notelist#hPreviewDown() abort "{{{
+    :normal! j
+    call notelist#hEnterNote()
+    call vnote#GotoListWindow()
+endfunction "}}}
+
+" PreviewUp:
+function! notelist#hPreviewUp() abort "{{{
+    :normal! k
+    call notelist#hEnterNote()
+    call vnote#GotoListWindow()
 endfunction "}}}
 
 " ToggleTagLine: show/hide a tag line below a note entry
