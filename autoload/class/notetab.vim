@@ -54,7 +54,9 @@ function! s:class.InitView() dict abort "{{{
         " default blank notebar document
         let l:pBlank = vnote#GetBlankBar()
         let l:lsBlank = readfile(l:pBlank)
+        setlocal modifiable
         call append('$', l:lsBlank)
+        setlocal nomodifiable
     endif
 
     " notelist
@@ -62,16 +64,18 @@ function! s:class.InitView() dict abort "{{{
     let b:jNoteList = self.notebook.CreateLister()
     call b:jNoteList.RefreshList(['-m'])
 
-    let l:pMru = self.notebook.GetMruTag()
-    if !filereadable(l:pMru)
+    let l:bMruEmpty = self.notebook.MruEmpty()
+    if l:bMruEmpty
         let l:pBlank = vnote#GetBlankList()
         let l:lsBlank = readfile(l:pBlank)
+        setlocal modifiable
         call append('$', l:lsBlank)
+        setlocal nomodifiable
     endif
 
     " markdown note
     :3wincmd w
-    if filereadable(l:pMru)
+    if !l:bMruEmpty
         call notebook#hNoteEdit(-1)
     else
         let l:pBlank = vnote#GetBlankNote()
