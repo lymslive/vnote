@@ -17,7 +17,7 @@ let s:class._version_ = 1
 let s:class.notebook = {}
 
 let s:class.taglist = []
-let s:class.tagsort = ''
+let s:class.tagsort = 1
 let s:TAG_SORT_BY_NAME = 1
 let s:TAG_SORT_BY_NUMW = 2
 
@@ -74,10 +74,12 @@ function! s:class.GatherContent() dict abort "{{{
     call add(l:lsContent, '- tag')
 
     let l:pTagdb = self.notebook.GetTagdbFile()
-    let self.taglist = readfile(l:pTagdb)
-    let self.tagsort = s:TAG_SORT_BY_NAME
-    let l:lsTag = map(copy(self.taglist), function('s:tag_entry'))
-    call extend(l:lsContent, l:lsTag)
+    if filereadable(l:pTagdb)
+        let self.taglist = readfile(l:pTagdb)
+        let self.tagsort = s:TAG_SORT_BY_NAME
+        let l:lsTag = map(copy(self.taglist), function('s:tag_entry'))
+        call extend(l:lsContent, l:lsTag)
+    endif
 
     return l:lsContent
 endfunction "}}}
@@ -129,12 +131,12 @@ endfunction "}}}
 " default sort by tag name
 " alterably sort by weith with number and time
 function! s:class.SortTag() dict abort "{{{
-    let l:iSection = search('^[-+] tag')
+    let l:iSection = search('^[-+] tag', 'bw')
     if l:iSection <= 0
         return 0
     endif
 
-    if self.tagsort = s:TAG_SORT_BY_NAME
+    if self.tagsort == s:TAG_SORT_BY_NAME
         call sort(self.taglist, function('s:tag_weigh_sorter'))
         let self.tagsort = s:TAG_SORT_BY_NUMW
     else
@@ -143,8 +145,10 @@ function! s:class.SortTag() dict abort "{{{
     endif
 
     let l:lsTag = map(copy(self.taglist), function('s:tag_entry'))
+    setlocal modifiable
     execute (l:iSection + 1) . ',$delete'
     call append('$', l:lsTag)
+    setlocal nomodifiable
 endfunction "}}}
 
 " tag_weigh_sorter: 
@@ -161,7 +165,9 @@ function! s:tag_weigh_sorter(first, second) abort "{{{
 
     let l:wFirst = l:lsFirst[1] + s:time_weight(l:lsFirst[2])
     let l:wSecond = l:lsSecond[1] + s:time_weight(l:lsSecond[2])
-    return l:wFirst - l:wSecond
+
+    " sort from more weight to less weight
+    return -(l:wFirst - l:wSecond)
 endfunction "}}}
 
 " time_weight: 

@@ -23,7 +23,7 @@ nnoremap <Plug>(VNOTE_list_back_list) :call notelist#hBackList()<CR>
 nnoremap <Plug>(VNOTE_list_browse_tag) :call notelist#hNoteList('-T')<CR>
 nnoremap <Plug>(VNOTE_list_browse_date) :call notelist#hNoteList('-D')<CR>
 nnoremap <Plug>(VNOTE_list_browse_mark) :call notelist#hNoteList('-M')<CR>
-nnoremap <Plug>(VNOTE_list_pick_tag) :call notelist#hPasteTag()<CR>
+nnoremap <Plug>(VNOTE_list_pick_tag) :call notelist#hPasteTag(1)<CR>
 nnoremap <Plug>(VNOTE_list_switch_unite) :Unite notelist<CR>
 nnoremap <Plug>(VNOTE_list_goto_first) :call notelist#hGotoFirstEntry()<CR>
 nnoremap <Plug>(VNOTE_list_delete_this) :call notelist#hDelete()<CR>

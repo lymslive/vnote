@@ -102,7 +102,8 @@ endfunction "}}}
 
 " GetNoteEntry: 
 function! s:class.GetNoteEntry(...) dict abort "{{{
-    let l:sTagList = printf('[%s]', join(self.GetTagList(), '|'))
+    let l:lsTag = filter(self.GetTagList(), 'v:val !~# "^[-+]$"')
+    let l:sTagList = printf('[%s]', join(l:lsTag, '|'))
     let l:sOldEntry = self.GetNoteName() . "\t" . self.GetNoteTitle()
     return l:sOldEntry . "\t" . l:sTagList
 endfunction "}}}

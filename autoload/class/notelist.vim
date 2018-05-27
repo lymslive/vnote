@@ -19,6 +19,7 @@ let s:class.notebook = {}
 
 " the argument of note-list
 let s:class.argv = []
+let s:class.entry = []
 
 function! class#notelist#class() abort "{{{
     return s:class
@@ -38,6 +39,7 @@ function! class#notelist#ctor(this, ...) abort "{{{
         echoerr 'expect a class#notebook to construct a class#notelist object'
     endif
     let a:this.argv = []
+    let a:this.entry = []
 endfunction "}}}
 
 " SetNoteBook: 
@@ -152,6 +154,7 @@ function! s:class.GatherContent(argv) dict abort "{{{
     endif
 
     let self.argv = [l:cMode, l:sArg]
+    let self.entry = l:lsContent
     return l:lsContent
 endfunction "}}}
 

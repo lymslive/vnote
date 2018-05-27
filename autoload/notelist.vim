@@ -236,6 +236,12 @@ function! notelist#hSmartJump() abort "{{{
         return -1
     endif
 
+    " cursor on end of entry line having tag list
+    let l:sTag = notelist#DetectTag()
+    if !empty(l:sTag) && l:sTag != b:jNoteList.argv[1]
+        return notelist#hNoteList(l:sTag)
+    endif
+
     " cursor in entry line?
     let l:jNoteEntry = class#notename#new(getline('.'))
     if !empty(l:jNoteEntry.string())
@@ -252,6 +258,43 @@ function! notelist#hSmartJump() abort "{{{
     endif
 
     return 0
+endfunction "}}}
+
+" DetectTag: get the tagname under cursor
+" at the end of entry line quoted in [], separated by |
+" return empty string if not on tag position
+function! notelist#DetectTag() abort "{{{
+    let l:sLine = getline('.')
+    let l:iPos = match(l:sLine, '^\d.*\t.*\t\zs\[.*\]\ze$')
+    if col('.') <= l:iPos
+        return ''
+    endif
+
+    let l:iCol = col('.') - 1
+    let l:idx_left = l:iCol
+    let l:idx_right = l:iCol
+
+    while l:idx_left > l:iPos
+        let l:char = strpart(l:sLine, l:idx_left, 1)
+        if l:char == '|' || l:char == '['
+            break
+        endif
+        let l:idx_left -= 1
+    endwhile
+
+    while l:idx_right < col('$') - 1
+        let l:char = strpart(l:sLine, l:idx_right, 1)
+        if l:char == '|' || l:char == ']'
+            break
+        endif
+        let l:idx_right += 1
+    endwhile
+
+    if l:idx_right - l:idx_left > 1
+        return strpart(l:sLine, l:idx_left + 1, l:idx_right - l:idx_left - 1)
+    else
+        return ''
+    endif
 endfunction "}}}
 
 " CheckEntryMap: return true if key map success on list entry context
@@ -273,7 +316,9 @@ function! notelist#hRefineArg() abort "{{{
 endfunction "}}}
 
 " PasteTag: pick and paste current tag to current editing note
-function! notelist#hPasteTag() abort "{{{
+" a:1, really paste to note in another window, or otherwise
+" only yank to default register(") with `` quoted
+function! notelist#hPasteTag(yes) abort "{{{
     if !exists('b:jNoteList')
         :WLOG 'b:jNoteList objcet not ready?'
         return -1
@@ -293,21 +338,29 @@ function! notelist#hPasteTag() abort "{{{
         return -1
     endif
 
+    return notelist#PasteTag(l:sTag, a:yes)
+endfunction "}}}
+
+" PasteTag: 
+function! notelist#PasteTag(tagname, ...) abort "{{{
+    let l:sTag = a:tagname
     if empty(l:sTag)
         :WLOG 'can not pick any tag?'
         return -1
     endif
 
-    let l:iWin = vnote#GotoNoteWindow()
-    if l:iWin > 0
-        call note#hNoteTag(l:sTag)
-    endif
-
+    " yank
     let l:sTagQuote = printf('`%s`', l:sTag)
     call setreg('"', l:sTagQuote)
-    :LOG 'the tag have also copy to default register: ' . l:sTagQuote
+    :LOG 'the tag have copy to default register: ' . l:sTagQuote
 
-    return 0
+    " paste
+    if a:0 > 1 && !empty(a:1)
+        let l:iWin = vnote#GotoNoteWindow()
+        if l:iWin > 0
+            call note#hNoteTag(l:sTag)
+        endif
+    endif
 endfunction "}}}
 
 " ManageTag: handle for NoteTag
@@ -445,6 +498,27 @@ function! notelist#hGotoFirstEntry() abort "{{{
     endif
 endfunction "}}}
 
+" GotoFinalEntry: 
+function! notelist#hGotoFinalEntry() abort "{{{
+    if !s:CheckBuffer()
+        normal! G
+        return 0
+    endif
+
+    let l:sLine = getline('.')
+    let l:sRegexp = '^\d\+_\d\+'
+    if line('.') > s:HEADLINE && l:sLine !~ l:sRegexp
+        normal! G
+        return
+    endif
+
+    let l:iLine = s:HEADLINE + 1
+    while l:iLine <= line('$') && getline(l:iLine) =~ l:sRegexp
+        let l:iLine += 1
+    endwhile
+    execute 'normal! ' . (l:iLine-1) . 'G'
+endfunction "}}}
+
 " SmartSpace: 
 " toggle tag line in note list mode
 " edit tag file in browse mode
@@ -525,6 +599,83 @@ function! notelist#NewNoteWithTag(...) abort "{{{
     return 0
 endfunction "}}}
 
+" ShowHelpKey: Show/Hide help 
+function! notelist#hShowHelpKey() abort "{{{
+    if !s:CheckBuffer()
+        return
+    endif
+    if s:delete_help()
+        return
+    else
+        let l:lang = get(b:, 'vnote_help_show', 'en')
+        call s:append_help(l:lang)
+    endif 
+endfunction "}}}
+
+" SwitchHelpKey: switch help language en/zh
+function! notelist#hSwitchHelpKey() abort "{{{
+    let l:lang = get(b:, 'vnote_help_show', '')
+    if empty(l:lang)
+        :ELOG 'press ? show help first'
+        return
+    endif
+    call s:delete_help()
+    if l:lang =~? '^en'
+        call s:append_help('zh')
+    else
+        call s:append_help('en')
+    endif
+endfunction "}}}
+
+" append_help: 
+function! s:append_help(lang) abort "{{{
+    let l:pHelp = vnote#GetHelpDoc(a:lang)
+    if filereadable(l:pHelp)
+        let l:lsContent = readfile(l:pHelp)
+        setlocal modifiable
+        call append('$', '')
+        call append('$', l:lsContent)
+        setlocal nomodifiable
+        let b:vnote_help_show = a:lang
+    else
+        :ELOG 'cannot readfile: ' . l:pHelp
+    endif
+endfunction "}}}
+
+" delete_help: return true if really delete help part
+function! s:delete_help() abort "{{{
+    let l:sRegexp = '^<!-- HELP .* -->\c'
+    let l:iLine = search(l:sRegexp, 'bwc')
+    if l:iLine > 0
+        setlocal modifiable
+        :-1,$ delete
+        setlocal nomodifiable
+        return 1
+    else
+        " :ELOG 'help part not found'
+        return 0
+    endif
+endfunction "}}}
+
+" STL: local statusline
+function! notelist#STL() abort "{{{
+    let l:notelist = get(vnote#GetNoteTab(), 'notelist', {})
+    if empty(l:notelist)
+        return ':NoteList %=%p%%%LL'
+    endif
+
+    let l:argv = ':NoteList ' . join(l:notelist.argv, ' ')
+
+    let l:count = len(l:notelist.entry)
+    let l:index = line('.') - s:HEADLINE
+    if l:index < 0
+        let l:index = 0
+    endif
+    let l:cursor = printf('%d/%d', l:index, l:count)
+
+    let l:stl = l:argv . '%=' . l:cursor . '|%p%%%LL'
+    return l:stl
+endfunction "}}}
 " Load: call this function to triggle load this script
 function! notelist#Load() "{{{
     return 1

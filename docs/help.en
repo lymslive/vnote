@@ -1,0 +1,33 @@
+<!-- Help Me [?: Show/Hide] [s: English/中文] -->
+# Windows filetype:
+1. notebar: show list of tags and date
+2. notelist: show list of note within a tag
+3. markdown: whitch is note editing window
+
+# Key Maps: notebar/notelist
+* <CR>: open tag or note under the cursor, 
+  and jump to target windown.
+* J/K: preview move, just as j/k move cursor,
+  and open tag or note but without jump windown.
+* n: create new note with this tag.
+* N: create new private note with this tag.
+* p: put the editing note to this tag.
+* P: yank the tag name, and may paste later.
+
+# Key Maps: only to notebar
+* o: open/close a section marked with +/-
+* s: switch sort mode of tags, by name or
+  by weigth with note number and time.
+* [[: move to last section.
+* ]]: move to next section.
+
+# Key Maps: only to notelist
+* gg: move to first note entry.
+* G:  move to final note entry.
+* <C-]>: try jump to another tag under cursor.
+* ?: show or hide this help.
+* s: switch language of this help, en/zh.
+
+# Edit Note: treat it as markdown as you like.
+
+# Many Command: see help vnote doc.

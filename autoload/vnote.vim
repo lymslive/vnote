@@ -2,7 +2,9 @@
 " Author: lymslive
 " Description: manage the overall vnote plugin
 " Create: 2017-02-17
-" Modify: 2017-03-20
+" Modify: 2018-05-27
+
+let g:vnote#version = 0.60
 
 let s:default_notebook = "$HOME/notebook"
 if exists('g:vnote_default_notebook')
@@ -165,6 +167,10 @@ endfunction "}}}
 " GetBlankNote: 
 function! vnote#GetBlankNote() abort "{{{
     return s:rtp.AddPath(s:thisplug, 'docs', 'blank-note.md')
+endfunction "}}}
+" GetHelpDoc: 
+function! vnote#GetHelpDoc(lang) abort "{{{
+    return s:rtp.AddPath(s:thisplug, 'docs', 'help.' . a:lang)
 endfunction "}}}
 
 " OnVimLeave: 

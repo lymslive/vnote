@@ -14,6 +14,8 @@ let s:class = class#viml#tabapp#old()
 let s:class._name_ = 'class#notetab'
 let s:class._version_ = 1
 let s:class.notebook = {}
+let s:class.notebar = {}
+let s:class.notelist = {}
 
 function! class#notetab#class() abort "{{{
     return s:class
@@ -53,6 +55,7 @@ function! s:class.InitView() dict abort "{{{
     endif
     let b:jNoteBar = self.notebook.CreateBar()
     call b:jNoteBar.RefreshBar()
+    let self.notebar = b:jNoteBar
 
     let l:pTagdb = self.notebook.GetTagdbFile()
     if !filereadable(l:pTagdb)
@@ -72,6 +75,7 @@ function! s:class.InitView() dict abort "{{{
     endif
     let b:jNoteList = self.notebook.CreateLister()
     call b:jNoteList.RefreshList(['-m'])
+    let self.notelist = b:jNoteList
 
     let l:bMruEmpty = self.notebook.MruEmpty()
     if l:bMruEmpty

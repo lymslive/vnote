@@ -140,8 +140,10 @@ function! s:class.Sample() dict abort "{{{
     endif
 
     if self.ReadOK()
-        let l:sample = readfile(self.CacheFile(), 0, 1)[0]
-        let self.sample_ = l:sample
+        let l:sample = readfile(self.CacheFile(), 0, 1)
+        if len(l:sample) > 0
+            let self.sample_ = l:sample[0]
+        endif
     endif
 
     return l:sample

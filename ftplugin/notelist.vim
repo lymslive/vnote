@@ -4,6 +4,7 @@
 
 :PLUGINLOCAL
 
+" Key Map: {{{1
 " enter to edit the note under the cursor
 " if have more than one window, open the note in another window
 " if NoteList -D or -T mode, enter to list the subpath
@@ -40,13 +41,18 @@ nmap <buffer> M <Plug>(VNOTE_list_browse_mark)
 " if cursor on date, NoteList by that data
 " if cursor on a tag(when open tag line), NoteList by that tag
 nmap <buffer> t <Plug>(VNOTE_list_smart_jump)
+nmap <buffer> <C-]> <Plug>(VNOTE_list_smart_jump)
 
-nmap <buffer> p <Plug>(VNOTE_list_pick_tag)
+" paste or yank tag name
+" nmap <buffer> p <Plug>(VNOTE_list_pick_tag)
+nnoremap <buffer> p :call notelist#hPasteTag(1)<CR>
+nnoremap <buffer> P :call notelist#hPasteTag(0)<CR>
 
 " switch to unite
 nmap <buffer> u <Plug>(VNOTE_list_switch_unite)
 
 nmap <buffer> gg <Plug>(VNOTE_list_goto_first)
+nnoremap <buffer> G :call notelist#hGotoFinalEntry()<CR>
 
 " goto the command line and copy the argments
 nnoremap <buffer> <expr> C notelist#hRefineArg()
@@ -74,7 +80,11 @@ nmap <buffer> N <Plug>(VNOTE_list_new_dairy_with_tag)
 nnoremap <buffer> J    :call notelist#hPreviewDown()<CR>
 nnoremap <buffer> K    :call notelist#hPreviewUp()<CR>
 
-" Simple Syntax:
+" quick help doc
+noremap <buffer> ? :call notelist#hShowHelpKey()<CR>
+noremap <buffer> s :call notelist#hSwitchHelpKey()<CR>
+
+" Simple Syntax: {{{1
 " noteid yyyymmdd_n
 syntax match Number /^\d\+_\d\+/
 " note title
@@ -82,5 +92,13 @@ syntax match String /\t[^\t]\+/
 " note tags [tag|tag]
 syntax match Tag /\t\[.*\]/
 syntax match Comment /<!--.*-->/
+syntax match Comment /^\$\s\+.*/
+" help section
+syntax match Define /^#\s.\{-}\ze:/
+syntax match Function /^\*.\{-}\ze:/
+syntax match Function /^\d\..\{-}\ze:/
+
+"Set Option: {{{1
+setlocal statusline=%!notelist#STL()
 
 :PLUGINAFTER

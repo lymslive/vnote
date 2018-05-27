@@ -1,4 +1,10 @@
 <!-- note list -->
 <!-- 笔记 列表 -->
+
 <!-- yyyymmdd_n \t Title \t [tag|list] -->
 <!-- 笔记名目 \t 笔记标题 \t [标签列表] -->
+
+<!-- these comment lines are show only when empy -->
+<!-- that you have not use vnote before since -->
+<!-- press ? for help if necessary later -->
+<!-- 此为空列表说明，日后可按 ? 展示帮助 -->
