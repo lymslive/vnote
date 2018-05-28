@@ -124,6 +124,11 @@ function! s:class.GetCursorArg() dict abort "{{{
         return -1
     endif
 
+    if l:sSecType == 'd' && l:sSubName !~ '\d\+\/\d\+'
+        :DLOG 'a year maybe too many notes, press o to refine'
+        return -1
+    endif
+
     return ['-' . l:sSecType, l:sSubName]
 endfunction "}}}
 
@@ -182,6 +187,82 @@ function! s:time_weight(time) abort "{{{
         let l:iWeight = 0
     endif
     return l:iWeight
+endfunction "}}}
+
+" OpenCloseDate: 
+function! s:class.OpenCloseDate() dict abort "{{{
+    let l:iLine = line('.')
+    let l:sLine = getline('.')
+    let l:iLineTag = search('^[-+] tag', 'n')
+    if l:iLineTag <= 0 || l:iLine >= l:iLineTag
+        :ELOG 'not in date section'
+        return
+    endif
+
+    if l:sLine =~? '^+ date'
+        " open + date
+        let l:jYear = class#notebrowse#date#new(self.notebook, '')
+        let l:lsYear = map(l:jYear.list(), '"  " . v:val . "/"')
+        let l:lsYear = filter(l:lsYear, 'v:val !~? "date"')
+        setlocal modifiable
+        call setline('.', '- date')
+        call append('.', l:lsYear)
+        setlocal nomodifiable
+
+    elseif l:sLine =~? '^- date'
+        " close - date
+        setlocal modifiable
+        call setline('.', '+ date')
+        if l:iLineTag - 1 > l:iLine + 1
+            let l:cmd = printf('%d,%d delete', l:iLine+1, l:iLineTag-1)
+            execute l:cmd
+            :normal! k
+        endif
+        setlocal nomodifiable
+
+    elseif l:sLine =~? '^\s\+\d\+' && l:sLine =~? '/$'
+        " open sub datepath
+        let l:daylead = substitute(l:sLine, '^\s\+', '', '')
+        let l:daylead = substitute(l:daylead, '/$', '', '')
+        let l:jDate = class#notebrowse#date#new(self.notebook, l:daylead)
+        if l:daylead =~? '\d\+\/\d\+'
+            let l:lsDate = map(l:jDate.list(), '"  " . v:val')
+        else
+            let l:lsDate = map(l:jDate.list(), '"  " . v:val . "/"')
+        endif
+        setlocal modifiable
+        call setline('.', '  ' . l:daylead)
+        call append('.', l:lsDate)
+        setlocal nomodifiable
+
+    elseif l:sLine =~? '^\s\+\d\+' && l:sLine !~? '/$'
+        " close sub datepath
+        if l:sLine =~? '\d\+\/\d\+\/\d\+'
+            let l:sMonth = matchstr(l:sLine, '\d\+\/\d\+\ze\/\d\+')
+            let l:iMonth = search(l:sMonth . '$', 'b')
+            if l:iMonth > 0
+                call self.OpenCloseDate()
+            endif
+        else
+            let l:iFirst = l:iLine + 1
+            let l:iLast = l:iLine
+            while l:iLast + 1 < l:iLineTag
+                if getline(l:iLast + 1) =~? l:sLine
+                    let l:iLast += 1
+                else
+                    break
+                endif
+            endwhile
+            setlocal modifiable
+            call setline('.', l:sLine . '/')
+            if l:iLast >= l:iFirst
+                let l:cmd = printf('%d,%d delete', l:iFirst, l:iLast)
+                execute l:cmd
+                :normal! k
+            endif
+            setlocal nomodifiable
+        end
+    endif
 endfunction "}}}
 
 " LOAD:

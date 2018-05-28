@@ -27,6 +27,8 @@ nnoremap <buffer> N :call notebar#hNewNote(1)<CR>
 noremap <buffer> [[ :call notebar#hJumpSection('b')<CR>
 noremap <buffer> ]] :call notebar#hJumpSection('')<CR>
 
+nnoremap <buffer> o :call notebar#hOpenCloseDate()<CR>
+
 " Simple Syntax: {{{1
 " a section begin with -/+
 syntax match Include /^[-+] \S\+/

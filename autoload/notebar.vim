@@ -116,7 +116,20 @@ function! notebar#hJumpSection(flag) abort "{{{
     if !s:CheckBuffer()
         return -1
     endif
-    call search('^[-+]\s', a:flag)
+    if getline('.') =~? '^\s\+\d\+\/\d\+'
+        let l:lead = substitute(getline('.'), '\/\d\+\/\?$', '', '')
+        call search(l:lead . '$' , a:flag)
+    else
+        call search('^[-+]\s', a:flag)
+    endif
+endfunction "}}}
+
+" OpenCloseDate: 
+function! notebar#hOpenCloseDate() abort "{{{
+    if !s:CheckBuffer()
+        return -1
+    endif
+    call b:jNoteBar.OpenCloseDate()
 endfunction "}}}
 
 " STL: local statusline
