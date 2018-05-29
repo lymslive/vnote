@@ -34,6 +34,7 @@ nnoremap <buffer> o :call notebar#hOpenCloseDate()<CR>
 syntax match Include /^[-+] \S\+/
 syntax match Tag /^  \S\+/
 syntax match Number /\[\d\+\]$/
+syntax match Number /\d\+\/$/
 syntax match Comment /<!--.*-->/
 
 "Set Option: {{{1

@@ -143,7 +143,20 @@ function! notebook#hNoteEdit(...) "{{{
 endfunction "}}}
 
 " NoteIndex: build cache index for notebook
+" when perlx enabled, '-u' option will update to today, or by default
+" rebuild all notebook
+" when perlx not enabled, use old viml process,
+" accept '-t' to rebuild tag as well
 function! notebook#hNoteIndex(...) abort "{{{
+    if g:vnote#perlx#enable
+        if match(a:000, '-u') != -1
+            call vnote#perlx#OnUpdate()
+        else
+            call vnote#perlx#OnBuild()
+        endif
+        return
+    endif
+
     let l:iErr = s:jNoteBook.RebuildCache(a:000)
     :LOG 'NoteIndex done: E' . l:iErr
     return l:iErr

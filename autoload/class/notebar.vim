@@ -18,6 +18,7 @@ let s:class.notebook = {}
 
 let s:class.taglist = []
 let s:class.tagsort = 1
+let s:class.tagtime = 0
 let s:TAG_SORT_BY_NAME = 1
 let s:TAG_SORT_BY_NUMW = 2
 
@@ -76,6 +77,7 @@ function! s:class.GatherContent() dict abort "{{{
     let l:pTagdb = self.notebook.GetTagdbFile()
     if filereadable(l:pTagdb)
         let self.taglist = readfile(l:pTagdb)
+        let self.tagtime = getftime(l:pTagdb)
         let self.tagsort = s:TAG_SORT_BY_NAME
         let l:lsTag = map(copy(self.taglist), function('s:tag_entry'))
         call extend(l:lsContent, l:lsTag)
@@ -132,15 +134,31 @@ function! s:class.GetCursorArg() dict abort "{{{
     return ['-' . l:sSecType, l:sSubName]
 endfunction "}}}
 
+" OnCheckTime: 
+" when tag.db updated outside vim, refresh tag section of notebar
+function! s:class.OnCheckTime() dict abort "{{{
+    let l:pTagdb = self.notebook.GetTagdbFile()
+    if !filereadable(l:pTagdb)
+        return
+    endif
+    let l:tCurrent = getftime(l:pTagdb)
+    if l:tCurrent <= self.tagtime
+        return
+    endif
+
+    let self.taglist = readfile(l:pTagdb)
+    let self.tagtime = getftime(l:pTagdb)
+    if self.tagsort == s:TAG_SORT_BY_NUMW
+        call sort(self.taglist, function('s:tag_weigh_sorter'))
+    endif 
+    let l:lsTag = map(copy(self.taglist), function('s:tag_entry'))
+    call s:redraw_taglist(l:lsTag)
+endfunction "}}}
+
 " SortTag: switch sort type for tag section, when cursor on it
 " default sort by tag name
 " alterably sort by weith with number and time
 function! s:class.SortTag() dict abort "{{{
-    let l:iSection = search('^[-+] tag', 'bw')
-    if l:iSection <= 0
-        return 0
-    endif
-
     if self.tagsort == s:TAG_SORT_BY_NAME
         call sort(self.taglist, function('s:tag_weigh_sorter'))
         let self.tagsort = s:TAG_SORT_BY_NUMW
@@ -150,9 +168,18 @@ function! s:class.SortTag() dict abort "{{{
     endif
 
     let l:lsTag = map(copy(self.taglist), function('s:tag_entry'))
+    call s:redraw_taglist(l:lsTag)
+endfunction "}}}
+
+" redraw_taglist: 
+function! s:redraw_taglist(lsTag) abort "{{{
+    let l:iSection = search('^[-+] tag', 'bw')
+    if l:iSection <= 0
+        return 0
+    endif
     setlocal modifiable
     execute (l:iSection + 1) . ',$delete'
-    call append('$', l:lsTag)
+    call append('$', a:lsTag)
     setlocal nomodifiable
 endfunction "}}}
 

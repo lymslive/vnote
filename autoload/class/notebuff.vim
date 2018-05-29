@@ -22,6 +22,7 @@ let s:class.tagsave = {}
 " mark saved cache
 let s:class.chesave = v:false
 let s:class.forcesave = ''
+let s:class.perlsave = v:false
 
 function! class#notebuff#class() abort "{{{
     return s:class
@@ -66,9 +67,19 @@ function! s:class.SaveNote(...) dict abort "{{{
         let self.forcesave = a:1
     endif
 
-    let l:iErr = self.UpdateCache()
-    let l:iErr += self.UpdateTagFile()
+    let l:iErr = 0
     let l:iErr += self.PushMru()
+
+    if g:vnote#perlx#enable
+        if !self.perlsave || !empty(self.forcesave)
+            call vnote#perlx#OnSave(self.path)
+            let self.perlsave = v:true
+        endif
+    else
+        let l:iErr += self.UpdateCache()
+        let l:iErr += self.UpdateTagFile()
+    endif
+
     let self.forcesave = ''
 
     return l:iErr
@@ -148,6 +159,12 @@ function! s:class.UpdateTagFile() dict abort "{{{
     if l:sTag !=# l:lsTag[-1]
         :WLOG 'too many tags, the last few tags donot save'
     endif
+
+    let l:iWin = vnote#GotoNoteWindow()
+    if l:iWin > 0 && exists('b:jNoteList')
+        call b:jNoteList.OnCheckTime()
+    endif
+
     return 0
 endfunction "}}}
 

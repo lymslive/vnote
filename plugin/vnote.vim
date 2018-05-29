@@ -45,6 +45,7 @@ command! -nargs=* -complete=customlist,vnote#complete#NoteConfig
 
 " build cache index for notebook
 " -t option also rebuild all tagfiles
+" -u option update to today, only supported by perlx
 command! -nargs=* NoteIndex call notebook#hNoteIndex(<f-args>)
 
 " copy import a file into notebook

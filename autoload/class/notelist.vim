@@ -20,6 +20,7 @@ let s:class.notebook = {}
 " the argument of note-list
 let s:class.argv = []
 let s:class.entry = []
+let s:class.ftime = 0
 
 function! class#notelist#class() abort "{{{
     return s:class
@@ -155,6 +156,9 @@ function! s:class.GatherContent(argv) dict abort "{{{
 
     let self.argv = [l:cMode, l:sArg]
     let self.entry = l:lsContent
+    if l:cMode ==# '-t' && exists('l:jScope') && class#notescope#tag#isobject(l:jScope)
+        let self.ftime = getftime(l:jScope.GetTagFile())
+    endif
     return l:lsContent
 endfunction "}}}
 
@@ -244,6 +248,25 @@ function! s:class.BackList() dict abort "{{{
     let l:lsArgv = [toupper(self.argv[0]), l:sNewArg]
     call self.RefreshList(l:lsArgv)
     call search('^' . l:sArg, 'w')
+endfunction "}}}
+
+" OnCheckTime: 
+" when this *.tag file updated outside vim, refresh notelist
+function! s:class.OnCheckTime() dict abort "{{{
+    let l:cMode = self.argv[0]
+    if l:cMode !=# '-t'
+        return
+    endif
+
+    let l:sTag = self.argv[1]
+    let l:pTagDir = self.notebook.Tagdir()
+    let l:jScope = class#notescope#tag#new(self.notebook, l:pTagDir, l:sTag)
+    if self.ftime < getftime(l:jScope.GetTagFile())
+        let self.ftime = getftime(l:jScope.GetTagFile())
+        let l:lsContent = l:jScope.list()
+        call self.RedrawContent(l:lsContent)
+        let self.entry = l:lsContent
+    endif
 endfunction "}}}
 
 " LOAD:
