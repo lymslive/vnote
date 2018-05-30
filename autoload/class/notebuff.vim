@@ -72,7 +72,7 @@ function! s:class.SaveNote(...) dict abort "{{{
 
     if g:vnote#perlx#enable
         if !self.perlsave || !empty(self.forcesave)
-            call vnote#perlx#OnSave(self.path)
+            call vnote#perlx#OnSave(self.GetNoteName())
             let self.perlsave = v:true
         endif
     else

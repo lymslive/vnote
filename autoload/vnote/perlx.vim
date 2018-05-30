@@ -16,19 +16,26 @@ let s:jNoteTab = vnote#GetNoteTab()
 let s:rtp = class#less#rtp#export()
 
 " OnSave: 
-function! vnote#perlx#OnSave(pNote) abort "{{{
+function! vnote#perlx#OnSave(sNoteID) abort "{{{
     let l:pScript = s:rtp.AddPath(s:perlx, 'save.pl')
     if !filereadable(l:pScript)
         reutrn -1
     endif
-    let l:aCmd = ['perl', l:pScript, a:pNote]
+    let l:aCmd = ['perl', l:pScript, a:sNoteID]
     let l:job = job_start(l:aCmd, {'close_cb': function('s:cbSave')})
 endfunction "}}}
 
 " cbSave: 
 function! s:cbSave(channel) abort "{{{
     echomsg 'vnote#perlx#OnSave() done!'
-    call s:jNoteTab.OnUpdate()
+    " call s:jNoteTab.OnUpdate()
+    while ch_status(a:channel, {'part': 'out'}) == 'buffered'
+        let l:msg = ch_read(a:channel)
+        echomsg l:msg
+        if l:msg =~? 'success'
+            call s:jNoteTab.OnUpdate()
+        endif
+    endwhile
 endfunction "}}}
 
 " OnBuild: 
@@ -37,14 +44,20 @@ function! vnote#perlx#OnBuild() abort "{{{
     if !filereadable(l:pScript)
         reutrn -1
     endif
-    let l:aCmd = ['perl', l:pScript, s:jNoteBook.basedir, 'create']
+    let l:aCmd = ['perl', l:pScript, s:jNoteBook.basedir]
     let l:job = job_start(l:aCmd, {'close_cb': function('s:cbBuild')})
 endfunction "}}}
 
 " cbBuild: 
 function! s:cbBuild(channel) abort "{{{
     echomsg 'vnote#perlx#OnUpdate() done!'
-    call s:jNoteTab.OnUpdate()
+    while ch_status(a:channel, {'part': 'out'}) == 'buffered'
+        let l:msg = ch_read(a:channel)
+        echomsg l:msg
+        if l:msg =~? 'success'
+            call s:jNoteTab.OnUpdate()
+        endif
+    endwhile
 endfunction "}}}
 
 " OnUpdate: 
@@ -53,13 +66,19 @@ function! vnote#perlx#OnUpdate() abort "{{{
     if !filereadable(l:pScript)
         reutrn -1
     endif
-    let l:aCmd = ['perl', l:pScript, s:jNoteBook.basedir, 'update']
+    let l:aCmd = ['perl', l:pScript, s:jNoteBook.basedir]
     let l:job = job_start(l:aCmd, {'close_cb': function('s:cbUpdate')})
-    " code
 endfunction "}}}
 
 " cbUpdate: 
 function! s:cbUpdate(channel) abort "{{{
     echomsg 'vnote#perlx#OnUpdate() done!'
-    call s:jNoteTab.OnUpdate()
+    " call s:jNoteTab.OnUpdate()
+    while ch_status(a:channel, {'part': 'out'}) == 'buffered'
+        let l:msg = ch_read(a:channel)
+        echomsg l:msg
+        if l:msg =~? 'success'
+            call s:jNoteTab.OnUpdate()
+        endif
+    endwhile
 endfunction "}}}
