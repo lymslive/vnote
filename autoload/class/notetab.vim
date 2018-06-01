@@ -97,16 +97,17 @@ function! s:class.InitView() dict abort "{{{
 endfunction "}}}
 
 " OnUpdate: when updated by script outside vim
-function! s:OnUpdate() abort "{{{
+function! s:class.OnUpdate() abort "{{{
     let l:iWin = vnote#GotoBarWindow()
     if l:iWin > 0
         call self.notebar.OnCheckTime()
     endif
-    let l:iWin = vnote#GotoNoteWindow()
+    let l:iWin = vnote#GotoListWindow()
     if l:iWin > 0
         call self.notelist.OnCheckTime()
     endif
 endfunction "}}}
+
 " LOAD:
 let s:load = 1
 function! class#notetab#load(...) abort "{{{

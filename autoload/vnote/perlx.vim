@@ -21,12 +21,18 @@ function! vnote#perlx#OnSave(sNoteID) abort "{{{
     if !filereadable(l:pScript)
         reutrn -1
     endif
-    let l:aCmd = ['perl', l:pScript, a:sNoteID]
+    let l:aCmd = ['perl', l:pScript, s:jNoteBook.basedir, a:sNoteID]
     let l:opt = {'close_cb': function('s:cbSave'), 
+                \'err_cb': function('s:cbError'),
                 \'in_io': 'buffer', 'in_name': '%', 
                 \'in_top': 1, 'in_bot': 2
                 \}
     let l:job = job_start(l:aCmd, l:opt)
+endfunction "}}}
+
+" cbError: 
+function! s:cbError(channle, msg) abort "{{{
+    echomsg 'job stderr: ' . a:msg
 endfunction "}}}
 
 " cbSave: 
