@@ -2,7 +2,7 @@
 " Author: yourname
 " Description: complete for vnote custome command
 " Create: 2017-02-25
-" Modify: 2017-03-15
+" Modify: 2018-06-02
 
 " NoteList: 
 function! vnote#complete#NoteList(ArgLead, CmdLine, CursorPos) abort "{{{
@@ -85,4 +85,33 @@ endfunction "}}}
 function! vnote#complete#NoteConfig(ArgLead, CmdLine, CursorPos) abort "{{{
     let l:dConfig = vnote#GetConfig()
     return filter(keys(l:dConfig), 'v:val =~ "^" . a:ArgLead')
+endfunction "}}}
+
+" InsertTag: 
+" <C-X><C-U> complete support
+function! vnote#complete#InsertTag(findstart, base) abort "{{{
+    if a:findstart
+        let l:sLine = getline('.')
+        if line('.') != 2 || l:sLine !~ '`'
+            " only complete in the 2nd line, and has ``
+            return -3
+        endif
+        let l:iStart = col('.') - 1
+        while l:iStart > 0 && l:sLine[l:iStart-1] != '`'
+            let l:iStart -= 1
+        endwhile
+        return l:iStart
+
+    else
+        let l:jNoteTab = vnote#GetNoteTab()
+        let l:jNoteBar = l:jNoteTab.notebar
+        let l:lsMatch = []
+        for l:sTagLine in l:jNoteBar.taglist
+            if l:sTagLine =~ '^' . a:base
+                let l:sTagName = get(split(l:sTagLine, "\t"), 0, '')
+                call add(l:lsMatch, l:sTagName)
+            endif
+        endfor
+        return l:lsMatch
+    endif
 endfunction "}}}

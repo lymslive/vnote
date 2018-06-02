@@ -98,6 +98,7 @@ endfunction "}}}
 
 " OnUpdate: when updated by script outside vim
 function! s:class.OnUpdate() abort "{{{
+    let l:iSaveWin = winnr()
     let l:iWin = vnote#GotoBarWindow()
     if l:iWin > 0
         call self.notebar.OnCheckTime()
@@ -106,6 +107,7 @@ function! s:class.OnUpdate() abort "{{{
     if l:iWin > 0
         call self.notelist.OnCheckTime()
     endif
+    execute l:iSaveWin . 'wincmd w'
 endfunction "}}}
 
 " LOAD:

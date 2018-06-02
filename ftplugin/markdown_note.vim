@@ -37,4 +37,7 @@ augroup END
 " with argument to force save
 command! -buffer -nargs=? NoteSave call note#OnSaveNote(<f-args>)
 
+" <C-X><C-U> complete to insert tag
+setlocal completefunc=vnote#complete#InsertTag
+
 :PLUGINAFTER
