@@ -54,7 +54,8 @@ function! s:class.RefreshBar() dict abort "{{{
 
     setlocal modifiable
     :1,$delet
-    call append(line('$'), l:lsContent)
+    " call append(0, l:lsContent)
+    call setline(1, l:lsContent)
     if &filetype !=# 'notebar'
         setlocal filetype=notebar
         setlocal buftype=nofile

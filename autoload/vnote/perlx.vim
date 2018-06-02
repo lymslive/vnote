@@ -28,6 +28,11 @@ function! vnote#perlx#OnSave(sNoteID) abort "{{{
                 \'in_top': 1, 'in_bot': 2
                 \}
     let l:job = job_start(l:aCmd, l:opt)
+    let l:status = job_status(l:job)
+    if l:status ==? 'fail'
+        return -1
+    endif
+    return 0
 endfunction "}}}
 
 " cbError: 

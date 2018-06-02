@@ -32,10 +32,10 @@ nnoremap <buffer> o :call notebar#hOpenCloseDate()<CR>
 " Simple Syntax: {{{1
 " a section begin with -/+
 syntax match Include /^[-+] \S\+/
-syntax match Tag /^  \S\+/
 syntax match Number /\[\d\+\]$/
 syntax match Number /\d\+\/$/
 syntax match Comment /<!--.*-->/
+syntax match Tag /^  \S\+/
 
 "Set Option: {{{1
 setlocal statusline=%!notebar#STL()

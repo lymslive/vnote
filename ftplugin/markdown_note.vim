@@ -40,4 +40,10 @@ command! -buffer -nargs=? NoteSave call note#OnSaveNote(<f-args>)
 " <C-X><C-U> complete to insert tag
 setlocal completefunc=vnote#complete#InsertTag
 
+" NoteNew: local command 
+" create new note with the same tag set with current one
+" if provid any argument, use global :NoteNew command
+command! -buffer -nargs=* -complete=customlist,vnote#complete#NoteTag
+            \ NoteNew call note#hNoteNew(<f-args>)
+
 :PLUGINAFTER

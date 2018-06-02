@@ -2,7 +2,7 @@
 " Author: lymslive
 " Description: current buffer as note file
 " Create: 2017-02-17
-" Modify: 2017-08-04
+" Modify: 2018-06-01
 
 "LOAD:
 if exists('s:load') && !exists('g:DEBUG')
@@ -14,15 +14,7 @@ let s:class = class#note#old()
 let s:class._name_ = 'class#notebuff'
 let s:class._version_ = 1
 
-" buffer number of the note, 0 is current buffer
-" let s:class.bufnr = 0
-
-" marked saved tag
-let s:class.tagsave = {}
-" mark saved cache
-let s:class.chesave = v:false
-let s:class.forcesave = ''
-let s:class.perlsave = v:false
+let s:class.saved = v:false
 
 function! class#notebuff#class() abort "{{{
     return s:class
@@ -43,9 +35,6 @@ function! class#notebuff#ctor(this, ...) abort "{{{
     else
         call l:Suctor(a:this, l:pFileName)
     endif
-    let a:this.tagsave = {}
-    let a:this.chesave = v:false
-    let a:this.forcesave = ''
 endfunction "}}}
 
 " ISOBJECT:
@@ -58,30 +47,34 @@ function! s:class.GetHeadLine(iMaxLine) dict abort "{{{
     return getline(1, a:iMaxLine)
 endfunction "}}}
 
+" MarkSaved: 
+function! s:class.MarkSaved(...) dict abort "{{{
+    let l:saved = get(a:000, 0, v:true)
+    let self.saved = l:saved
+endfunction "}}}
+
 " SaveNote: auto save cache and tag file
 " > a:1 force save
 function! s:class.SaveNote(...) dict abort "{{{
     if a:0 > 0 && !empty(a:1)
-        let self.tagsave = {}
-        let self.chesave = v:false
-        let self.forcesave = a:1
+        let self.saved = v:false
+    endif
+
+    if self.saved
+        return 0
     endif
 
     let l:iErr = 0
     let l:iErr += self.PushMru()
 
     if g:vnote#perlx#enable
-        if !self.perlsave || !empty(self.forcesave)
-            call vnote#perlx#OnSave(self.GetNoteName())
-            let self.perlsave = v:true
-        endif
+        let l:iErr += vnote#perlx#OnSave(self.GetNoteName())
     else
         let l:iErr += self.UpdateCache()
         let l:iErr += self.UpdateTagFile()
     endif
 
-    let self.forcesave = ''
-
+    let self.saved = v:true
     return l:iErr
 endfunction "}}}
 
@@ -94,21 +87,14 @@ endfunction "}}}
 
 " UpdateCache: 
 function! s:class.UpdateCache() dict abort "{{{
-    if self.chesave && empty(self.forcesave)
-        return 0
-    endif
-
     " may have zero time bug
     " use :NoteSave y
-    if !self.IsTodayNote() && self.forcesave !~? '^y'
+    if !self.IsTodayNote() " && self.forcesave !~? '^y'
         return 0
     endif
 
     let l:sNoteEntry = self.GetNoteEntry()
     let l:iErr = self.notebook.SaveCache(l:sNoteEntry)
-    if 0 == l:iErr
-        let self.chesave = v:true
-    endif
     return l:iErr
 endfunction "}}}
 
@@ -171,18 +157,14 @@ endfunction "}}}
 " UpdateOneTag: 
 function! s:class.UpdateOneTag(sTag) dict abort "{{{
     let l:sTag = tolower(a:sTag)
-    if has_key(self.tagsave, l:sTag)
-        return 0
-    endif
 
     " note entry of current note
     let l:sNoteEntry = self.GetNoteEntry()
     let l:jNoteTag = class#notetag#new(l:sTag)
 
-    let l:iRet = l:jNoteTag.UpdateEntry(l:sNoteEntry, self.forcesave)
+    let l:iRet = l:jNoteTag.UpdateEntry(l:sNoteEntry, 1)
     if l:iRet == 0
         :DLOG 'update tag file: ' . l:sTag
-        let self.tagsave[l:sTag] = v:true
     else
         :DLOG 'fail to update tag file: ' . l:sTag
     endif
@@ -198,16 +180,12 @@ function! s:class.RemoveUpdateTag(sTag) dict abort "{{{
 
     let l:jNoteTag = class#notetag#new(l:sTag)
     let l:iRet = l:jNoteTag.RemoveEntry(l:sNoteName)
-    if l:iRet == 0 && has_key(self.tagsave, l:sTag)
-        remove(self.tagsave, l:sTag)
-    endif
-
     return l:iRet
 endfunction "}}}
 
 " AddTag: 
 function! s:class.AddTag(...) dict abort "{{{
-    let l:list = module#less#list#import()
+    let l:list = class#less#list#export()
     let l:lsTag = l:list.Flat(a:000)
     for l:sTag in l:lsTag
         call self._AddTag(l:sTag)
@@ -238,7 +216,7 @@ endfunction "}}}
 
 " RemoveTag: 
 function! s:class.RemoveTag(...) dict abort "{{{
-    let l:list = module#less#list#import()
+    let l:list = class#less#list#export()
     let l:lsTag = l:list.Flat(a:000)
     for l:sTag in l:lsTag
         call self._RemoveTag(l:sTag)

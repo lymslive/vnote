@@ -99,6 +99,9 @@ function! notebook#hNoteNew(...) "{{{
     if !empty(l:lsTag)
         call map(l:lsTag, 'printf("`%s`", v:val)')
         let l:sTagLine .= ' ' . join(l:lsTag, ' ')
+    else
+        " add a `untag` tag if none provided
+        let l:sTagLine .= '`untag`'
     endif
 
     if !empty(l:sTagLine)
@@ -143,16 +146,16 @@ function! notebook#hNoteEdit(...) "{{{
 endfunction "}}}
 
 " NoteIndex: build cache index for notebook
-" when perlx enabled, '-u' option will update to today, or by default
+" when perlx enabled, default update to today, '-c' option
 " rebuild all notebook
 " when perlx not enabled, use old viml process,
 " accept '-t' to rebuild tag as well
 function! notebook#hNoteIndex(...) abort "{{{
     if g:vnote#perlx#enable
-        if match(a:000, '-u') != -1
-            call vnote#perlx#OnUpdate()
-        else
+        if match(a:000, '-c') != -1
             call vnote#perlx#OnBuild()
+        else
+            call vnote#perlx#OnUpdate()
         endif
         return
     endif

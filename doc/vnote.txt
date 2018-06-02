@@ -1,6 +1,6 @@
 *vnote.txt*		Notes and Diary Manager in Vim
 
-version 0.51
+version 0.61
 Author: lymslive <403708621@qq.com>
 License: MIT license
 
@@ -39,14 +39,9 @@ and so require a few format assumptions:
 *vnote-title* is the first line of note file, but the leading "#" symbol is
 trimed, as it maybe just markdown title syntax.
 
-*vnote-tag* is the word quoted with `` symbol, in the first few lines of 
-note file. `tag` must start from the first column, multiply tags can be
-in one line, each quoted with ``. The tag line must be continous, usually
-from the second line next to title, but not necessary so.
-
-|vnote| by default only search the first ten line to parse note tags. Complex
-tags with path such as `topic/sub-topic` is also handled. The tag should be
-meaningful word, not containing strange characters.
+*vnote-tag* is the word quoted with `` symbol, in the second line next to
+title.  Complex tags with path such as `topic/sub-topic` is also handled. The
+tag should be meaningful word, not containing strange characters.
 
 *vnote-notebook* is a directory that all note files are stored in it's "d/"
 subdirectory, and further organized by date "yyyy/mm/dd". 
@@ -101,6 +96,7 @@ auto-cache schema.
 Requirement:
 
 Minimum Vim Verion: 7.4
+It is better upgrade up vim8
 Operating System: linux (not test in windows by now)
 (optional) Unite.vim plugin
 
@@ -111,6 +107,9 @@ to install these two plugin maybe something like: >
 	$ git clone https://github.com/lymslive/vnote.git
 	: set rtp+=right/path/to/vimloo
 	: set rtp+=right/path/to/vnote
+	" or in vim8 above
+	:packadd vimloo
+	:packadd vnote
 <
 
 The "$" symbol denotes as shell command, and ":" denotes as vim's ex command,
@@ -124,6 +123,7 @@ When |vnote| plugin is loaded, it assumes the default notebook in "~/notebook"
 directory. 
 
 Use |:NoteBook| command to change notebook directory if necessary.
+Use |:Vnote| to open a layout with three window. (from v0.61)
 Use |:NoteNew| command to edit a new note file, named automatically.
 When save the note by |:w| the tagfiles is also automatically update.
 Use |:NoteEidt| open the last note of today, or by arguments.
@@ -161,13 +161,36 @@ is "markdown", and when listing note, which 'filetype' is "notelist". In each
 case, have different key mappings, and few buffer local command. Inaddition to
 these, several global command are provided that can trigger from any time.
 
+From v0.61, |vnote| add another special file in the left side window, with
+'filetype' set to "notebar". And so the main layout of |vnote| will have three
+windows. In the "notebar" window is a lit of tags, select one and press <CR>
+will jump to "notelist" window to list the notes having this tag, and press
+<CR> further in "notelist" window, will open the notefile in the "markdown"
+window.
+
+In the "notebar" or "notelist" window, press "?" can switch show/hide a short
+help document to describe the most used key maps, and "s" can switch the
+language between english and chinese.
+
 Most implement script is in "autoload/" subdirectory. The global commands is
 defined in script in "plugin/" subdirectory, buffer local mappings or commands
 is defined in scrip in "ftplugin/" subdirectory. The virtual <Plug> mappings
 are defined in script "autoload/vnote/remap.vim".
 
+If vim8 and |+job| feature is available, several perl script is provided to
+help to manage the notebook, such as build cache and index, and auto-save the
+current editing note, which is implemented by pure VimL script before. The
+perl script is located in the "perlx/" subdirectory of |vnote| plugin, or you
+can copy it to the "x/" subdirectory of notebook (such as "~/notebook/x"), the
+later take precedence.
+
 --------------------------------------------------------+---------------------
 4.1 Global Commands					*vnote-command*
+
+:Vnote [-t|-w]						*:Vnote*
+	Open the layout of vnote, with three windows.
+	-t (default) open in new tabpage.
+	-w open in the current tabpage, the old windows will closed.
 
 :NoteBook [{directory}]					*:NoteBook*
 	Change the current notebook to the one in {directory}. If omits the
@@ -190,6 +213,10 @@ are defined in script "autoload/vnote/remap.vim".
 	words are treated as after the other option.
 	If the "-t" and "-T" option are both provided, and still have any
 	words before the option, then these arguments are just ignored.
+	In the notefile window, there is another local :NoteNew command. When
+	used with no argument, the new note created will copy the full set of
+	tags of the current one. However if any argument provided, it does as
+	the global :NoteNew command.
 
 :NoteEidt [{date}|{number}]				*:NoteEdit*
 	Edit the last note of {date}, {date} argument is in path format
@@ -240,6 +267,9 @@ are defined in script "autoload/vnote/remap.vim".
 	There is seldom need to use this command if you only hand write note
 	locally, since when new note saved, update the cache files and 
 	tag files automatically.
+	In Vim8, this command will use perl script to do the work
+	asynchronously. The default behaviors is "update", and if "-c" option
+	is provided, it will rebuild cache and tag index.
 
 :NoteImport [-pPsS]						*:NoteImport*
 	When edit a text file that is not in current notebook, this command
@@ -441,10 +471,12 @@ g<C-x>					*<Plug>(VNOTE_edit_prev_note)*
 	automatically when |:w|. It is useful in the following cases:
 	1. when note title is changed, the note entry in tag file and cache
 	   cannot update. Manually give {force} arugment, which is non-empty
-	   will force to update the existed note entry.
+	   will force to update the existed note entry. When the cursor is in
+	   the first two lines, it will force save.
 	2. When create new note just befor zero time, but save the note first
 	   time after zero time, then the auto-cache may have problem. Give
 	   argument [-yesterday] or [-y] force to update cache.
+	In vim8, perl script will do this work asynchronously.
 
 markdown mappings for text~				*markdown-edit*
 
@@ -792,6 +824,16 @@ generate test notebook: >
 It will generate notebook from 2000 to 2010 years, each day 10 notes, about
 40180 notes overall. With the command |:NoteIndex|, it spends more than half
 a minus, and using complied |vnote-tool|, spends several seconds.
+
+Another tool is |vnotego|, a lightweight web server to browse the notebook,
+implemented by go language. >
+	$ go build github.com/lymslive/vnotego
+	$ vnotego ~/notebook
+<
+The server config "conf.toml", html template "htpl/", css and other necessary
+resources should be in the same directory as notebook. And then the base
+directory is sufficient as the only argument to |vnotego| command to start the
+web server.
 
 ========================================================+=====================
 7. FAQ							*vnote-faq*

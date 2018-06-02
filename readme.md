@@ -22,7 +22,7 @@ A __chinese version__ readme is also availabe
 
 ### Minimum Requirment
 * OS: linux (windows not test now)
-* vim version: 7.4
+* vim version: 7.4 (vim8 recommaned)
 * Unite.vim plugin: (optional)
 
 ### Dependent
@@ -35,15 +35,20 @@ $ git clone https://github.com/lymslive/vimloo.git
 $ git clone https://github.com/lymslive/vnote.git
 : set rtp+=right/path/to/vimloo
 : set rtp+=right/path/to/vnote
+" or in vim8
+: packadd vimloo
+: packadd vnote
 : cd right/path/to/vnote/doc
 : helptags .
 ```
 
-The `$` lines is shell command, `:` lines is vim ex command.
-The "set rtp+=" command is suggested put in vimrc.
+The `$` lines is shell command, `:` lines is vim ex command,
+which is suggested put in vimrc.
 
 `right/path/to/vnote` is the directory where clone down this plugin,
-maybe `~/.vim/bundle/vnote` is a good choice.
+maybe `~/.vim/bundle/vnote` is a good choice. 
+While in vim8, it is better to clone in the `&packpath`, for example:
+`~/.vim/pack/lymslive/opt/vnote`
 
 ### Install by plugin manage tools
 
@@ -52,6 +57,7 @@ Install "vimloo" before "vnote".
 
 ## Fast Usage
 
+* `:Vnote` open vnote layout with three windows in its own tabpage.
 * `:NoteNew` create a new note
 * `:NoteNew -` create a new diary
 * `:w` save note file as normal
@@ -59,3 +65,4 @@ Install "vimloo" before "vnote".
 * `:Unite notelist` is available if unite.vim installed
 * default notebook is `~/notebook`, it's better to create it first
 * `:help vnote` for detail and online document
+* refer a sample mine: [lymslive/notebook](https://github.com/lymslive/notebook)

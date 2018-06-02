@@ -127,6 +127,8 @@ function! note#DetectTag(bol) abort "{{{
 endfunction "}}}
 
 " OnSaveNote: triggle by some write event
+" when cursor on the first 2 lines, force save as consider it just
+" has modified title or tags
 function! note#OnSaveNote(...) abort "{{{
     let l:jNoteBuff = s:GetNoteObject()
     if empty(l:jNoteBuff)
@@ -134,6 +136,12 @@ function! note#OnSaveNote(...) abort "{{{
     endif
 
     let l:sForce = get(a:000, 0, '')
+    if empty(l:sForce)
+        if line('.') <= 2
+            let l:sForce = 1
+        endif
+    endif
+
     return l:jNoteBuff.SaveNote(l:sForce)
 endfunction "}}}
 " OnBufRead: 
@@ -142,6 +150,7 @@ function! note#OnBufRead() abort "{{{
     if empty(l:jNoteBuff)
         return 0
     endif
+    call l:jNoteBuff.MarkSaved()
     return l:jNoteBuff.PushMru()
 endfunction "}}}
 
@@ -184,6 +193,26 @@ function! note#hNoteMark(...) abort "{{{
         for l:sTag in a:000
             call l:jNoteBuff.AddBookMark(l:sTag)
         endfor
+    endif
+endfunction "}}}
+
+" NoteNew: create new note with the same tag set as current one
+function! note#hNoteNew(...) abort "{{{
+    if a:0 == 0
+        if !exists('b:jNoteBuff') || b:jNoteBuff.saved != v:true
+            :ELOG 'you should save current note first'
+            return -1
+        endif
+        let l:tagLine = getline(2)
+        let l:sNoteName = b:jNoteBuff.GetNoteName()
+        if l:sNoteName =~# '-$'
+            call notebook#hNoteNew('-')
+        else
+            call notebook#hNoteNew()
+        endif
+        call setline(2, l:tagLine)
+    else
+        call call(function('notebook#hNoteNew'), a:000)
     endif
 endfunction "}}}
 
