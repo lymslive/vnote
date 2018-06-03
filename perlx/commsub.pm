@@ -16,10 +16,10 @@ sub writefile(\@$$)
 	my ($content, $file, $append) = @_;
 	my $fh;
 	if (defined $append && $append) {
-		open($fh, '>>', $file) or die "cannot open $file $!";
+		open($fh, '>>', $file) or die "cannot write $file $!";
 	}
 	else {
-		open($fh, '>', $file) or die "cannot open $file $!";
+		open($fh, '>', $file) or die "cannot write $file $!";
 	}
 	foreach my $line (@$content) {
 		print $fh "$line\n";
@@ -31,6 +31,10 @@ sub writefile(\@$$)
 sub readfile($)
 {
 	my $file = shift;
+	unless (-r $file) {
+		wlog("return empty list since unreadable: $file");
+		return [];
+	}
 	open(my $fh, '<', $file) or die "cannot open $file $!";
 	my @content = <$fh>;
 	chomp(@content);
