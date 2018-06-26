@@ -117,8 +117,8 @@ function! notebook#hNoteEdit(...) "{{{
     if a:0 >= 1
         let l:sArg = a:1
     else
-        " let l:sDatePath = strftime("%Y/%m/%d")
-        let l:sArg = -1
+        let l:sDatePath = strftime("%Y/%m/%d")
+        " let l:sArg = -1
     endif
 
     let l:pNoteFile = ''

@@ -48,13 +48,27 @@ function! note#EditNext(shift) "{{{
     execute 'edit ' l:pNoteFile
 endfunction "}}}
 
-" OpenNoteList: call ListNote with tag under cursor or current day
+" OpenNoteList: <C-]> jump
+" call ListNote with tag under cursor or current day
+" But if cursor on a noteid-list word, jump to that note first
 function! note#OpenNoteList() abort "{{{
     if !s:NoteInBook()
         echo 'not in notebook?'
         return 0
     endif
 
+    " 1st. jump to another note: yyyymmdd_n
+    let l:pNote = note#DetectNote()
+    if !empty(l:pNote)
+        if filereadable(l:pNote)
+            execute 'edit ' . l:pNote
+        else
+            :ELOG 'cannot open note file: ' . l:pNote
+        endif
+        return
+    endif
+
+    " 2nd. jump to a tag list
     let l:sTag = note#DetectTag(1)
     if empty(l:sTag)
         let l:jNoteName = class#notename#new(expand('%:t'))
@@ -124,6 +138,20 @@ function! note#DetectTag(bol) abort "{{{
     else
         return strpart(l:line, l:quote_left+1, l:quote_right-l:quote_left - 1)
     endif
+endfunction "}}}
+
+" DetectNote: check the word under cursor is a note
+" return the full note path if it is.
+function! note#DetectNote() abort "{{{
+    let l:sLine = getline('.')
+    let l:sNoteName = expand('<cword>')
+    let l:sPattern = '^\(\d\{8\}\)_\(\d\+\)\(-\?\)$'
+    if l:sNoteName !~ l:sPattern
+        return ''
+    endif
+    let l:jNoteEntry = class#notename#new(l:sNoteName)
+    let l:pNoteFile = l:jNoteEntry.GetFullPath(s:jNoteBook)
+    return l:pNoteFile
 endfunction "}}}
 
 " OnSaveNote: triggle by some write event

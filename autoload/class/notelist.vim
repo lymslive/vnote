@@ -158,6 +158,7 @@ function! s:class.GatherContent(argv) dict abort "{{{
     let self.entry = l:lsContent
     if l:cMode ==# '-t' && exists('l:jScope') && class#notescope#tag#isobject(l:jScope)
         let self.ftime = getftime(l:jScope.GetTagFile())
+        call sort(l:lsContent)
     endif
     return l:lsContent
 endfunction "}}}
