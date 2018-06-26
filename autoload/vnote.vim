@@ -10,7 +10,7 @@ let s:default_notebook = "$HOME/notebook"
 if exists('g:vnote_default_notebook')
     let s:default_notebook = g:vnote_default_notebook
 endif
-let s:default_notebook = expand(s:default_notebook)
+let s:default_notebook = resolve(expand(s:default_notebook))
 
 " global configue for vnote
 let s:dConfig = {}
