@@ -30,7 +30,6 @@ endfunction "}}}
 " CTOR:
 function! class#notefile#ctor(this, ...) abort "{{{
     let l:Suctor = class#Suctor(s:class)
-    call l:Suctor(a:this, a:argv)
     call call(l:Suctor, extend([a:this], a:000))
 
     call a:this.LoadFile()

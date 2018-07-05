@@ -62,12 +62,12 @@ function! s:class.list() dict abort "{{{
     if filereadable(l:pTagFile)
         return readfile(l:pTagFile)
     else
-        if l:sTag ==# '-'
+        if self.tagname ==# '-'
             return self.notebook.GetPrivateNote()
-        elseif l:sTag ==# '+'
+        elseif self.tagname ==# '+'
             return self.notebook.GetPublicNote()
         else
-            echo 'the notebook has no tag: ' . l:sTag
+            echo 'the notebook has no tag: ' . self.tagname
             return []
         endif
     endif
