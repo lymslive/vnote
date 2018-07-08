@@ -454,10 +454,12 @@ g<C-x>					*<Plug>(VNOTE_edit_prev_note)*
 	on notebuff and notelist context. When executed at notelist window,
 	it manage the tag over the notebook:
 	{-d} delete a tag file
-	{-r} rename a tag file, requres a new tag name
-	{-m} merge tow tag file, the second tag file is delete
+	{-r} rename a tag file, will overide new tag file if exist.
+	{-m} merge tow tag file, the second tag file *NOT* delete
 	When this command executes, each notefile that originally contains the
 	modified tag are also updated.
+	:NoteTag -m will add 2nd tag to 1st tag, you *MUST* use :NoteTag -d to
+	delete the 2nd tag if that is you want.
 
 :NoteMark [{tag}]					*:NoteMark*
 	Add current notefile to bookmark. If no argument provided, add to the

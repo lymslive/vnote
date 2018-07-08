@@ -231,7 +231,7 @@ function! s:class._RemoveTag(sTag) dict abort "{{{
         :WLOG 'tag note in this note: ' . a:sTag
         return 0
     endif
-    return self.RemoveUpdateTag(l:sTag)
+    return self.RemoveUpdateTag(a:sTag)
 endfunction "}}}
 
 " LOAD:
