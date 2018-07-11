@@ -158,7 +158,7 @@ function! s:class.GatherContent(argv) dict abort "{{{
     let self.entry = l:lsContent
     if l:cMode ==# '-t' && exists('l:jScope') && class#notescope#tag#isobject(l:jScope)
         let self.ftime = getftime(l:jScope.GetTagFile())
-        call sort(l:lsContent)
+        " call sort(l:lsContent)
     endif
     return l:lsContent
 endfunction "}}}
@@ -178,6 +178,7 @@ function! s:class.RedrawContent(lsContent) dict abort "{{{
     call setline(1, '$ NoteBook ' . self.notebook.basedir)
     call setline(2, '$ NoteList ' . join(self.argv))
     call setline(3, self.GetSepapateLine())
+    call sort(a:lsContent)
     call append(line('$'), a:lsContent)
 
     " put cursor
