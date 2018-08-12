@@ -341,6 +341,12 @@ function! s:class.OnConfigChange(dArg) dict abort "{{{
     endif
 endfunction "}}}
 
+" Blog Tool: {{{1
+" GetBlogTopic: 
+function! s:class.GetBlogTopic(topic) dict abort "{{{
+    return s:rtp.AddPath(self.basedir, 'p', 'blog-' . a:topic . '.tag')
+endfunction "}}}
+
 " Foot: {{{1
 " LOAD:
 let s:load = 1

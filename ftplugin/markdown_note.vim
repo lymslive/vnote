@@ -28,6 +28,10 @@ command! -buffer -nargs=* -complete=customlist,vnote#complete#NoteTag
 command! -buffer -nargs=* -complete=customlist,vnote#complete#NoteTag
         \ NoteMark call note#hNoteMark(<f-args>)
 
+" :NoteBlog topic (add this note to a blog topic)
+command! -buffer -nargs=1 -complete=custom,vnote#complete#NoteBlog
+        \ NoteBlog call note#hNoteBlog(<f-args>)
+
 " AutoSave:
 augroup VNOTE_EDIT
     autocmd! * <buffer>

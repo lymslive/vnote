@@ -250,6 +250,20 @@ function! note#GetContext() abort "{{{
     return split(l:sLine, '\s\+')[0]
 endfunction "}}}
 
+" NoteBlog: publish this note to blog
+" append a entry to p/blog-topic.tag
+function! note#hNoteBlog(topic) abort "{{{
+    if !s:NoteInBook() || empty(a:topic)
+        return 0
+    endif
+
+    let l:jNoteBuff = s:GetNoteObject()
+    let l:sNoteEntry = l:jNoteBuff.GetNoteEntry()
+    let l:pTagFile = s:jNoteBook.GetBlogTopic(a:topic)
+
+    call writefile([l:sNoteEntry], l:pTagFile, 'a')
+endfunction "}}}
+
 " Test: 
 function! note#Test() abort "{{{
     " echo s:DetectTag()

@@ -87,6 +87,13 @@ function! vnote#complete#NoteConfig(ArgLead, CmdLine, CursorPos) abort "{{{
     return filter(keys(l:dConfig), 'v:val =~ "^" . a:ArgLead')
 endfunction "}}}
 
+" NoteBlog: 
+let s:BlogTopic = ['art', 'code', 'game', 'misc', 'opera', 'snake']
+function! vnote#complete#NoteBlog(ArgLead, CmdLine, CursorPos) abort "{{{
+    " return filter(copy(s:BlogTopic), 'v:val =~ "^" . a:ArgLead')
+    return join(s:BlogTopic, "\n")
+endfunction "}}}
+
 " InsertTag: 
 " <C-X><C-U> complete support
 function! vnote#complete#InsertTag(findstart, base) abort "{{{
