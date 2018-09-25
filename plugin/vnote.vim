@@ -2,10 +2,6 @@
 " Author: lymslive
 " Date: 2017-02-24
 
-if exists(':PLUGINLOCAL')
-    :PLUGINLOCAL
-endif
-
 " Vnote: [-t|-w] [basedir]
 " open vnote layout, default in new tabpage(-t), or current one(-w)
 " if 2nd argument provided, same as :NoteBook to set it's basedir
@@ -57,6 +53,3 @@ augroup VNOTE
     autocmd BufReadPost *.md,*.MD call note#OnBufRead()
 augroup END
 
-if exists(':PLUGINAFTER')
-    :PLUGINAFTER
-endif

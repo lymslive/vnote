@@ -113,7 +113,7 @@ endfunction "}}}
 
 " CacheFile: 
 function! s:class.CacheFile() dict abort "{{{
-    let l:rtp = module#less#rtp#import()
+    let l:rtp = class#less#rtp#export()
     return self.path . l:rtp.separator . self.cname . self.EXTENTION
 endfunction "}}}
 

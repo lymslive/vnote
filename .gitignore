@@ -9,3 +9,4 @@ Session*.vim
 _box/
 *.tar.gz
 *.tgz
+*.log

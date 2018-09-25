@@ -63,7 +63,7 @@ endfunction "}}}
 
 " GetTagFile: 
 function! s:class.GetTagFile() dict abort "{{{
-    let l:rtp = module#less#rtp#import()
+    let l:rtp = class#less#rtp#export()
     return self.notebook.Tagdir() . l:rtp.separator . self.tag . '.tag'
 endfunction "}}}
 " string: as the full path of tagfile

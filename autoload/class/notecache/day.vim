@@ -84,7 +84,7 @@ endfunction "}}}
 
 " ReadAll: merge all cache file and return as list
 function! s:class.ReadAll() dict abort "{{{
-    let l:rtp = module#less#rtp#import()
+    let l:rtp = class#less#rtp#export()
     let l:lsAll = []
 
     let l:lsName = ['hist', 'year', 'month', 'day']

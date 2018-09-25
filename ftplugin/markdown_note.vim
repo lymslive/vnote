@@ -6,8 +6,6 @@ if !note#IsInBook()
     finish
 endif
 
-:PLUGINLOCAL
-
 " edit the next/prev number note of the same day
 nmap <buffer> g<C-a> <Plug>(VNOTE_edit_next_note)
 nmap <buffer> g<C-x> <Plug>(VNOTE_edit_prev_note)
@@ -51,4 +49,3 @@ setlocal completefunc=vnote#complete#InsertTag
 command! -buffer -nargs=* -complete=customlist,vnote#complete#NoteTag
             \ NoteNew call note#hNoteNew(<f-args>)
 
-:PLUGINAFTER

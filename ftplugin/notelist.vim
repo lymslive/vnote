@@ -2,8 +2,6 @@
 " Author: lymslive
 " Date: 2017-02-24
 
-:PLUGINLOCAL
-
 " Key Map: {{{1
 " enter to edit the note under the cursor
 " if have more than one window, open the note in another window
@@ -100,5 +98,3 @@ syntax match Function /^\d\..\{-}\ze:/
 
 "Set Option: {{{1
 setlocal statusline=%!notelist#STL()
-
-:PLUGINAFTER

@@ -48,7 +48,7 @@ endfunction "}}}
 
 " GetTagFile: 
 function! s:class.GetTagFile() dict abort "{{{
-    let l:rtp = module#less#rtp#import()
+    let l:rtp = class#less#rtp#export()
     return self.tagdir . l:rtp.separator . self.tagname . '.tag'
 endfunction "}}}
 

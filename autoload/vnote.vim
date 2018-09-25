@@ -95,7 +95,7 @@ endfunction "}}}
 function! vnote#hNoteConfig(...) abort "{{{
     if a:0 == 0
         :LOG '[vnote] current config:'
-        let l:dict = module#less#dict#import()
+        let l:dict = class#less#dict#export()
         echo l:dict.Display(s:dConfig, '  ', 1)
         return 0
     endif

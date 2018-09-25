@@ -89,7 +89,7 @@ endfunction "}}}
 " TransferScope: 
 function! s:class.TransferScope() dict abort "{{{
     if !empty(self.taglead) && self.taglead !~# '/$'
-        let l:rtp = module#less#rtp#import()
+        let l:rtp = class#less#rtp#export()
         let l:pTagFile = self.tagdir . l:rtp.separator . self.taglead . '.tag'
         if filereadable(l:pTagFile)
             return v:true

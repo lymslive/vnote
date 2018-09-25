@@ -95,7 +95,7 @@ endfunction "}}}
 " ClearCache: clear minor caches
 function! s:class.ClearCache() dict abort "{{{
     let l:lsName = ['day', 'month', 'year']
-    let l:rtp = module#less#rtp#import()
+    let l:rtp = class#less#rtp#export()
     let l:iRet = 0
     for l:sName in l:lsName
         let l:pCacheName = self.path . l:rtp.separator . l:sName . self.EXTENTION
