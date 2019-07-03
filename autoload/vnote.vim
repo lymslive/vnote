@@ -26,7 +26,7 @@ let s:dConfig.auto_save_plus_tag = v:false
 " put cursor in which entry default: 1, 2, .. '$'
 let s:dConfig.list_default_cursor = '$'
 
-let s:dConfig.max_mru_note_list = 10
+let s:dConfig.max_mru_note_list = 20
 
 let s:dConfig.perlx_script_dir = ''
 

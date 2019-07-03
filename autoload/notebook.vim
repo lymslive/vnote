@@ -113,6 +113,9 @@ function! notebook#hNoteNew(...) "{{{
 endfunction "}}}
 
 " EditNote: edit old note
+" -1 or -n , edit old note in mru
+" yyyymmdd_n, edit by noteid
+" yyyy/mm/dd edit the last note in that day
 function! notebook#hNoteEdit(...) "{{{
     if a:0 >= 1
         let l:sArg = a:1
@@ -128,6 +131,9 @@ function! notebook#hNoteEdit(...) "{{{
         let l:lsMru = s:jNoteBook.GetMruList()
         let l:sNoteEntry = get(l:lsMru, 0+l:sArg, '')
         let l:jNoteEntry = class#notename#new(l:sNoteEntry)
+        let l:pNoteFile = l:jNoteEntry.GetFullPath(s:jNoteBook)
+    elseif l:sArg =~# '^\(\d\{8\}\)_\(\d\+\)\(-\?\)$'
+        let l:jNoteEntry = class#notename#new(l:sArg)
         let l:pNoteFile = l:jNoteEntry.GetFullPath(s:jNoteBook)
     else
         let l:sDatePath = l:sArg

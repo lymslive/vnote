@@ -21,7 +21,8 @@ command! -nargs=* -complete=customlist,vnote#complete#NoteTag
         \ NoteNew call notebook#hNoteNew(<f-args>)
 
 " NoteEdit:
-" edit mru :NoteList -1
+" edit mru :NoteEdit -1
+" edit by id :NoteEdit yyyymmdd_n
 " edit last note in a day: NoteEdit day_path(yyyy/mm/dd)
 command! -nargs=*  -complete=customlist,vnote#complete#NoteDate
         \ NoteEdit call notebook#hNoteEdit(<f-args>)
